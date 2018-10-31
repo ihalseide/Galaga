@@ -1,4 +1,3 @@
-
 class Ticker(object):
     def __init__(self, delay=1):
         self.time = 0

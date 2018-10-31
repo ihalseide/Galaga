@@ -5,20 +5,14 @@ import random # used for stars
 import pygame
 from pygame.math import Vector2
 
-import tools
-import stages
-import resources as r
-import game_objects as gobs
-import constants as c
-from states import _State
+from .. import stages
+from .. import timing
+from .state import _State
+from .. import setup
+from .. import constants as c
+from ..components import star, player
 
-def debug_alt(normal_value, debug_value):
-    if __debug__:
-        return debug_value
-    else:
-        return normal_value
-
-class PlayState(_State):
+class Play(_State):
     START = "Intro"
     STAGE_CHANGE = "Stage Change"
     READY = "Ready"
@@ -27,17 +21,18 @@ class PlayState(_State):
     GAME_OVER = "Game Over"
 
     BLINK_1UP = 0.45 # seconds
-    INTRO_DURATION = debug_alt(5, 0.4) # seconds
-    STAGE_DURATION = debug_alt(1.6, 0.4) # ''
-    READY_DURATION = debug_alt(1.6, 0.4) # ''
+    INTRO_DURATION = 5 # seconds
+    STAGE_DURATION = 1.6, 0.4 # ''
+    READY_DURATION = 1.6, 0.4 # ''
     ENEMY_TIME_GAP = 0.1 # ''
-    TRANSITION_DURATION = debug_alt(0.45, 0.4) # ''
+    TRANSITION_DURATION = 0.45 # ''
     STAR_NUM = 100
     STAR_COLORS = (pygame.Color("red"), pygame.Color("blue"),
                    pygame.Color("blue"), pygame.Color("lightgreen"),
                    pygame.Color("white"))
     STAR_LAYERS = 2
     STAR_PHASES = [0, 0.25, 0.1]
+    MAIN_FONT = pygame.font.Font(setup.FONTS["ARCADECLASSIC"], 12)
 
     def __init__(self):
         _State.__init__(self)
@@ -48,7 +43,7 @@ class PlayState(_State):
         self.highscore = persist.get("highscore")
         self.score = 0
         self.extra_lives = 3
-        self.stage_num = 0 # stage 0 is start
+        self.stage_num = 99 # stage 0 is start
         self.state = self.START
         self.stage = None
         self.transition_timer = 0
@@ -61,7 +56,7 @@ class PlayState(_State):
         # star background
         self.moving = False
         # hud element timing
-        self.timer_1up = tools.ToggleTimer(self.BLINK_1UP)
+        self.timer_1up = timing.ToggleTicker(self.BLINK_1UP)
 
         self.missiles = None
         self.enemy_missiles = None
@@ -73,8 +68,7 @@ class PlayState(_State):
         return self.persist
 
     def get_event(self, event):
-        if event.type == c.NEW_ENEMY:
-            self.next_assemble()
+        pass
 
     def update(self, dt, keys):
         _State.update(self, dt, keys)
@@ -94,21 +88,14 @@ class PlayState(_State):
                     self.state_timer = 0
             elif self.state == self.READY:
                 if self.state_timer >= self.READY_DURATION:
-                    self.state = self.STAGE_ASSEMBLE
-                    pygame.time.set_timer(c.NEW_ENEMY,
-                                          round(self.ENEMY_TIME_GAP*1000))
+                    self.state = self.STAGE
                     self.state_timer = 0
             else:
                 self.update_player(dt, keys)
                 self.missiles.update(dt, self.bounds)
-                if self.state == self.STAGE_ASSEMBLE:
-                    self.stage_assembling(dt)
-                    # ending this state is handled by the next_assemble func.
-                elif self.state == self.STAGE:
-                    self.stage(dt)
-                elif self.state == self.CHALLENGE:
-                    self.challenging(dt)
-                elif self.state == self.CHALLENGE_STAT:
+                if self.state == self.STAGE:
+                    self.update_stage(dt)
+                elif self.state == self.STATS:
                     pass
         # update timers
         if self.transition_timer and self.transition_timer > 0:
@@ -136,7 +123,7 @@ class PlayState(_State):
             z = random.randint(0, self.STAR_LAYERS-1)
             t = random.choice(self.STAR_PHASES)
             b = bool(random.randint(0,1))
-            s = gobs.Star((x,y), color=c, z=z, twinkles=b, time_offset=t)
+            s = star.Star((x,y), color=c, z=z, twinkles=b, time_offset=t)
             self.stars.append(s)
         return self.stars
 
@@ -148,29 +135,29 @@ class PlayState(_State):
         for s in self.stars:
             s.update(dt, self.bounds, moving)
 
+    def update_stage(self, dt):
+        pass
+
     def draw_hud(self, screen, dt):
-        grab = r.GFX.subsurface
+        grab = setup.GFX["sheet"].subsurface
         # --- top hud: score and highscore
         pygame.draw.rect(screen, (0,0,0), (0,0, c.WIDTH, 20))
-        self.time_1up += dt
-        if self.time_1up >= self.BLINK_1UP:
-            self.show_1up = not self.show_1up
-            self.time_1up = 0
-        if self.show_1up:
-            t = r.FONT.render("1 UP", False, (255,0,0))
+        self.timer_1up.update(dt)
+        if self.timer_1up.on:
+            t = self.MAIN_FONT.render("1 UP", False, (255,0,0))
             screen.blit(t, (22, 1))
         if self.score == 0:
             score = "00"
         else:
             score = str(self.score).zfill(round(math.log(self.score, 10)))
-        t = r.FONT.render(score, False, (255,255,255))
+        t = self.MAIN_FONT.render(score, False, (255,255,255))
         w = t.get_rect().width
         screen.blit(t, (60-w, 10))
-        t = r.FONT.render("HIGH SCORE", False, (255,0,0))
+        t = self.MAIN_FONT.render("HIGH SCORE", False, (255,0,0))
         size = t.get_rect().width
         screen.blit(t, ((c.WIDTH - size)//2, 1))
         score = str(self.highscore)
-        t = r.FONT.render(score, False, (255,255,255))
+        t = self.MAIN_FONT.render(score, False, (255,255,255))
         size = t.get_rect().width
         screen.blit(t, ((c.WIDTH - size)//2, 10))
         # --- bottom hud: lives and stage
@@ -220,8 +207,8 @@ class PlayState(_State):
             screen.blit(grab((136, 1, 16, 16)),
                         (draw_x, c.HEIGHT-20, 16, 16))
 
-    def mid_text(self, screen, text, color, location=c.CENTER):
-        t = r.FONT.render(text, False, color)
+    def mid_text(self, screen, text, color, location=c.SCREEN_CENTER):
+        t = self.MAIN_FONT.render(text, False, color)
         rect = t.get_rect()
         rect.center = location
         screen.blit(t, rect)
@@ -230,12 +217,12 @@ class PlayState(_State):
         if self.transition_timer:
             return
         elif self.state == self.START:
-            self.mid_text(screen, "START", pygame.Color("red"), c.CENTER)
-        elif self.state == self.STAGE:
+            self.mid_text(screen, "START", pygame.Color("red"), c.SCREEN_CENTER)
+        elif self.state == self.STAGE_CHANGE:
             s = "STAGE %s" %(self.stage_num)
-            self.mid_text(screen, s, pygame.Color("skyblue"), c.CENTER)
+            self.mid_text(screen, s, pygame.Color("skyblue"), c.SCREEN_CENTER)
         elif self.state == self.READY:
-            self.mid_text(screen, "READY", pygame.Color("red"), c.CENTER)
+            self.mid_text(screen, "READY", pygame.Color("red"), c.SCREEN_CENTER)
 
     def player_fire(self, dt, player):
         if player.can_fire(self.current_time):
@@ -243,7 +230,7 @@ class PlayState(_State):
             v = Vector2(0, -1)
             x = player.rect.centerx
             y = player.rect.top - 3
-            m = gobs.Missile((x,y), v, enemy=False)
+            m = missile.Missile((x,y), v, enemy=False)
             player.last_fire_time = self.current_time
             self.missiles.add(m)
 
@@ -259,7 +246,7 @@ class PlayState(_State):
             self.missiles = pygame.sprite.Group()
         if not self.player:
             self.extra_lives -= 1
-            self.player = pygame.sprite.Group(gobs.Player())
+            self.player = pygame.sprite.Group(player.Player())
 
     def update_player(self, dt, keys):
         self.player.update(dt, keys)

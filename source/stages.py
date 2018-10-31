@@ -1,8 +1,8 @@
 
 from collections import namedtuple
 
-from constants import *
-from game_objects import *
+from .constants import WIDTH, HEIGHT
+from .components.enemies import *
 
 LEFT, TOP, RIGHT = 0, 1, 2
 
