@@ -20,9 +20,10 @@ class Star(object):
 
     def update(self, dt, bounds=None, move=True):
         if move:
-            self.loc[1] += round(self.speeds[self.z] * dt)
-            if bounds and self.loc[1] >= bounds.bottom:
-                self.loc.y = bounds.top
+            new_y = self.loc[1] + round(self.speeds[self.z] * dt)
+            if bounds and new_y >= bounds.bottom:
+                new_y = bounds.top
+            self.loc = self.loc[0], new_y
         if self.twinkles:
             if self.show and self.timer >= self.show_time:
                 self.show = False

@@ -1,7 +1,7 @@
 
 import pygame
 
-import ..setup as r
+from .. import setup
 
 class Missile(pygame.sprite.Sprite):
     player_speed = 350
@@ -16,10 +16,11 @@ class Missile(pygame.sprite.Sprite):
         self.rect = pygame.Rect(0, 0, 2, 10)
         self.rect.center = loc
 
+        sheet = setup.GFX["sheet"]
         if self.enemy:
-            self.image = r.GFX.subsurface((125,105,3,8))
+            self.image = sheet.subsurface((125,105,3,8))
         else:
-            self.image = r.GFX.subsurface((125,190,3,8))
+            self.image = sheet.subsurface((125,190,3,8))
 
     def update(self, dt, bounds):
         if self.enemy:

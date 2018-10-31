@@ -10,7 +10,7 @@ from .. import timing
 from .state import _State
 from .. import setup
 from .. import constants as c
-from ..components import star, player
+from ..components import star, player, missile
 
 class Play(_State):
     START = "Intro"
@@ -22,8 +22,8 @@ class Play(_State):
 
     BLINK_1UP = 0.45 # seconds
     INTRO_DURATION = 5 # seconds
-    STAGE_DURATION = 1.6, 0.4 # ''
-    READY_DURATION = 1.6, 0.4 # ''
+    STAGE_DURATION = 1.6 # ''
+    READY_DURATION = 1.6 # ''
     ENEMY_TIME_GAP = 0.1 # ''
     TRANSITION_DURATION = 0.45 # ''
     STAR_NUM = 100
@@ -43,7 +43,7 @@ class Play(_State):
         self.highscore = persist.get("highscore")
         self.score = 0
         self.extra_lives = 3
-        self.stage_num = 99 # stage 0 is start
+        self.stage_num = 0 # stage 0 is start
         self.state = self.START
         self.stage = None
         self.transition_timer = 0

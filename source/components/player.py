@@ -1,6 +1,9 @@
 
 import pygame
 
+from .. import setup
+from .. import constants as c
+
 class Player(pygame.sprite.Sprite):
     fire_cooldown = 0.4
     speed = 85
@@ -11,9 +14,9 @@ class Player(pygame.sprite.Sprite):
         self.controllable = True
 
         self.rect = pygame.Rect(0, 0, 15, 15)
-        self.rect.center = (WIDTH/2, HEIGHT-self.rect.height//2-25)
+        self.rect.center = (c.WIDTH/2, c.HEIGHT-self.rect.height//2-25)
 
-        self.image = r.GFX.subsurface((102, 1, 16, 16))
+        self.image = setup.GFX["sheet"].subsurface((102, 1, 16, 16))
 
         self.last_fire_time = 0
 
