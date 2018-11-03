@@ -1,16 +1,18 @@
 
+import time
 import math
 import random # used for stars
 
 import pygame
 from pygame.math import Vector2
 
+from .. import setup
 from .. import stages
 from .. import timing
+from ..tools import threaded
 from .state import _State
-from .. import setup
 from .. import constants as c
-from ..components import star, player, missile
+from ..components import star, player, missile, enemies
 
 class Play(_State):
     START = "Intro"
@@ -20,49 +22,67 @@ class Play(_State):
     STATS = "Stage Statistics"
     GAME_OVER = "Game Over"
 
+    LIFE = "Life"
+    STAGE_1, STAGE_5, STAGE_10 =  1, 5, 10
+    STAGE_20, STAGE_30, STAGE_50 = 20, 30, 50
+    GRAPHICS = {
+        LIFE: setup.grab_cells(6, 0, x_off=1, y_off=1, x_gap=1, y_gap=1),
+        STAGE_1: setup.grab(222, 1, 7, 16),
+        STAGE_5: setup.grab(205, 1, 7, 16),
+        STAGE_10: setup.grab(189, 1, 14, 16),
+        STAGE_20: setup.grab(171, 1, 16, 16),
+        STAGE_30: setup.grab(154, 1, 16, 16),
+        STAGE_50: setup.grab(137, 1, 16, 16),
+    }
     BLINK_1UP = 0.45 # seconds
-    INTRO_DURATION = 5 # seconds
     STAGE_DURATION = 1.6 # ''
     READY_DURATION = 1.6 # ''
-    ENEMY_TIME_GAP = 0.1 # ''
     TRANSITION_DURATION = 0.45 # ''
-    STAR_NUM = 100
+    NEW_ENEMY_WAIT = 0.3
+    NEW_WAVE_WAIT = 1
+    STAR_NUM = 90
     STAR_COLORS = (pygame.Color("red"), pygame.Color("blue"),
                    pygame.Color("blue"), pygame.Color("lightgreen"),
                    pygame.Color("white"))
     STAR_LAYERS = 2
     STAR_PHASES = [0, 0.25, 0.1]
     MAIN_FONT = pygame.font.Font(setup.FONTS["ARCADECLASSIC"], 12)
+    random.seed(999)
 
     def __init__(self):
         _State.__init__(self)
 
     def startup(self, time, persist={}):
         _State.startup(self, time, persist)
-
+        # vars
         self.highscore = persist.get("highscore")
         self.score = 0
         self.extra_lives = 3
         self.stage_num = 0 # stage 0 is start
         self.state = self.START
         self.stage = None
+        self.stage_badges = None
         self.transition_timer = 0
         self.state_timer = 0
         self.shots = 0
         self.hits = 0
-
         self.stage_start = self.current_time
         self.bounds = pygame.Rect(0, 20, c.WIDTH, c.HEIGHT - 40)
         # star background
         self.moving = False
         # hud element timing
         self.timer_1up = timing.ToggleTicker(self.BLINK_1UP)
-
+        self.enemy_animation_timer = enemies.Enemy.ANIMATION_TIME
+        # sprites
         self.missiles = None
         self.enemy_missiles = None
         self.enemies = None
         self.player = None
         self.create_stars()
+        # sound
+        setup.SFX["theme"].play()
+        self.intro_duration = (setup.SFX["theme"].get_length()
+                               + self.TRANSITION_DURATION)
 
     def cleanup(self):
         return self.persist
@@ -73,30 +93,26 @@ class Play(_State):
     def update(self, dt, keys):
         _State.update(self, dt, keys)
         if self.state == self.START:
-            self.update_stars(dt, moving=False)
-            if self.state_timer >= self.INTRO_DURATION:
-                self.state = self.STAGE_CHANGE
-                self.state_timer = 0
-                self.transition_timer = self.TRANSITION_DURATION
-                self.next_stage()
+            self.update_stars(dt, moving=0)
+            if self.state_timer >= self.intro_duration:
+                self.switch_state(self.STAGE_CHANGE)
         else:
-            self.update_stars(dt, moving=True)
+            self.update_stars(dt, moving=1)
             if self.state == self.STAGE_CHANGE:
                 if self.state_timer >= self.STAGE_DURATION:
-                    self.state = self.READY
-                    self.transition_timer = self.TRANSITION_DURATION
-                    self.state_timer = 0
+                    self.switch_state(self.READY)
             elif self.state == self.READY:
                 if self.state_timer >= self.READY_DURATION:
-                    self.state = self.STAGE
-                    self.state_timer = 0
+                    self.switch_state(self.STAGE)
             else:
                 self.update_player(dt, keys)
                 self.missiles.update(dt, self.bounds)
-                if self.state == self.STAGE:
-                    self.update_stage(dt)
-                elif self.state == self.STATS:
-                    pass
+                self.enemies.update(dt)
+                enemy_hits = pygame.sprite.groupcollide(self.enemies,
+                              self.missiles, False, True)
+                for enemy, hits in enemy_hits.items():
+                    enemy.hit()
+
         # update timers
         if self.transition_timer and self.transition_timer > 0:
             self.transition_timer -= dt
@@ -108,11 +124,32 @@ class Play(_State):
         screen.fill((0,0,0))
         self.draw_stars(screen)
         if self.player: self.player.draw(screen)
-        if self.enemies: self.enemies.draw(screen)
+        if self.enemies:
+            if self.enemy_animation_timer and self.enemy_animation_timer > 0:
+                self.enemy_animation_timer -= dt
+            else:
+                self.enemy_animation_timer = enemies.Enemy.ANIMATION_TIME
+                for e in self.enemies:
+                    e.animate(dt)
+            self.enemies.draw(screen)
         if self.missiles: self.missiles.draw(screen)
         if self.enemy_missiles: self.enemy_missiles.draw(screen)
         self.show_state(screen, dt)
         self.draw_hud(screen, dt)
+
+    def switch_state(self, new_state):
+        """
+        For states within the game
+        """
+        self.state = new_state
+        self.state_timer = 0
+        if self.state == self.STAGE_CHANGE:
+            self.transition_timer = self.TRANSITION_DURATION
+            self.next_stage()
+        elif self.state == self.READY:
+            self.transition_timer = self.TRANSITION_DURATION
+        elif self.state == self.STAGE:
+            pass
 
     def create_stars(self):
         self.stars = []
@@ -131,15 +168,33 @@ class Play(_State):
         for s in self.stars:
             s.display(screen)
 
-    def update_stars(self, dt, moving):
+    def update_stars(self, dt, moving:int):
+        """
+        Moving up, down, or not at all. (1,-1, or 0)
+        """
         for s in self.stars:
             s.update(dt, self.bounds, moving)
 
-    def update_stage(self, dt):
-        pass
+    def calc_stage_badges(self):
+        if self.stage_num == 0:
+            return {}
+        else:
+            w_stage = self.stage_num # temporary modification
+            num_50 = w_stage // 50
+            w_stage -= num_50 * 50
+            num_30 = w_stage // 30
+            w_stage -= num_30 * 30
+            num_20 = w_stage // 20
+            w_stage -= num_20 * 20
+            num_10 = w_stage // 10
+            w_stage -= num_10 * 10
+            num_5 = w_stage // 5
+            num_1 = w_stage - num_5 * 5
+            return {self.STAGE_1: num_1, self.STAGE_5: num_5,
+                    self.STAGE_10: num_10, self.STAGE_20: num_20,
+                    self.STAGE_30: num_30, self.STAGE_50: num_50}
 
     def draw_hud(self, screen, dt):
-        grab = setup.GFX["sheet"].subsurface
         # --- top hud: score and highscore
         pygame.draw.rect(screen, (0,0,0), (0,0, c.WIDTH, 20))
         self.timer_1up.update(dt)
@@ -165,47 +220,33 @@ class Play(_State):
                          (0,self.bounds.bottom,c.WIDTH,20))
         # lives
         for i in range(self.extra_lives):
-            screen.blit(grab((102, 1, 16, 16)),
+            screen.blit(self.GRAPHICS[self.LIFE],
                         (1+i*16, self.bounds.bottom + 1, 16, 16))
-        # calculate num. of stage symbols
-        if self.stage_num == 0:
-            return
-        w_stage = self.stage_num # temporary modification
-        num_50 = w_stage // 50
-        w_stage -= num_50 * 50
-        num_30 = w_stage // 30
-        w_stage -= num_30 * 30
-        num_20 = w_stage // 20
-        w_stage -= num_20*20
-        num_10 = w_stage // 10
-        w_stage -= num_10*10
-        num_5 = w_stage // 5
-        num_1 = w_stage - num_5*5
+
+        if self.stage_badges: self.draw_stage_badges(screen)
+
+    def draw_stage_badges(self, screen):
+        # draw the stage level badges
         draw_x = c.WIDTH
-        for n in range(num_1):
+        h = c.HEIGHT - 20
+        for n in range(self.stage_badges[self.STAGE_1]):
             draw_x -= 8
-            screen.blit(grab((221, 1, 7, 16)),
-                        (draw_x, c.HEIGHT-20, 7, 16))
-        for n in range(num_5):
+            screen.blit(self.GRAPHICS[self.STAGE_1], (draw_x, h, 7, 16))
+        for n in range(self.stage_badges[self.STAGE_5]):
             draw_x -= 8
-            screen.blit(grab((204, 1, 7, 16)),
-                        (draw_x, c.HEIGHT-20, 7, 16))
-        for n in range(num_10):
+            screen.blit(self.GRAPHICS[self.STAGE_5], (draw_x, h, 7, 16))
+        for n in range(self.stage_badges[self.STAGE_10]):
             draw_x -= 14
-            screen.blit(grab((188, 1, 14, 16)),
-                        (draw_x, c.HEIGHT-20, 14, 16))
-        for n in range(num_20):
+            screen.blit(self.GRAPHICS[self.STAGE_10], (draw_x, h, 14, 16))
+        for n in range(self.stage_badges[self.STAGE_20]):
             draw_x -= 16
-            screen.blit(grab((170, 1, 16, 16)),
-                        (draw_x, c.HEIGHT-20, 16, 16))
-        for n in range(num_30):
+            screen.blit(self.GRAPHICS[self.STAGE_20], (draw_x, h, 16, 16))
+        for n in range(self.stage_badges[self.STAGE_30]):
             draw_x -= 16
-            screen.blit(grab((153, 1, 16, 16)),
-                        (draw_x, c.HEIGHT-20, 16, 16))
-        for n in range(num_50):
+            screen.blit(self.GRAPHICS[self.STAGE_30], (draw_x, g, 16, 16))
+        for n in range(self.stage_badges[self.STAGE_50]):
             draw_x -= 16
-            screen.blit(grab((136, 1, 16, 16)),
-                        (draw_x, c.HEIGHT-20, 16, 16))
+            screen.blit(self.GRAPHICS[self.STAGE_50], (draw_x, h, 16, 16))
 
     def mid_text(self, screen, text, color, location=c.SCREEN_CENTER):
         t = self.MAIN_FONT.render(text, False, color)
@@ -226,19 +267,36 @@ class Play(_State):
 
     def player_fire(self, dt, player):
         if player.can_fire(self.current_time):
+            setup.SFX["player fire"].play()
             # v is multiplied by speed in the missile class
             v = Vector2(0, -1)
             x = player.rect.centerx
-            y = player.rect.top - 3
+            y = player.rect.top + 10
             m = missile.Missile((x,y), v, enemy=False)
             player.last_fire_time = self.current_time
             self.missiles.add(m)
 
+    @threaded
+    def startup_stage(self):
+        for i, wave_g in enumerate(self.stage.wave_groups):
+            for j, wave in enumerate(wave_g):
+                path = wave.path
+                loc = wave.start_slot
+                for k, enemy_spot in enumerate(wave.enemies):
+                    r, c = enemy_spot.row, enemy_spot.col
+                    e = enemy_spot.enemy(loc, path, (r, c))
+                    self.enemies.add(e)
+                    time.sleep(self.NEW_ENEMY_WAIT)
+            time.sleep(self.NEW_WAVE_WAIT)
+
     def next_stage(self):
+        setup.SFX["stage award"].play()
+        # vars helpful
         self.stage_start = self.current_time
         self.stage_num += 1
-        self.stage = stages.stages[self.stage_num - 1]
-
+        self.stage_badges = self.calc_stage_badges()
+        self.stage = stages.stages[self.stage_num]
+        # sprites setup
         self.enemies = pygame.sprite.Group()
         if not self.enemy_missiles:
             self.enemy_missiles = pygame.sprite.Group()
@@ -247,6 +305,7 @@ class Play(_State):
         if not self.player:
             self.extra_lives -= 1
             self.player = pygame.sprite.Group(player.Player())
+        self.startup_stage()
 
     def update_player(self, dt, keys):
         self.player.update(dt, keys)

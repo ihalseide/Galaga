@@ -10,14 +10,10 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-
         self.controllable = True
-
         self.rect = pygame.Rect(0, 0, 15, 15)
         self.rect.center = (c.WIDTH/2, c.HEIGHT-self.rect.height//2-25)
-
-        self.image = setup.GFX["sheet"].subsurface((102, 1, 16, 16))
-
+        self.image = setup.grab_cell_1(6, 0)
         self.last_fire_time = 0
 
     def update(self, dt, keys):

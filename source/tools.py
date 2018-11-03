@@ -2,11 +2,25 @@
 import os
 import sys
 import json
+import threading
 
 import pygame
 
 from . import scoring
 from . import constants as c
+
+def threaded(fn):
+    def wrapper(*args, **kwargs):
+        thread = threading.Thread(target=fn, args=args, kwargs=kwargs, daemon=True)
+        thread.start()
+        return thread
+    return wrapper
+
+def lerp(start, stop, percent):
+    return (1 - percent) * start + percent * stop
+
+def map(value, istart, istop, ostart, ostop):
+    return ostart + (ostop - ostart) * ((value - istart) / (istop - istart))
 
 def load_all_gfx(directory, color_key=(0,0,0), accept=(".png",".bmp",".gif")):
     graphics = {}

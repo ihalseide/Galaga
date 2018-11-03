@@ -18,11 +18,13 @@ class Star(object):
         self.twinkles = twinkles
         self.timer = time_offset
 
-    def update(self, dt, bounds=None, move=True):
+    def update(self, dt, bounds=None, move=1):
         if move:
-            new_y = self.loc[1] + round(self.speeds[self.z] * dt)
+            new_y = self.loc[1] + round(self.speeds[self.z] * dt * move)
             if bounds and new_y >= bounds.bottom:
                 new_y = bounds.top
+            elif bounds and new_y <= bounds.top:
+                new_y = bounds.bottom
             self.loc = self.loc[0], new_y
         if self.twinkles:
             if self.show and self.timer >= self.show_time:
