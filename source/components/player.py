@@ -13,7 +13,7 @@ class Player(pygame.sprite.Sprite):
         self.controllable = True
         self.rect = pygame.Rect(0, 0, 15, 15)
         self.rect.center = (c.WIDTH/2, c.HEIGHT-self.rect.height//2-25)
-        self.image = setup.grab_cell_1(6, 0)
+        self.image = setup.grab_cells(6, 0)
         self.last_fire_time = 0
 
     def update(self, dt, keys):

@@ -9,6 +9,7 @@ import pygame
 from . import scoring
 from . import constants as c
 
+# function decorator
 def threaded(fn):
     def wrapper(*args, **kwargs):
         thread = threading.Thread(target=fn, args=args, kwargs=kwargs, daemon=True)
@@ -22,7 +23,7 @@ def lerp(start, stop, percent):
 def map(value, istart, istop, ostart, ostop):
     return ostart + (ostop - ostart) * ((value - istart) / (istop - istart))
 
-def load_all_gfx(directory, color_key=(0,0,0), accept=(".png",".bmp",".gif")):
+def load_all_gfx(directory, colorkey=[0,0,0], accept=(".png",".bmp",".gif")):
     graphics = {}
     for filename in os.listdir(directory):
         name, ext = os.path.splitext(filename)
@@ -32,7 +33,7 @@ def load_all_gfx(directory, color_key=(0,0,0), accept=(".png",".bmp",".gif")):
                 img = img.convert_alpha()
             else:
                 img = img.convert()
-                img.set_colorkey(color_key)
+                img.set_colorkey(colorkey)
             graphics[name] = img
     return graphics
 

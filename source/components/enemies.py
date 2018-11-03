@@ -19,11 +19,11 @@ class Enemy(pygame.sprite.Sprite):
     TIME_BT_POINTS = 0.7 # time between points in the paths
 
     EXPLOSION = [
-        setup.grab_cell_1(8, 3),
-        setup.grab_cell_1(9, 3),
-        setup.grab_cell_1(10, 3),
-        setup.grab_cell_1(11, 3, 2, 2),
-        setup.grab_cell_1(13, 3, 2, 2),
+        setup.grab_cells(8, 3),
+        setup.grab_cells(9, 3),
+        setup.grab_cells(10, 3),
+        setup.grab_cells(11, 3, 2, 2),
+        setup.grab_cells(13, 3, 2, 2),
     ]
 
     def __init__(self, loc, path, formation_spot=None, img_row=2, frames=8):
@@ -40,7 +40,7 @@ class Enemy(pygame.sprite.Sprite):
         self.setup_images(img_row, frames)
 
     def setup_images(self, img_row, frames):
-        self.images = [setup.grab(1+x*17,1+img_row*17,16,16) for x in range(frames)]
+        self.images = [setup.grab_cells(x, img_row) for x in range(frames)]
         self.animation_index = 0
         self.image = self.images[self.animation_index]
 

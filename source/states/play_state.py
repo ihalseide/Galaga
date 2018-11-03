@@ -26,13 +26,13 @@ class Play(_State):
     STAGE_1, STAGE_5, STAGE_10 =  1, 5, 10
     STAGE_20, STAGE_30, STAGE_50 = 20, 30, 50
     GRAPHICS = {
-        LIFE: setup.grab_cells(6, 0, x_off=1, y_off=1, x_gap=1, y_gap=1),
-        STAGE_1: setup.grab(222, 1, 7, 16),
-        STAGE_5: setup.grab(205, 1, 7, 16),
-        STAGE_10: setup.grab(189, 1, 14, 16),
-        STAGE_20: setup.grab(171, 1, 16, 16),
-        STAGE_30: setup.grab(154, 1, 16, 16),
-        STAGE_50: setup.grab(137, 1, 16, 16),
+        LIFE: setup.grab_cells(6, 0),
+        STAGE_1: setup.grab(208, 0, 7, 16),
+        STAGE_5: setup.grab(192, 0, 7, 16),
+        STAGE_10: setup.grab(177, 0, 14, 16),
+        STAGE_20: setup.grab(160, 0, 15, 16),
+        STAGE_30: setup.grab(144, 0, 16, 16),
+        STAGE_50: setup.grab(128, 0, 16, 16),
     }
     BLINK_1UP = 0.45 # seconds
     STAGE_DURATION = 1.6 # ''
@@ -58,7 +58,7 @@ class Play(_State):
         self.highscore = persist.get("highscore")
         self.score = 0
         self.extra_lives = 3
-        self.stage_num = 0 # stage 0 is start
+        self.stage_num = 0
         self.state = self.START
         self.stage = None
         self.stage_badges = None
@@ -67,6 +67,7 @@ class Play(_State):
         self.shots = 0
         self.hits = 0
         self.stage_start = self.current_time
+        self.done_spawning = False
         self.bounds = pygame.Rect(0, 20, c.WIDTH, c.HEIGHT - 40)
         # star background
         self.moving = False
@@ -112,6 +113,8 @@ class Play(_State):
                               self.missiles, False, True)
                 for enemy, hits in enemy_hits.items():
                     enemy.hit()
+                if self.done_spawning and not self.enemies:
+                    self.switch_state(self.STAGE_CHANGE)
 
         # update timers
         if self.transition_timer and self.transition_timer > 0:
@@ -136,6 +139,9 @@ class Play(_State):
         if self.enemy_missiles: self.enemy_missiles.draw(screen)
         self.show_state(screen, dt)
         self.draw_hud(screen, dt)
+        # debug draw status
+        t = self.MAIN_FONT.render(self.state, False, pygame.Color("purple"))
+        screen.blit(t, (30, 30))
 
     def switch_state(self, new_state):
         """
@@ -243,7 +249,7 @@ class Play(_State):
             screen.blit(self.GRAPHICS[self.STAGE_20], (draw_x, h, 16, 16))
         for n in range(self.stage_badges[self.STAGE_30]):
             draw_x -= 16
-            screen.blit(self.GRAPHICS[self.STAGE_30], (draw_x, g, 16, 16))
+            screen.blit(self.GRAPHICS[self.STAGE_30], (draw_x, h, 16, 16))
         for n in range(self.stage_badges[self.STAGE_50]):
             draw_x -= 16
             screen.blit(self.GRAPHICS[self.STAGE_50], (draw_x, h, 16, 16))
@@ -278,6 +284,7 @@ class Play(_State):
 
     @threaded
     def startup_stage(self):
+        self.done_spawning = False
         for i, wave_g in enumerate(self.stage.wave_groups):
             for j, wave in enumerate(wave_g):
                 path = wave.path
@@ -288,6 +295,7 @@ class Play(_State):
                     self.enemies.add(e)
                     time.sleep(self.NEW_ENEMY_WAIT)
             time.sleep(self.NEW_WAVE_WAIT)
+        self.done_spawning = True
 
     def next_stage(self):
         setup.SFX["stage award"].play()

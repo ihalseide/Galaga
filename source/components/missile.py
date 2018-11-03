@@ -4,8 +4,8 @@ import pygame
 from .. import setup
 
 class Missile(pygame.sprite.Sprite):
-    player_speed = 350
-    enemy_speed = 300
+    PLAYER_SPEED = 350
+    ENEMY_SPEED = 300
 
     def __init__(self, loc, vel, enemy):
         pygame.sprite.Sprite.__init__(self)
@@ -16,17 +16,16 @@ class Missile(pygame.sprite.Sprite):
         self.rect = pygame.Rect(0, 0, 2, 10)
         self.rect.center = loc
 
-        sheet = setup.GFX["sheet"]
         if self.enemy:
-            self.image = sheet.subsurface((125,105,3,8))
+            self.image = setup.grab(118, 100, 3, 8)
         else:
-            self.image = sheet.subsurface((125,190,3,8))
+            self.image = setup.grab(118, 178, 3, 8)
 
     def update(self, dt, bounds):
         if self.enemy:
-            vel = self.vel * self.enemy_speed * dt
+            vel = self.vel * self.ENEMY_SPEED * dt
         else:
-            vel = self.vel * self.player_speed * dt
+            vel = self.vel * self.PLAYER_SPEED * dt
         self.rect.x += round(vel.x)
         self.rect.y += round(vel.y)
         if not bounds.contains(self.rect):
