@@ -1,0 +1,75 @@
+
+import os
+from string import ascii_lowercase
+
+import pygame
+
+from . import constants as c
+from .constants import RESOURCES
+
+# font coords and stuff
+ALPHA_Y = 224
+CHAR_SIZE = 8
+WHITE_INDEX = 2
+BLACK_INDEX = 0
+
+# Setup pygame
+os.environ['SDL_VIDEO_CENTERED'] = '1'
+pygame.init()
+SCREEN = pygame.display.set_mode(c.SCREEN_SIZE)
+pygame.display.set_caption('Galaga')
+
+# Resource loading functions:
+
+def load_all_gfx(directory, accept=('.png','.bmp','.gif')):
+    graphics = {}
+    for filename in os.listdir(directory):
+        name, ext = os.path.splitext(filename)
+        if ext.lower() in accept:
+            img = pygame.image.load(os.path.join(directory, filename))
+            graphics[name] = img
+    return graphics
+
+def convert(surf, colorkey):
+    if surf.get_alpha():
+        surf.convert_alpha()
+    else:
+        surf.convert()
+        surf.set_colorkey(colorkey)
+    return surf
+
+def convert_gfx(gfx_dict, colorkey=pygame.Color('black')):
+    d = {k: convert(surf, colorkey) for k, surf in gfx_dict.items()}
+    return d
+
+def load_all_sfx(directory, accept=(".ogg",".wav")):
+    accept_all = len(accept) == 0
+    effects = {}
+    for filename in os.listdir(directory):
+        name, ext = os.path.splitext(filename)
+        if accept_all or ext.lower() in accept:
+            effects[name] = pygame.mixer.Sound(os.path.join(directory, filename))
+    return effects
+
+def load_font():
+    '''
+    Create the coordinate map for the font image
+    '''
+    font = dict()
+    # add alphabet
+    for i, char in enumerate(ascii_lowercase):
+        font[char] = (i * CHAR_SIZE, ALPHA_Y)
+    # add digits
+    for i in range(10):
+        font[str(i)] = (i * CHAR_SIZE, ALPHA_Y + CHAR_SIZE)
+    font['-'] = (10 * CHAR_SIZE, ALPHA_Y + CHAR_SIZE)
+    font[' '] = (11 * CHAR_SIZE, ALPHA_Y + CHAR_SIZE)
+    font[None] = (12 * CHAR_SIZE, ALPHA_Y + CHAR_SIZE)
+    return font
+
+# load resources
+FONT = load_font()
+SFX = load_all_sfx(os.path.join(RESOURCES, "audio"), (".ogg"))
+GFX = load_all_gfx(os.path.join(RESOURCES, "graphics"), (".bmp"))
+# create a converted version
+Q_GFX = convert_gfx(GFX)

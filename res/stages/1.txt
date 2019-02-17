@@ -1,0 +1,40 @@
+B = butterfly
+b = bee
+G = boss
+
+1) 4 bees come in from the top right and 4 red butterflies come in from the top left and they cross near the top
+when they get near the bottom, they swing back and got into their positions
+BB
+BB
+bb
+bb
+
+2) 4 bosses and butterflies alternating come from the bottom left, do a circle, and go into position
+GGGG
+BBBB
+BBBB
+ bb
+ bb
+
+3) 8 butterflies come in from the bottom right and do a circle and then go into position
+  GGGG
+BBBBBBBB
+BBBBBBBB
+   bb
+   bb   
+
+4) 8 bees come in from the top right, do a circle in the left and go into position
+  GGGG
+BBBBBBBB
+BBBBBBBB
+ bbbbbb
+ bbbbbb
+
+5) 8 bess come from the top left, do a circle in the right, and go into position
+   GGGG
+ BBBBBBBB
+ BBBBBBBB
+bbbbbbbbbb
+bbbbbbbbbb
+
+and then they attack
