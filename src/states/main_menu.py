@@ -14,7 +14,6 @@ class Menu(_State):
     MENU_SPEED = 2
     SCORE_Y = 10
     TITLE = setup.GFX.get('title')
-    print(setup.GFX)
     TITLE_X = c.CENTER_X - TITLE.get_rect().width/2
     TITLE_Y = SCORE_Y + 80
     START_Y = TITLE_Y + 110
@@ -35,6 +34,7 @@ class Menu(_State):
         self.scores = scoring.get_scores()
         self.score = 0
         self.highscore = scoring.get_highscore()
+        print(self.highscore)
 
     def get_event(self, event):
         if event.type == pygame.KEYDOWN:
@@ -66,6 +66,7 @@ class Menu(_State):
         # draw title sprite
         if self.menu_y == 0:
             # TODO: blink the title
+            # use pygame.PixelArray
             pass
         else:
             y = self.menu_y + self.TITLE_Y
