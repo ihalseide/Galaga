@@ -1,6 +1,7 @@
 
 import pygame
 
+from .. import timing
 from .. import setup
 from .. import constants as c
 from .. import scoring
@@ -13,11 +14,18 @@ class Menu(_State):
 
     MENU_SPEED = 2
     SCORE_Y = 10
-    TITLE = setup.GFX.get('title')
-    TITLE_X = c.CENTER_X - TITLE.get_rect().width/2
+    
+    LIGHT_TITLE = setup.GFX.get('light title')
+    GREEN_TITLE = setup.GFX.get('green title')
+    WHITE_TITLE = setup.GFX.get('white title')
+    
+    TITLE_X = c.CENTER_X - LIGHT_TITLE.get_rect().width/2
     TITLE_Y = SCORE_Y + 80
     START_Y = TITLE_Y + 110
-    COPY_Y = START_Y + 60 
+    COPY_Y = START_Y + 60
+    
+    TITLE_BLINK = 0.125 # seconds
+    TITLE_FLASHES = 15
 
     def __init__(self):
         _State.__init__(self)
@@ -34,7 +42,10 @@ class Menu(_State):
         self.scores = scoring.get_scores()
         self.score = 0
         self.highscore = scoring.get_highscore()
-        print(self.highscore)
+        # title looks
+        self.blinker = timing.ToggleTicker(self.TITLE_BLINK, False)
+        self.flash_title = True
+        self.flash_count = 0
 
     def get_event(self, event):
         if event.type == pygame.KEYDOWN:
@@ -55,6 +66,8 @@ class Menu(_State):
             self.menu_y -= self.MENU_SPEED
         elif self.menu_y < 0:
             self.menu_y = 0
+        # blinker
+        self.blinker.update(dt)
 
     def display(self, screen, dt):
         # draw background
@@ -64,20 +77,24 @@ class Menu(_State):
         hud.display_scores(screen, dt, self.score, self.highscore, 
                             self.SCORE_Y + self.menu_y)
         # draw title sprite
-        if self.menu_y == 0:
-            # TODO: blink the title
-            # use pygame.PixelArray
-            pass
+        if self.menu_y == 0 and self.flash_title:
+            if self.blinker.on:
+                surf = self.WHITE_TITLE
+            else:
+                surf = self.GREEN_TITLE
         else:
-            y = self.menu_y + self.TITLE_Y
-            screen.blit(self.TITLE, (self.TITLE_X, y))
+            # just get normal title
+            surf = self.LIGHT_TITLE
+        # use surf to draw title
+        y = self.menu_y + self.TITLE_Y
+        screen.blit(surf, (self.TITLE_X, y))
         # draw start
         txt = font_render('Start', pygame.Color('white'))
         w = txt.get_rect().width
         screen.blit(txt, (c.CENTER_X - w//2, self.menu_y + self.START_Y))
         # draw copyright?
-        txt = font_render('Copyright? or whatever...',
-                          pygame.Color('magenta'))
+        txt = font_render('-Copyright or whatever-',
+                          pygame.Color('white'))
         w = txt.get_rect().width
         screen.blit(txt, (c.CENTER_X - w//2, self.menu_y + self.COPY_Y))
 
