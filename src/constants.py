@@ -1,12 +1,16 @@
 # where to get spritesheet and such
 RESOURCES = "res"
 
-# Game States
-MENU_STATE = "Start"
-PLAY_STATE = "Play"
-SCORED_STATE = "Scored"
+# New Game states
+MENU_SCROLL = 'menu scroll'
+MENU_STILL = 'menu still'
+MENU_DEMO = 'menu demo'
+PLAY_NORMAL = 'play normal'
+PLAY_CHALLENGE = 'play challenge'
+PLAY_STATS = 'play stats'
+HISCORE = 'hiscore'
 
-INITIAL_STATE = MENU_STATE 
+INITIAL_STATE = MENU_SCROLL
 
 WIDTH, HEIGHT = 224, 288
 SCREEN_SIZE = (WIDTH, HEIGHT)

@@ -17,6 +17,9 @@ pygame.init()
 SCREEN = pygame.display.set_mode(c.SCREEN_SIZE)
 pygame.display.set_caption('Galaga')
 
+# Pygame key constants
+START_KEYS = [pygame.K_SPACE, pygame.K_RETURN]
+
 # Resource loading functions:
 
 def load_all_gfx(directory, accept=('.png','.bmp','.gif'),

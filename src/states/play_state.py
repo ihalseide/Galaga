@@ -41,11 +41,8 @@ class Play(_State):
     NEW_ENEMY_WAIT = 0.3       # ''
     NEW_WAVE_WAIT = 1          # '' 
 
-    def __init__(self):
-        _State.__init__(self)
-
-    def startup(self, persist={}):
-        _State.startup(self, persist)
+    def __init__(self, persist={}):
+        _State.__init__(self, persist)
         # vars
         self.highscore = persist.get("highscore")
         self.score = 0

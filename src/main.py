@@ -7,9 +7,10 @@ from .states import main_menu, play_state, score_state
 def main():
     the_app = Control()
     state_dict = {
-        c.MENU_STATE: main_menu.Menu(),
-        c.PLAY_STATE: play_state.Play(),
-        c.SCORED_STATE: score_state.Scored()
+        c.MENU_SCROLL: main_menu.MenuScroll,
+        c.MENU_STILL: main_menu.Menu,
+        c.PLAY_NORMAL: play_state.Play,
+        c.HISCORE: score_state.Scored
     }
     the_app.setup_states(state_dict, c.INITIAL_STATE)
     the_app.main()
