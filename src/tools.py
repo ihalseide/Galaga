@@ -53,7 +53,6 @@ def font_render(text, color, bg_color=None):
     Create a pygame image with the text rendered on it
     """
     surf = pygame.Surface((len(text) * CHAR_SIZE, CHAR_SIZE))
-    surf = surf.convert(setup.GFX['sheet'])
     for i, char in enumerate(text):
         # get font location for the char, default to unknown symbol
         font_data = setup.FONT.get(char.lower())
@@ -62,11 +61,14 @@ def font_render(text, color, bg_color=None):
         # grab the image at location
         glyph = sheet_grab(font_data[0], font_data[1], CHAR_SIZE)
         surf.blit(glyph, (i * CHAR_SIZE, 0))
-    # replace palette color
+    # replace colors
+    pixels = pygame.PixelArray(surf)
     if bg_color:
-        surf.set_palette_at(setup.BLACK_INDEX, bg_color)
-    surf.set_palette_at(setup.WHITE_INDEX, (color.r, color.g, color.b))
+        pixels.replace(pygame.Color('black'), bg_color)
+    pixels.replace(pygame.Color('white'), color)
+    pixels.close()
     return surf
+
 
 def grab(surf, x, y, w, h=None):
     '''

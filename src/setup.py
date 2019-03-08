@@ -10,8 +10,6 @@ from .constants import RESOURCES
 # font coords and stuff
 ALPHA_Y = 224
 CHAR_SIZE = 8
-WHITE_INDEX = 2
-BLACK_INDEX = 0
 
 # Setup pygame
 os.environ['SDL_VIDEO_CENTERED'] = '1'
@@ -19,28 +17,25 @@ pygame.init()
 SCREEN = pygame.display.set_mode(c.SCREEN_SIZE)
 pygame.display.set_caption('Galaga')
 
+# Pygame key constants
+START_KEYS = [pygame.K_SPACE, pygame.K_RETURN]
+
 # Resource loading functions:
 
-def load_all_gfx(directory, accept=('.png','.bmp','.gif')):
+def load_all_gfx(directory, accept=('.png','.bmp','.gif'),
+                 colorkey=pygame.Color('black')):
     graphics = {}
     for filename in os.listdir(directory):
         name, ext = os.path.splitext(filename)
         if ext.lower() in accept:
             img = pygame.image.load(os.path.join(directory, filename))
+            if img.get_alpha():
+                img = img.convert_alpha()
+            else:
+                img = img.convert()
+                img.set_colorkey(colorkey)
             graphics[name] = img
     return graphics
-
-def convert(surf, colorkey):
-    if surf.get_alpha():
-        surf.convert_alpha()
-    else:
-        surf.convert()
-        surf.set_colorkey(colorkey)
-    return surf
-
-def convert_gfx(gfx_dict, colorkey=pygame.Color('black')):
-    d = {k: convert(surf, colorkey) for k, surf in gfx_dict.items()}
-    return d
 
 def load_all_sfx(directory, accept=(".ogg",".wav")):
     accept_all = len(accept) == 0
@@ -70,6 +65,6 @@ def load_font():
 # load resources
 FONT = load_font()
 SFX = load_all_sfx(os.path.join(RESOURCES, "audio"), (".ogg"))
-GFX = load_all_gfx(os.path.join(RESOURCES, "graphics"), (".bmp"))
-# create a converted version
-Q_GFX = convert_gfx(GFX)
+GFX = load_all_gfx(os.path.join(RESOURCES, "graphics"), ('.png',".bmp"))
+# alias that is used in some files because of a different phase
+Q_GFX = GFX 

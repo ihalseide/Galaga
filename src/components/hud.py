@@ -1,6 +1,9 @@
 """
 Code for the shared HUD drawing between the menu state and the play state
 """
+
+import math
+
 import pygame
 
 from .. import constants as c
@@ -35,7 +38,7 @@ def display_scores(screen, dt, score, highscore, offset_y=0):
     if score == 0:
         score = "00"
     else:
-        score = str(self.score).zfill(round(math.log(self.score, 10)))
+        score = str(score).zfill(round(math.log(score, 10)))
     t = font_render(score, pygame.Color('white'))
     w = t.get_rect().width
     screen.blit(t, (60-w, 10 + offset_y))

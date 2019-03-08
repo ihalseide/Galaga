@@ -3,17 +3,6 @@
 Dependencies
     - Python 3
     - pygame
-    - elvector
-
-Hardware
-  - screen
-  - input
-  - sound
-  - sound
-
-Input (min)
-  - 4 directions
-  - fire button
 
 TODO
   - main menu

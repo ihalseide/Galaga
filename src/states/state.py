@@ -1,12 +1,9 @@
 class _State(object):
-    def __init__(self):
-        self.persist = {}
+    def __init__(self, persist={}):
+        self.persist = persist
         self.next = None
         self.done = False
         self.quit = False
-
-    def startup(self, persist={}):
-        self.persist = persist
 
     def cleanup(self):
         return self.persist

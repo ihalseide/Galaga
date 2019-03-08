@@ -22,6 +22,13 @@ def add_score(name, score):
     return inserted
 
 def get_highscore():
+    return get_top_score()[1]
+
+def get_1up_score():
+    # TODO...
+    return 999
+
+def get_top_score():
     s = get_scores()
     if s:
         return s[0]

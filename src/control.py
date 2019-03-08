@@ -22,14 +22,12 @@ class Control(object):
     def setup_states(self, state_dict, start_state):
         self.state_dict = state_dict
         self.state_name = start_state
-        self.state = self.state_dict[self.state_name]
-        self.state.startup({})
+        self.state = self.state_dict[self.state_name]({})
 
     def flip_state(self):
         persist = self.state.cleanup()
         prev, self.state_name = self.state_name, self.state.next
-        self.state = self.state_dict[self.state_name]
-        self.state.startup(persist)
+        self.state = self.state_dict[self.state_name](persist)
 
     def events(self):
         for event in pygame.event.get():
