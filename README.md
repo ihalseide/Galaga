@@ -5,10 +5,6 @@ Dependencies
     - pygame
 
 TODO
-  - main menu
-    - show scores
-    - title
-    - font
   - play
     - stages
     - enemy programming

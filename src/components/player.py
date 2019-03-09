@@ -1,26 +1,26 @@
 
+import time
+
 import pygame
 
 from .. import tools
 from .. import constants as c
 
-class Player(pygame.sprite.Sprite):
-    fire_cooldown = 0.4
-    speed = 85
+SPEED = 85
 
+class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.rect = pygame.Rect(0, 0, 15, 15)
         self.rect.center = (c.WIDTH/2, c.HEIGHT-self.rect.height//2-25)
-        self.image = tools.grab_cells(6, 0)
-        self.last_fire_time = 0
+        self.image = tools.sheet_grab_cells(6, 0)
+        self.speed = SPEED
 
     def update(self, dt, keys):
         s = round(self.speed * dt)
         if keys[pygame.K_RIGHT]:
-            self.rect.x += s
+            if self.rect.right + s < c.WIDTH:
+                self.rect.x += s
         elif keys[pygame.K_LEFT]:
-            self.rect.x -= s
-
-    def can_fire(self, time):
-        return time - self.last_fire_time >= self.fire_cooldown
+            if self.rect.x - s > 0:
+                self.rect.x -= s

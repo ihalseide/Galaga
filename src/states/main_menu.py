@@ -25,7 +25,7 @@ COPY_Y = START_Y + 60
 MENU_SPEED = 2
 
 # Only used by still menu
-TITLE_FLASH_TIME = 0.15 # seconds
+TITLE_FLASH_TIME = 0.12 # seconds
 TITLE_FLASH_NUM = 15
 
 def display_stars_bg(screen):
@@ -34,12 +34,12 @@ def display_stars_bg(screen):
     stars.display(screen)
 
 def display_menu_hud(screen, dt, offset_y=0):
-    score_1up = scoring.get_1up_score()
-    highscore = scoring.get_highscore()
+    score_1up = scoring.get_1up()
+    highscore = scoring.get_high()
     # draw 1up and high score hud
     hud.display_scores(screen, dt, score_1up, highscore, SCORE_Y)
     # draw start text
-    txt = font_render('Start', pygame.Color('white'))
+    txt = font_render('Start', pygame.Color('yellow'))
     w = txt.get_rect().width
     screen.blit(txt, (c.CENTER_X - w//2, offset_y + START_Y))
     # draw copyright?
@@ -50,8 +50,6 @@ def display_menu_hud(screen, dt, offset_y=0):
 class MenuScroll(_State):
     def __init__(self, persist={}):
         _State.__init__(self, persist)
-        # init hud
-        hud.init()
         # scrolling menu up
         self.offset_y = c.HEIGHT
         # initialize the stars
@@ -94,7 +92,7 @@ class Menu(_State):
         if event.type == pygame.KEYDOWN:
             if event.key in setup.START_KEYS:
                 # start the game
-                self.next = c.PLAY_STATE
+                self.next = c.PLAY_NORMAL
                 self.done = True
 
     def update(self, dt, keys):

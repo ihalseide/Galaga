@@ -66,5 +66,3 @@ def load_font():
 FONT = load_font()
 SFX = load_all_sfx(os.path.join(RESOURCES, "audio"), (".ogg"))
 GFX = load_all_gfx(os.path.join(RESOURCES, "graphics"), ('.png',".bmp"))
-# alias that is used in some files because of a different phase
-Q_GFX = GFX 

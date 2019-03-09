@@ -2,6 +2,8 @@
 import pygame
 
 from . import constants as c
+from . import scoring
+from .components import hud
 
 class Control(object):
     """
@@ -18,6 +20,11 @@ class Control(object):
         self.state_dict = None
         self.state_name = None
         self.state = None
+
+        # things that are shared between states
+        scoring.init()
+        # init hud
+        hud.init()
 
     def setup_states(self, state_dict, start_state):
         self.state_dict = state_dict

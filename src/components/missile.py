@@ -3,13 +3,15 @@ import pygame
 
 from .. import tools
 from .. import setup
+from .. import constants as c
+
+BOUNDS = pygame.Rect(0, 0, c.WIDTH, c.HEIGHT)
+PLAYER_SPEED = 350
+ENEMY_SPEED = 300
+ENEMY_TYPE = tools.grab(setup.GFX.get('sheet'), 246, 51, 3, 8)
+PLAYER_TYPE = tools.grab(setup.GFX.get('sheet'), 246, 67, 3, 8)
 
 class Missile(pygame.sprite.Sprite):
-    PLAYER_SPEED = 350
-    ENEMY_SPEED = 300
-    ENEMY_TYPE = tools.grab(setup.Q_GFX.get('sheet'), 246, 51, 3, 8)
-    PLAYER_TYPE = tools.grab(setup.Q_GFX.get('sheet'), 246, 67, 3, 8)
-
     def __init__(self, loc, vel, enemy):
         pygame.sprite.Sprite.__init__(self)
 
@@ -20,16 +22,16 @@ class Missile(pygame.sprite.Sprite):
         self.rect.center = loc
 
         if self.enemy:
-            self.image = self.ENEMY_TYPE
+            self.image = ENEMY_TYPE
         else:
-            self.image = self.PLAYER_TYPE
+            self.image = PLAYER_TYPE
 
-    def update(self, dt, bounds):
+    def update(self, dt):
         if self.enemy:
-            vel = self.vel * self.ENEMY_SPEED * dt
+            vel = self.vel * ENEMY_SPEED * dt
         else:
-            vel = self.vel * self.PLAYER_SPEED * dt
+            vel = self.vel * PLAYER_SPEED * dt
         self.rect.x += round(vel.x)
         self.rect.y += round(vel.y)
-        if not bounds.contains(self.rect):
+        if not BOUNDS.contains(self.rect):
             self.kill()

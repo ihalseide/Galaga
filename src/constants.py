@@ -6,9 +6,8 @@ MENU_SCROLL = 'menu scroll'
 MENU_STILL = 'menu still'
 MENU_DEMO = 'menu demo'
 PLAY_NORMAL = 'play normal'
-PLAY_CHALLENGE = 'play challenge'
 PLAY_STATS = 'play stats'
-HISCORE = 'hiscore'
+HIGH_SCORE = 'hiscore'
 
 INITIAL_STATE = MENU_SCROLL
 

@@ -13,7 +13,8 @@ def threaded(fn):
     Wrapper to make a function run on a thread
     """
     def wrapper(*args, **kwargs):
-        thread = threading.Thread(target=fn, args=args, kwargs=kwargs, daemon=True)
+        thread = threading.Thread(target=fn, args=args, kwargs=kwargs,
+                                  daemon=True)
         thread.start()
         return thread
     return wrapper
@@ -69,7 +70,6 @@ def font_render(text, color, bg_color=None):
     pixels.close()
     return surf
 
-
 def grab(surf, x, y, w, h=None):
     '''
     Get a pixel rectangle from an image resource
@@ -81,7 +81,7 @@ def grab(surf, x, y, w, h=None):
 
 # shortcut
 def sheet_grab(x, y, w, h=None):
-    return grab(setup.Q_GFX['sheet'], x, y, w, h)
+    return grab(setup.GFX['sheet'], x, y, w, h)
 
 def grab_cells(surf, x, y, w=1, h=1, cell_w=16, cell_h=16, x_off=0,
                y_off=0, x_gap=0, y_gap=0):
@@ -94,5 +94,5 @@ def grab_cells(surf, x, y, w=1, h=1, cell_w=16, cell_h=16, x_off=0,
 # shortcut
 def sheet_grab_cells(x, y, w=1, h=1, cell_w=16, cell_h=16, x_off=0,
                      y_off = 0, x_gap = 0, y_gap=0):
-    return grab_cells(setup.Q_GFX['sheet'], x, y, w, h, cell_w, cell_h,
+    return grab_cells(setup.GFX['sheet'], x, y, w, h, cell_w, cell_h,
                       x_off, y_off, x_gap, y_gap)
