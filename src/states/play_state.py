@@ -70,6 +70,9 @@ class Play(_State):
         self.enemy_missiles = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
         self.players = pygame.sprite.Group()
+        # hud timing
+        self.show_message = False
+        self.message = None
         # start the intro
         theme = setup.SFX.get('theme')
         theme.play()
@@ -157,13 +160,12 @@ class Play(_State):
         if self.stage_badges:
             self.draw_stage_badges(screen)
         # draw middle message
-        if self.state == INTRO:
-            self.mid_text(screen, "START", pygame.Color("red"), c.SCREEN_CENTER)
-        elif self.state == STAGE_CHANGE:
-            s = "STAGE %s" %(self.stage_num)
-            self.mid_text(screen, s, pygame.Color("skyblue"), c.SCREEN_CENTER)
-        elif self.state == READY:
-            self.mid_text(screen, "READY", pygame.Color("red"), c.SCREEN_CENTER)
+        if self.show_message:
+            if self.message == 'start' or self.message == 'ready':
+                color = pygame.Color('red')
+            elif self.message == 'stage':
+                color = pygame.Color('skyblue')
+            self.mid_text(screen, self.message, color, c.SCREEN_CENTER)
 
     def draw_stage_badges(self, screen):
         # draw the stage level badges
