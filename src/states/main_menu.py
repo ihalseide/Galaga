@@ -1,3 +1,5 @@
+# main_menu.py
+
 
 import pygame
 
@@ -9,6 +11,7 @@ from ..components import stars, hud
 from ..tools import font_render
 
 from .state import _State
+
 
 ## A few constants for the menu
 LIGHT_TITLE = setup.GFX.get('light title')
@@ -28,10 +31,12 @@ MENU_SPEED = 2
 TITLE_FLASH_TIME = 0.15 # seconds
 TITLE_FLASH_NUM = 15
 
+
 def display_stars_bg(screen):
     # draw background
     screen.fill((0,0,0))
     stars.display(screen)
+
 
 def display_menu_hud(screen, dt, offset_y=0):
     score_1up = scoring.get_1up_score()
@@ -47,7 +52,9 @@ def display_menu_hud(screen, dt, offset_y=0):
     w = txt.get_rect().width
     screen.blit(txt, (c.CENTER_X - w//2, offset_y + COPY_Y))
 
+
 class MenuScroll(_State):
+
     def __init__(self, persist={}):
         _State.__init__(self, persist)
         # init hud
@@ -59,11 +66,13 @@ class MenuScroll(_State):
         # always this
         self.next = c.MENU_STILL
 
+
     def get_event(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key in setup.START_KEYS:
                 # go to menu
                 self.done = True
+
 
     def update(self, dt, keys):
         # stars
@@ -73,6 +82,7 @@ class MenuScroll(_State):
             self.offset_y -= MENU_SPEED
         else:
             self.done = True            
+
 
     def display(self, screen, dt):
         # draw background
@@ -84,18 +94,21 @@ class MenuScroll(_State):
 
                     
 class Menu(_State):
+
     def __init__(self, persist={}):
         _State.__init__(self, persist)
         self.timer = timing.ToggleTicker(TITLE_FLASH_TIME)
         self.flash_num = 0
         self.flashing = True
 
+
     def get_event(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key in setup.START_KEYS:
                 # start the game
-                self.next = c.PLAY_STATE
+                self.next = c.PLAY_NORMAL
                 self.done = True
+
 
     def update(self, dt, keys):
         # stars
@@ -107,6 +120,7 @@ class Menu(_State):
             if changed:
                 self.flash_num += 1
                 
+				
     def display(self, screen, dt):
         # bg
         display_stars_bg(screen)

@@ -1,3 +1,5 @@
+# play_state.py
+
 
 import time
 import math
@@ -13,6 +15,7 @@ from .. import timing
 from .. import constants as c
 from ..tools import threaded
 from ..components import player, missile, enemies, stars, hud
+
 
 class Play(_State):
     # States within the play state
@@ -40,6 +43,7 @@ class Play(_State):
     TRANSITION_DURATION = 0.45 # ''
     NEW_ENEMY_WAIT = 0.3       # ''
     NEW_WAVE_WAIT = 1          # '' 
+
 
     def __init__(self, persist={}):
         _State.__init__(self, persist)
@@ -72,15 +76,19 @@ class Play(_State):
         self.intro_duration = (setup.SFX["theme"].get_length()
                                + self.TRANSITION_DURATION)
 
+
     def cleanup(self):
         return self.persist
+
 
     def get_event(self, event):
         pass
 
+
     def update(self, dt, keys):
         _State.update(self, dt, keys)
         stars.update(dt)
+
 
     def display(self, screen, dt):
         # clear screen
@@ -92,6 +100,7 @@ class Play(_State):
         # draw bullets
         # draw HUD
         self.draw_hud(screen, dt)
+
 
     def draw_hud(self, screen, dt):
         # call external hud
@@ -109,6 +118,7 @@ class Play(_State):
             self.draw_stage_badges(screen)
         # draw middle message
         self.show_state(screen, dt)
+
 
     def draw_stage_badges(self, screen):
         # draw the stage level badges
@@ -133,11 +143,13 @@ class Play(_State):
             draw_x -= 16
             screen.blit(self.GRAPHICS['stage 50'], (draw_x, h, 16, 16))
 
+
     def mid_text(self, screen, text, color, location=c.SCREEN_CENTER):
-        t = tools.font_render(text, False, color)
+        t = tools.font_render(text, color)
         rect = t.get_rect()
         rect.center = location
         screen.blit(t, rect)
+
 
     def show_state(self, screen, dt):
         if self.transition_timer:
@@ -150,6 +162,7 @@ class Play(_State):
         elif self.state == self.READY:
             self.mid_text(screen, "READY", pygame.Color("red"), c.SCREEN_CENTER)
 
+
     def player_fire(self, dt, player):
         if player.can_fire(self.current_time):
             setup.SFX["player fire"].play()
@@ -160,6 +173,7 @@ class Play(_State):
             m = missile.Missile((x,y), v, enemy=False)
             player.last_fire_time = self.current_time
             self.missiles.add(m)
+
 
     def update_player(self, dt, keys):
         self.player.update(dt, keys)

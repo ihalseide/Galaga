@@ -1,3 +1,5 @@
+# tools.py
+
 
 import os
 import threading
@@ -7,6 +9,7 @@ import pygame
 from . import constants as c
 from . import setup
 from .setup import CHAR_SIZE
+
 
 def threaded(fn):
     """
@@ -18,8 +21,10 @@ def threaded(fn):
         return thread
     return wrapper
 
+
 def lerp(start, stop, percent):
     return (1 - percent) * start + percent * stop
+
 
 def calc_stage_badges(stage_num):
     """
@@ -42,11 +47,13 @@ def calc_stage_badges(stage_num):
         return {1: num_1, 5: num_5, 10: num_10, 20: num_20,
                 30: num_30, 50: num_50}
 
+
 def map(value, istart, istop, ostart, ostop):
     """
     Map a value from an input range to an output range
     """
     return ostart + (ostop - ostart) * ((value - istart) / (istop - istart))
+
 
 def font_render(text, color, bg_color=None):
     """
@@ -79,9 +86,11 @@ def grab(surf, x, y, w, h=None):
         h = w
     return surf.subsurface(x, y, w, h)
 
+
 # shortcut
 def sheet_grab(x, y, w, h=None):
     return grab(setup.Q_GFX['sheet'], x, y, w, h)
+
 
 def grab_cells(surf, x, y, w=1, h=1, cell_w=16, cell_h=16, x_off=0,
                y_off=0, x_gap=0, y_gap=0):
@@ -90,6 +99,7 @@ def grab_cells(surf, x, y, w=1, h=1, cell_w=16, cell_h=16, x_off=0,
     ww = w * cell_w
     hh = h * cell_h
     return grab(surf, xx, yy, ww, hh)
+
 
 # shortcut
 def sheet_grab_cells(x, y, w=1, h=1, cell_w=16, cell_h=16, x_off=0,
