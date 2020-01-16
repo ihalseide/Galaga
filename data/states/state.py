@@ -4,8 +4,8 @@
 
 
 class _State(object):
-	def __init__(self, persist: dict = None):
-		self.persist = persist if persist else {}
+	def __init__(self, persist: dict = dict()):
+		self.persist = persist
 		self.next = None
 		self.done = False
 		self.quit = False

@@ -11,6 +11,7 @@ from .. import setup
 from .. import tools
 from .. import constants as c
 from ..components import missile, enemies, stars, hud
+from .. import scoring
 
 
 # States within the play state
@@ -46,7 +47,8 @@ class Play(_State):
 		_State.__init__(self, persist)
 		self.current_time = "???"
 		# vars
-		self.highscore = persist.get("highscore")
+		self.hud = self.persist.get(c.HUD)
+		self.high_score = scoring.get_high_score()
 		self.score = 0
 		self.extra_lives = 3
 		self.state = START
@@ -97,8 +99,8 @@ class Play(_State):
 
 	def draw_hud(self, screen, dt):
 		# call external hud
-		hud.clear_top(screen)
-		hud.display_scores(screen, dt, self.score, self.highscore)
+		self.hud.clear_top(screen)
+		self.hud.display_scores(screen, dt, self.score, self.high_score)
 		# clear spot for lives and stages
 		bottom = STAGE_BOTTOM
 		pygame.draw.rect(screen, pygame.Color('black'), (0, bottom, c.GAME_WIDTH, c.GAME_HEIGHT - bottom))

@@ -1,15 +1,18 @@
 # Resources and other file paths
-RESOURCES = "res"
+RESOURCES = "resources"
 SCORE_FILE = "scores.txt"
 
-# New Game states
+# Game states
 MENU_STATE = 'menu'
 MENU_DEMO = 'menu demo'
 PLAY_STATE = 'play'
 PLAY_STATS = 'play stats'
 NEW_SCORE_STATE = 'hiscore'
-
+# Game state to start at
 INITIAL_STATE = MENU_STATE
+
+# other keys
+HUD = "hud"
 
 GAME_WIDTH, GAME_HEIGHT = 224, 288
 SCREEN_WIDTH, SCREEN_HEIGHT = 224, 288

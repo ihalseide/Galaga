@@ -16,12 +16,13 @@ from .. import constants as c
 from ..tools import font_render
 
 
-BLINK_1UP = 0.45 # seconds
+BLINK_1UP = 0.45  # seconds
 
 
 class Hud:
 	def __init__(self):
-		self._timer_1up = ToggleTicker(BLINK_1UP)  # TODO: fix the blinking without a complicated class to do it
+		self._timer_1up = 0
+		self._show_1up = True
 		self._blinking_1up = False
 
 	def set_blinking_1up(self, value):
@@ -31,9 +32,20 @@ class Hud:
 	def clear_top(screen):
 		pygame.draw.rect(screen, pygame.Color('black'), (0, 0, c.GAME_WIDTH, 20))
 
+	def update(self, dt):
+		if self._blinking_1up:
+			self._timer_1up += dt
+			if self._timer_1up >= BLINK_1UP:
+				self._timer_1up = 0
+				self._show_1up = not self._show_1up
+		else:
+			self._show_1up = True
+
+	def display(self, screen):
+		pass
+
 	def display_scores(self, screen, dt, score, highscore, offset_y=0):
-		self._timer_1up.update(dt)
-		if not self._blinking_1up or self._timer_1up.on:
+		if not self._blinking_1up or self._show_1up:
 			t = font_render("1 UP", pygame.Color('red'))
 			screen.blit(t, (22, 1 + offset_y))
 		if score == 0:
