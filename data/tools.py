@@ -1,12 +1,13 @@
+#!/usr/bin/env python3
+#
 # tools.py
 
 
-import os
 import threading
+from typing import Tuple
 
 import pygame
 
-from . import constants as c
 from . import setup
 from .setup import CHAR_SIZE
 
@@ -26,14 +27,14 @@ def lerp(start, stop, percent):
     return (1 - percent) * start + percent * stop
 
 
-def calc_stage_badges(stage_num):
+def calc_stage_badges(stage_num: int) -> dict:
     """
     Calculate how many of each stage badges there are for a given stage
     """
     if stage_num == 0:
         return {}
     else:
-        w_stage = stage_num # temporary modification
+        w_stage = stage_num  # temp. var
         num_50 = w_stage // 50
         w_stage -= num_50 * 50
         num_30 = w_stage // 30
@@ -48,11 +49,11 @@ def calc_stage_badges(stage_num):
                 30: num_30, 50: num_50}
 
 
-def map(value, istart, istop, ostart, ostop):
+def map_value(value, in_start, in_stop, out_start, out_stop):
     """
     Map a value from an input range to an output range
     """
-    return ostart + (ostop - ostart) * ((value - istart) / (istop - istart))
+    return out_start + (out_stop - out_start) * ((value - in_start) / (in_stop - in_start))
 
 
 def font_render(text, color, bg_color=None):
@@ -77,10 +78,15 @@ def font_render(text, color, bg_color=None):
     return surf
 
 
+def draw_text(screen: pygame.Surface, text: str, position: Tuple[int, int], color, bg_color=None):
+    surf = font_render(text, color, bg_color)
+    screen.blit(surf, position)
+
+
 def grab(surf, x, y, w, h=None):
-    '''
+    """
     Get a pixel rectangle from an image resource
-    '''
+    """
     # allow square assumption (w = h)
     if h is None:
         h = w
@@ -88,8 +94,8 @@ def grab(surf, x, y, w, h=None):
 
 
 # shortcut
-def sheet_grab(x, y, w, h=None):
-    return grab(setup.Q_GFX['sheet'], x, y, w, h)
+def sheet_grab(x: int, y: int, w: int, h: int = None):
+    return grab(setup.GFX['sheet'], x, y, w, h)
 
 
 def grab_cells(surf, x, y, w=1, h=1, cell_w=16, cell_h=16, x_off=0,
@@ -102,7 +108,5 @@ def grab_cells(surf, x, y, w=1, h=1, cell_w=16, cell_h=16, x_off=0,
 
 
 # shortcut
-def sheet_grab_cells(x, y, w=1, h=1, cell_w=16, cell_h=16, x_off=0,
-                     y_off = 0, x_gap = 0, y_gap=0):
-    return grab_cells(setup.Q_GFX['sheet'], x, y, w, h, cell_w, cell_h,
-                      x_off, y_off, x_gap, y_gap)
+def sheet_grab_cells(x, y, w=1, h=1, cell_w=16, cell_h=16, x_off=0, y_off=0, x_gap=0, y_gap=0):
+    return grab_cells(setup.GFX['sheet'], x, y, w, h, cell_w, cell_h, x_off, y_off, x_gap, y_gap)

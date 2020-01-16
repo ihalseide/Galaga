@@ -3,7 +3,6 @@
 __author__ = "Izak Halseide"
 
 import sys
-
 import pygame
 
 from src import main

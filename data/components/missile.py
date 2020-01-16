@@ -7,8 +7,8 @@ from .. import setup
 class Missile(pygame.sprite.Sprite):
     PLAYER_SPEED = 350
     ENEMY_SPEED = 300
-    ENEMY_TYPE = tools.grab(setup.Q_GFX.get('sheet'), 246, 51, 3, 8)
-    PLAYER_TYPE = tools.grab(setup.Q_GFX.get('sheet'), 246, 67, 3, 8)
+    ENEMY_TYPE = tools.grab(setup.GFX.get('sheet'), 246, 51, 3, 8)
+    PLAYER_TYPE = tools.grab(setup.GFX.get('sheet'), 246, 67, 3, 8)
 
     def __init__(self, loc, vel, enemy):
         pygame.sprite.Sprite.__init__(self)

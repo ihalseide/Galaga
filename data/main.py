@@ -1,13 +1,18 @@
+#!/usr/bin/env python3
+#
+# main.py
+
 
 import pygame
 
 from . import constants as c
+from .states import main_menu, play_state, score_state
+
 
 class Control(object):
     """
     Main class for running the game states and window
     """
-
     def __init__(self):
         self.running = True
         self.clock = pygame.time.Clock()
@@ -56,3 +61,14 @@ class Control(object):
 
             self.state.display(self.screen, dt)
             pygame.display.update()
+
+
+def main():
+    the_app = Control()
+    state_dict = {
+        c.MENU_STATE: main_menu.Menu,
+        c.PLAY_STATE: play_state.Play,
+        c.NEW_SCORE_STATE: score_state.Scored
+    }
+    the_app.setup_states(state_dict, c.INITIAL_STATE)
+    the_app.main()
