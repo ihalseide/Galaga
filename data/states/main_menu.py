@@ -5,13 +5,12 @@
 
 import pygame
 
-from .. import setup
+from .state import _State
 from .. import constants as c
 from .. import scoring
+from .. import setup
+from .. import tools
 from ..components import stars, hud
-from ..tools import font_render
-from .state import _State
-
 
 # A few constants for the menu
 LIGHT_TITLE = setup.GFX.get('light title')
@@ -30,12 +29,12 @@ TITLE_FLASH_NUM = 15
 
 
 class Menu(_State):
-	def __init__(self, persist={}):
+	def __init__(self, persist=None):
 		_State.__init__(self, persist)
 		# init hud
-		self.hud = hud.Hud()
+		self.hud = hud.Hud(scoring.get_1up_score(), scoring.get_high_score())
 		# initialize the stars
-		stars.create_stars()
+		self.stars = stars.Stars()
 		# next state
 		self.next = c.PLAY_STATE
 		# whether it is in a scrolling state
@@ -58,6 +57,7 @@ class Menu(_State):
 
 	def cleanup(self) -> dict:
 		self.persist[c.HUD] = self.hud
+		self.persist[c.STARS] = self.stars
 		return self.persist
 
 	def get_event(self, event):
@@ -72,7 +72,7 @@ class Menu(_State):
 
 	def update(self, dt, keys):
 		# stars
-		stars.update(dt)
+		self.stars.update(dt)
 		# hud
 		self.hud.update(dt)
 		# scroll menu
@@ -96,7 +96,7 @@ class Menu(_State):
 		# draw background
 		self.hud.display(screen)
 		screen.fill((0, 0, 0))
-		stars.display(screen)
+		self.stars.display(screen)
 		# title normal
 		if not self.is_flashing:
 			surf = LIGHT_TITLE
@@ -109,12 +109,10 @@ class Menu(_State):
 		score_1up = 20210  # TODO: use scoring.get_1up_score()
 		highscore = 1000 # TODO: use scoring.get_high_score()
 		# draw 1up and high score hud
-		self.hud.display_scores(screen, dt, score_1up, highscore, SCORE_Y)
+		self.hud.display(screen, self.offset_y)
 		# draw start text
-		txt = font_render('Start', pygame.Color('white'))
-		w = txt.get_rect().width
-		screen.blit(txt, (c.GAME_CENTER_X - w // 2, self.offset_y + START_Y))
-		# draw copyright?
-		txt = font_render('-Copyright or whatever-', pygame.Color('white'))
-		w = txt.get_rect().width
-		screen.blit(txt, (c.GAME_CENTER_X - w // 2, self.offset_y + COPY_Y))
+		tools.draw_text(screen, 'START', (c.GAME_CENTER_X, self.offset_y + START_Y), pygame.Color('white'),
+						centered_x=True)
+		# draw copyright on bottom
+		tools.draw_text(screen, 'GALAGA (TM)', (c.GAME_CENTER_X, self.offset_y + COPY_Y),  pygame.Color('white'),
+						centered_x=True)

@@ -1,62 +1,25 @@
-
+#!/usr/bin/env python3
 import random
 
 import pygame
 
 from .. import constants as c
 
-
+# Constants for just the stars
 NUM = 90
-COLORS = (pygame.Color("red"), pygame.Color("blue"),
-				   pygame.Color("blue"), pygame.Color("lightgreen"),
-				   pygame.Color("white"))
+# blue is in the list twice so that it is selected more often
+COLORS = (pygame.Color("red"), pygame.Color("blue"), pygame.Color("blue"), pygame.Color("lightgreen"), pygame.Color(
+	"white"))
 LAYERS = 2
 PHASES = [0, 0.25, 0.1]
 
-# Whether the stars are moving:
-# 1 = down, 0 = not moving, -1 = up
-_moving = 1
-_stars = []
 
-def create_stars():
-	global _stars
-	_stars = []
-	for i in range(NUM):
-		x = random.randint(0, c.GAME_WIDTH)
-		y = random.randint(0, c.GAME_HEIGHT)
-		col = random.choice(COLORS)
-		z = random.randint(0, LAYERS-1)
-		t = random.choice(PHASES)
-		b = True #bool(random.randint(0,1))
-		s = Star((x,y), color=col, z=z, twinkles=b, time_offset=t)
-		_stars.append(s)
-	
-def update(dt):
-	for s in _stars:
-		s.update(dt, _moving)
-
-def set_moving(value):
-	global _moving
-	if value == False or value == 0:
-		_moving = 0
-	elif value < 0:
-		_moving = -1
-	elif value > 0:
-		_moving = 1
-	else:
-		# error, but default to 0
-		_moving = 0
-
-def display(screen):
-	for s in _stars:
-		s.draw(screen)
-
-class Star(object):
+class _Star(object):
 	"""
 	Graphical object for the background
 	"""
 	speeds = 30, 65
-	show_time = 0.4 # seconds
+	show_time = 0.4  # seconds
 	hide_time = 0.2
 
 	def __init__(self, loc, color, z, twinkles=False, time_offset=0):
@@ -71,7 +34,7 @@ class Star(object):
 		if move:
 			new_y = self.loc[1] + round(self.speeds[self.z] * dt * move)
 			if new_y > c.GAME_HEIGHT:
-				new_y = 0 
+				new_y = 0
 			elif new_y < 0:
 				new_y = c.GAME_HEIGHT
 			self.loc = self.loc[0], new_y
@@ -88,3 +51,38 @@ class Star(object):
 		if self.show:
 			r_loc = [round(a) for a in self.loc]
 			screen.set_at(r_loc, self.color)
+
+
+def _random_star() -> _Star:
+	x = random.randint(0, c.GAME_WIDTH)
+	y = random.randint(0, c.GAME_HEIGHT)
+	col = random.choice(COLORS)
+	z = random.randint(0, LAYERS - 1)
+	t = random.choice(PHASES)
+	b = True  # bool(random.randint(0,1))
+	return _Star((x, y), color=col, z=z, twinkles=b, time_offset=t)
+
+
+class Stars(object):
+
+	def __init__(self, num: int = NUM):
+		self._num_stars = num
+		self._moving = 1
+		self._stars = [_random_star() for i in range(self._num_stars)]
+
+	def update(self, dt):
+		for s in self._stars:
+			s.update(dt, self._moving)
+
+	def set_moving(self, value: int):
+		if value < 0:
+			self._moving = -1
+		elif value > 0:
+			self._moving = 1
+		else:
+			# error, but default to 0
+			self._moving = 0
+
+	def display(self, screen):
+		for s in self._stars:
+			s.draw(screen)

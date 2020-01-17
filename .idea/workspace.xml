@@ -1,24 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c58585ae-7fcb-4506-80b0-a249525cd591" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/New Python Galaga.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/New Python Galaga.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="c58585ae-7fcb-4506-80b0-a249525cd591" name="Default Changelist" comment="Merged two menu states together and the program functions as it did.">
+      <change afterPath="$PROJECT_DIR$/data/states/demo.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/states/new_high_score.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/states/statistics.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/components/enemies.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/components/enemies.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/components/hud.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/components/hud.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/components/missile.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/components/missile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/components/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/components/player.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/components/stars.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/components/stars.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/constants.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/setup.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/states/main_menu.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/states/main_menu.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/states/play_state.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/states/play_state.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/states/score_state.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/states/stage_states/__init__.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/data/states/state.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/states/state.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/galaga.py" beforeDir="false" afterPath="$PROJECT_DIR$/galaga.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/tools.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Izak Halseide &lt;halseide.izak@gmail.com&gt;" />
+      </list>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1WREj6lAedmGpY5ke7BkH1s1pJR" />
@@ -33,8 +53,8 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunManager">
-    <configuration name="galaga" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.galaga">
+    <configuration name="galaga" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="New Python Galaga" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -55,9 +75,30 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="one_galaga" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="New Python Galaga" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/one_galaga.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.galaga" />
+        <item itemvalue="Python.one_galaga" />
       </list>
     </recent_temporary>
   </component>
@@ -84,57 +125,88 @@
       <option name="presentableId" value="Default" />
       <updated>1579104138793</updated>
     </task>
+    <task id="LOCAL-00001" summary="Merged two menu states together and the program functions as it did.">
+      <created>1579147776447</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1579147776447</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Merged two menu states together and the program functions as it did." />
+    <option name="LAST_COMMIT_MESSAGE" value="Merged two menu states together and the program functions as it did." />
   </component>
   <component name="WindowStateProjectService">
     <state x="306" y="43" key="#Python" timestamp="1579106591741">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
     <state x="306" y="43" key="#Python/62.0.1304.768@62.0.1304.768" timestamp="1579106591741" />
-    <state x="444" y="132" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1579104776358">
+    <state x="444" y="132" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1579148030739">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state x="444" y="132" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/62.0.1304.768@62.0.1304.768" timestamp="1579104776358" />
-    <state width="1283" height="200" key="GridCell.Tab.0.bottom" timestamp="1579147623505">
+    <state x="444" y="132" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/62.0.1304.768@62.0.1304.768" timestamp="1579148030739" />
+    <state x="433" y="11" key="#one_galaga" timestamp="1579149467884">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="200" key="GridCell.Tab.0.bottom/62.0.1304.768@62.0.1304.768" timestamp="1579147623505" />
-    <state width="1283" height="200" key="GridCell.Tab.0.center" timestamp="1579147623505">
+    <state x="433" y="11" key="#one_galaga/62.0.1304.768@62.0.1304.768" timestamp="1579149467884" />
+    <state x="368" y="16" width="691" height="752" key="CommitChangelistDialog2" timestamp="1579242647926">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="200" key="GridCell.Tab.0.center/62.0.1304.768@62.0.1304.768" timestamp="1579147623505" />
-    <state width="1283" height="200" key="GridCell.Tab.0.left" timestamp="1579147623505">
+    <state x="368" y="16" width="691" height="752" key="CommitChangelistDialog2/62.0.1304.768@62.0.1304.768" timestamp="1579242647926" />
+    <state width="1283" height="151" key="GridCell.Tab.0.bottom" timestamp="1579243529607">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="200" key="GridCell.Tab.0.left/62.0.1304.768@62.0.1304.768" timestamp="1579147623505" />
-    <state width="1283" height="200" key="GridCell.Tab.0.right" timestamp="1579147623505">
+    <state width="1283" height="151" key="GridCell.Tab.0.bottom/62.0.1304.768@62.0.1304.768" timestamp="1579243529607" />
+    <state width="1283" height="151" key="GridCell.Tab.0.center" timestamp="1579243529607">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="200" key="GridCell.Tab.0.right/62.0.1304.768@62.0.1304.768" timestamp="1579147623505" />
-    <state width="1283" height="239" key="GridCell.Tab.1.bottom" timestamp="1579146386321">
+    <state width="1283" height="151" key="GridCell.Tab.0.center/62.0.1304.768@62.0.1304.768" timestamp="1579243529607" />
+    <state width="1283" height="151" key="GridCell.Tab.0.left" timestamp="1579243529607">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="239" key="GridCell.Tab.1.bottom/62.0.1304.768@62.0.1304.768" timestamp="1579146386321" />
-    <state width="1283" height="239" key="GridCell.Tab.1.center" timestamp="1579146386321">
+    <state width="1283" height="151" key="GridCell.Tab.0.left/62.0.1304.768@62.0.1304.768" timestamp="1579243529607" />
+    <state width="1283" height="151" key="GridCell.Tab.0.right" timestamp="1579243529607">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="239" key="GridCell.Tab.1.center/62.0.1304.768@62.0.1304.768" timestamp="1579146386321" />
-    <state width="1283" height="239" key="GridCell.Tab.1.left" timestamp="1579146386321">
+    <state width="1283" height="151" key="GridCell.Tab.0.right/62.0.1304.768@62.0.1304.768" timestamp="1579243529607" />
+    <state width="1283" height="54" key="GridCell.Tab.1.bottom" timestamp="1579241901983">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="239" key="GridCell.Tab.1.left/62.0.1304.768@62.0.1304.768" timestamp="1579146386321" />
-    <state width="1283" height="239" key="GridCell.Tab.1.right" timestamp="1579146386321">
+    <state width="1283" height="54" key="GridCell.Tab.1.bottom/62.0.1304.768@62.0.1304.768" timestamp="1579241901983" />
+    <state width="1283" height="54" key="GridCell.Tab.1.center" timestamp="1579241901983">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="239" key="GridCell.Tab.1.right/62.0.1304.768@62.0.1304.768" timestamp="1579146386321" />
+    <state width="1283" height="54" key="GridCell.Tab.1.center/62.0.1304.768@62.0.1304.768" timestamp="1579241901983" />
+    <state width="1283" height="54" key="GridCell.Tab.1.left" timestamp="1579241901983">
+      <screen x="62" y="0" width="1304" height="768" />
+    </state>
+    <state width="1283" height="54" key="GridCell.Tab.1.left/62.0.1304.768@62.0.1304.768" timestamp="1579241901983" />
+    <state width="1283" height="54" key="GridCell.Tab.1.right" timestamp="1579241901983">
+      <screen x="62" y="0" width="1304" height="768" />
+    </state>
+    <state width="1283" height="54" key="GridCell.Tab.1.right/62.0.1304.768@62.0.1304.768" timestamp="1579241901983" />
     <state x="215" y="27" key="SettingsEditor" timestamp="1579145501657">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
     <state x="215" y="27" key="SettingsEditor/62.0.1304.768@62.0.1304.768" timestamp="1579145501657" />
-    <state x="415" y="209" key="com.intellij.ide.util.TipDialog" timestamp="1579104154398">
+    <state x="415" y="209" key="com.intellij.ide.util.TipDialog" timestamp="1579236668730">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state x="415" y="209" key="com.intellij.ide.util.TipDialog/62.0.1304.768@62.0.1304.768" timestamp="1579104154398" />
+    <state x="415" y="209" key="com.intellij.ide.util.TipDialog/62.0.1304.768@62.0.1304.768" timestamp="1579236668730" />
     <state x="523" y="302" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1579147654365">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
@@ -143,16 +215,5 @@
       <screen x="62" y="0" width="1304" height="768" />
     </state>
     <state x="377" y="89" width="672" height="678" key="search.everywhere.popup/62.0.1304.768@62.0.1304.768" timestamp="1579147685718" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/data/states/play_state.py</url>
-          <line>5</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

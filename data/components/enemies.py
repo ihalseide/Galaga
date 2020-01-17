@@ -4,6 +4,7 @@ from pygame import Vector2
 
 from .. import tools
 
+
 class Enemy(pygame.sprite.Sprite):
     ANIMATION_TIME = 0.75 # seconds per frame
     DEATH_TIME = 0.2
@@ -18,11 +19,11 @@ class Enemy(pygame.sprite.Sprite):
     TIME_BT_POINTS = 0.7 # time between points in the paths
 
     EXPLOSION = [
-        tools.sheet_grab_cells(8, 3),
-        tools.sheet_grab_cells(9, 3),
-        tools.sheet_grab_cells(10, 3),
-        tools.sheet_grab_cells(11, 3, 2, 2),
-        tools.sheet_grab_cells(13, 3, 2, 2),
+        tools.grab_sheet(8*16, 3*16, 16),
+        tools.grab_sheet(9*16, 3*16, 16),
+        tools.grab_sheet(10*16, 3*16, 16),
+        tools.grab_sheet(11*16, 3*16, 32),
+        tools.grab_sheet(13*16, 3*16, 32),
     ]
 
     def __init__(self, loc, path, formation_spot=None, img_row=2, frames=8):

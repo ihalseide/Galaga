@@ -6,7 +6,7 @@
 import pygame
 
 from . import constants as c
-from .states import main_menu, play_state, score_state
+from .states import main_menu, play_state, new_high_score, statistics
 
 
 class Control(object):
@@ -68,7 +68,8 @@ def main():
     state_dict = {
         c.MENU_STATE: main_menu.Menu,
         c.PLAY_STATE: play_state.Play,
-        c.NEW_SCORE_STATE: score_state.Scored
+        c.NEW_SCORE_STATE: new_high_score.HighScore,
+        c.PLAY_STATS: statistics.Stats
     }
     the_app.setup_states(state_dict, c.INITIAL_STATE)
     the_app.main()

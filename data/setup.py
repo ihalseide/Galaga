@@ -27,7 +27,7 @@ START_KEYS = [pygame.K_SPACE, pygame.K_RETURN]
 # Resource loading functions:
 
 
-def load_all_gfx(directory, accept=('.png', '.bmp', '.gif'), colorkey=pygame.Color('black')):
+def load_all_gfx(directory, accept=('.png', '.bmp', '.gif'), colorkey=pygame.Color('black')) -> dict:
 	graphics = {}
 	for filename in os.listdir(directory):
 		name, ext = os.path.splitext(filename)
@@ -42,7 +42,7 @@ def load_all_gfx(directory, accept=('.png', '.bmp', '.gif'), colorkey=pygame.Col
 	return graphics
 
 
-def load_all_sfx(directory, accept=(".ogg", ".wav")):
+def load_all_sfx(directory, accept=(".ogg", ".wav")) -> dict:
 	accept_all = len(accept) == 0
 	effects = {}
 	for filename in os.listdir(directory):
@@ -52,7 +52,7 @@ def load_all_sfx(directory, accept=(".ogg", ".wav")):
 	return effects
 
 
-def load_font():
+def load_font() -> dict:
 	"""
 	Create the coordinate map for the font image
 	"""
@@ -69,15 +69,8 @@ def load_font():
 	return font
 
 
-FONT, SFX, GFX = None, None, None
+# load resources
+FONT: dict = load_font()
+SFX: dict = load_all_sfx(os.path.join(RESOURCES, "audio"), (".ogg",))
+GFX: dict = load_all_gfx(os.path.join(RESOURCES, "graphics"), ('.png', ".bmp"))
 
-
-def load():
-	global FONT, SFX, GFX
-	# load resources
-	FONT = load_font()
-	SFX = load_all_sfx(os.path.join(RESOURCES, "audio"), (".ogg",))
-	GFX = load_all_gfx(os.path.join(RESOURCES, "graphics"), ('.png', ".bmp"))
-
-
-load()

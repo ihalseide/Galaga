@@ -7,58 +7,34 @@
 Code for the shared HUD drawing between the menu state and the play state
 """
 
-
-import math
-
 import pygame
 
 from .. import constants as c
-from ..tools import font_render
-
+from .. import tools
 
 BLINK_1UP = 0.45  # seconds
 
 
 class Hud:
-	def __init__(self):
-		self._timer_1up = 0
-		self._show_1up = True
-		self._blinking_1up = False
+	def __init__(self, display_score: int, high_score: int):
+		self._display_score = display_score
+		self._high_score = high_score
 
-	def set_blinking_1up(self, value):
-		self._blinking_1up = bool(value)
+	def set_display_score(self, score):
+		self._display_score = score
 
-	@staticmethod
-	def clear_top(screen):
-		pygame.draw.rect(screen, pygame.Color('black'), (0, 0, c.GAME_WIDTH, 20))
+	def set_display_high_score(self, score: int):
+		self._high_score = score
 
-	def update(self, dt):
-		if self._blinking_1up:
-			self._timer_1up += dt
-			if self._timer_1up >= BLINK_1UP:
-				self._timer_1up = 0
-				self._show_1up = not self._show_1up
-		else:
-			self._show_1up = True
-
-	def display(self, screen):
+	def update(self, dt: float):
 		pass
 
-	def display_scores(self, screen, dt, score, highscore, offset_y=0):
-		if not self._blinking_1up or self._show_1up:
-			t = font_render("1 UP", pygame.Color('red'))
-			screen.blit(t, (22, 1 + offset_y))
-		if score == 0:
-			score = "00"
-		else:
-			score = str(score).zfill(round(math.log(score, 10)))
-		t = font_render(score, pygame.Color('white'))
-		w = t.get_rect().width
-		screen.blit(t, (60-w, 10 + offset_y))
-		t = font_render("HI-SCORE", pygame.Color('red'))
-		size = t.get_rect().width
-		screen.blit(t, ((c.GAME_WIDTH - size)//2, 1 + offset_y))
-		score = str(highscore)
-		t = font_render(score, pygame.Color('white'))
-		size = t.get_rect().width
-		screen.blit(t, ((c.GAME_WIDTH - size)//2, 10 + offset_y))
+	def display(self, screen, offset_y=0):
+		# 1UP score
+		score_string = "    00"
+		tools.draw_text(screen, "1UP", (20, 10 + offset_y), pygame.Color('red'))
+		tools.draw_text(screen, score_string, (20, 20 + offset_y), pygame.Color('white'))
+		# high score
+		high_score_string = "  30000"
+		tools.draw_text(screen, "HI-SCORE", (c.GAME_CENTER_X, 10 + offset_y), pygame.Color('red'), centered_x=True)
+		tools.draw_text(screen, high_score_string, (83, 20 + offset_y), pygame.Color('white'))
