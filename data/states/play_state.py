@@ -6,18 +6,10 @@ from pygame.math import Vector2
 
 from .state import _State
 from .. import constants as c
-from .. import scoring
 from .. import setup
 from .. import tools
-from ..components import missile, enemies, player, stars, hud
+from ..components import missile, player, stars, hud
 
-# States within the play state
-START = "Intro"
-STAGE_CHANGE = "Stage Change"
-READY = "Ready"
-STAGE = "Stage"
-STATS = "Stage Statistics"
-GAME_OVER = "Game Over"
 # Where the game area really starts and ends vertically to fit the HUD
 STAGE_TOP = 30
 STAGE_BOTTOM = c.GAME_HEIGHT - 20
@@ -32,12 +24,15 @@ GRAPHICS = {
 	c.STAGE_50: tools.grab_sheet(128, 48, 16, 16),
 }
 # Timing (in seconds)
-START_DURATION = 6.6
 STAGE_DURATION = 1.6
 READY_DURATION = 1.6
 TRANSITION_DURATION = 0.45
 NEW_ENEMY_WAIT = 0.3
 NEW_WAVE_WAIT = 1
+START_NOISE_DURATION = 1
+INTRO_MUSIC_DURATION = 6.6
+START_DURATION = START_NOISE_DURATION + INTRO_MUSIC_DURATION
+STAGE_BADGE_DURATION = 0.15
 
 
 def _draw_mid_text(screen, text, color, location=(c.GAME_CENTER_X, c.GAME_CENTER_Y)):
@@ -73,49 +68,54 @@ def _calc_stage_badges(stage_num: int) -> dict:
 
 class Play(_State):
 	def __init__(self, persist=None):
+		# do the things all states must do...
 		_State.__init__(self, persist)
-		self.is_player_alive = False
 		self.next = c.PLAY_STATS
 		self.current_time = 0
-		# vars
-		maybe_hud = self.persist.get(c.HUD)
-		if maybe_hud:
-			self.hud = maybe_hud
-		else:
-			self.hud = hud.Hud(0, 30000)
-		self.high_score = scoring.get_high_score()
-		self.score = 0
-		self.extra_lives = 3
-		self.state = START
-		self.transition_timer = 0
-		self.state_timer = 0
-		# statistics
-		self.shots = 0
-		self.hits = 0
-		# stage manager
-		self.stage_num = 0
-		self.stage_badges = _calc_stage_badges(self.stage_num)
+		# TODO: load scores?
+		self._init_hud()
+		self._init_stage_badges()
 		# star background
-		maybe_stars = self.persist.get(c.STARS)
-		if maybe_stars:
-			self.stars = maybe_stars
-		else:
-			self.stars = stars.Stars()
-		self.stars.set_moving(False)
-		# hud element timing
-		self.enemy_animation_timer = enemies.Enemy.ANIMATION_TIME
+		self._init_stars()
 		# sprites
 		self.missiles = pygame.sprite.Group()
 		self.enemy_missiles = pygame.sprite.Group()
 		self.enemies = pygame.sprite.Group()
-		self.player = player.Player()
+		# player/fighter
+		self._init_player()
+		# game area boundary
 		self.bounds = pygame.Rect(0, STAGE_TOP, c.GAME_WIDTH, STAGE_BOTTOM - STAGE_TOP)
 		# sound
-		setup.SFX["theme"].play()
 		self.intro_duration = START_DURATION
 		# timers
 		self.start_timer = 0
 		self.is_starting = True
+		self.should_play_start_noise = True
+		self.should_play_intro_music = False
+		self.has_started_intro_music = False
+
+	def _init_stars(self):
+		maybe_stars = self.persist.get(c.STARS)
+		self.stars = maybe_stars if maybe_stars else stars.Stars()
+		self.stars.set_moving(False)
+
+	def _init_hud(self):
+		maybe_hud = self.persist.get(c.HUD)
+		self.hud = maybe_hud if maybe_hud else hud.Hud(0, 30000)
+
+	def _init_player(self):
+		self.is_player_alive = False
+		self.player = player.Player()
+		self.extra_lives = 3
+
+	def _init_stage_badges(self):
+		self.stage_num = 0
+		self.num_badges = 0
+		self.stage_badges = _calc_stage_badges(self.stage_num)
+		self.is_animating_stage_badges = False
+		self.stage_badge_animation_step = 0
+		self.stage_badge_animation_timer = 0
+		self.should_play_badge_noise = False
 
 	def cleanup(self):
 		return self.persist
@@ -126,19 +126,80 @@ class Play(_State):
 				if self.is_player_alive:
 					self.player_fire(self.player)
 
+	def play_start_noise(self):
+		setup.SFX['start_noise'].play()
+		self.should_play_start_noise = False
+
+	def play_intro_music(self):
+		setup.SFX["theme"].play()
+		self.has_started_intro_music = True
+		self.should_play_intro_music = False
+
+	def animate_stage_badges(self, dt):
+		if not self.is_animating_stage_badges:
+			return
+
+		if self.stage_badge_animation_step > self.num_badges:
+			self.is_animating_stage_badges = False
+
+		self.stage_badge_animation_timer += dt
+
+		if self.stage_badge_animation_timer >= STAGE_BADGE_DURATION and self.stage_badge_animation_step < self.num_badges:
+			self.stage_badge_animation_step += 1
+			self.stage_badge_animation_timer = 0
+			self.should_play_badge_noise = True
+
+	def play_badge_noise(self):
+		setup.SFX['stage_award'].play()
+		self.should_play_badge_noise = False
+
 	def update(self, dt, keys):
 		_State.update(self, dt, keys)
+		if self.should_play_start_noise:
+			self.play_start_noise()
+		if self.should_play_intro_music:
+			self.play_intro_music()
+		if self.should_play_badge_noise:
+			self.play_badge_noise()
+		self.animate_stage_badges(dt)
 		self.current_time += dt
 		self.stars.update(dt)
 		self.update_timers(dt)
 		if self.is_player_alive:
 			self.update_player(dt, keys)
 
+	def decrement_lives(self):
+		self.extra_lives -= 1
+
 	def update_timers(self, dt: float):
-		self.start_timer += dt
-		if self.start_timer >= self.intro_duration:
-			self.is_starting = False
-			self.spawn_player()
+		if self.is_starting:
+			self.start_timer += dt
+			if not self.has_started_intro_music:
+				if self.start_timer >= START_NOISE_DURATION:
+					self.should_play_intro_music = True
+			if self.start_timer >= self.intro_duration:
+				self.done_starting()
+
+	def done_starting(self):
+		self.is_starting = False
+		self.start_timer = 0
+		self.spawn_player()
+		self.decrement_lives()
+		self.stage_num = 0
+		self.next_stage()
+
+	def next_stage(self):
+		self.stage_num += 1
+		self.update_stage_badges()
+		self.start_animating_stage_badges()
+
+	def start_animating_stage_badges(self):
+		self.is_animating_stage_badges = True
+		self.stage_badge_animation_step = 0
+
+	def update_stage_badges(self):
+		self.stage_badges = _calc_stage_badges(self.stage_num)
+		self.num_badges = sum(self.stage_badges.values())
 
 	def spawn_player(self):
 		self.is_player_alive = True
@@ -152,7 +213,7 @@ class Play(_State):
 		# draw enemies
 		# draw player
 		if self.is_player_alive:
-			self.player.draw(screen)
+			self.player.display(screen)
 		# draw bullets
 		# draw HUD
 		self.draw_hud(screen, dt)
@@ -179,29 +240,55 @@ class Play(_State):
 		# draw the stage level badges
 		draw_x = c.GAME_WIDTH
 		h = c.GAME_HEIGHT - 20
+		number_to_draw = self.stage_badge_animation_step
+
 		for n in range(self.stage_badges[c.STAGE_1]):
-			draw_x -= 8
-			screen.blit(GRAPHICS[c.STAGE_1], (draw_x, h, 7, 16))
+			if number_to_draw > 0:
+				draw_x -= 8
+				screen.blit(GRAPHICS[c.STAGE_1], (draw_x, h, 7, 16))
+				number_to_draw -= 1
+			else:
+				return
 
 		for n in range(self.stage_badges[c.STAGE_5]):
-			draw_x -= 8
-			screen.blit(GRAPHICS[c.STAGE_5], (draw_x, h, 7, 16))
+			if number_to_draw > 0:
+				draw_x -= 8
+				screen.blit(GRAPHICS[c.STAGE_5], (draw_x, h, 7, 16))
+				number_to_draw -= 1
+			else:
+				return
 
 		for n in range(self.stage_badges[c.STAGE_10]):
-			draw_x -= 14
-			screen.blit(GRAPHICS[c.STAGE_10], (draw_x, h, 14, 16))
+			if number_to_draw > 0:
+				draw_x -= 14
+				screen.blit(GRAPHICS[c.STAGE_10], (draw_x, h, 14, 16))
+				number_to_draw -= 1
+			else:
+				return
 
 		for n in range(self.stage_badges[c.STAGE_20]):
-			draw_x -= 16
-			screen.blit(GRAPHICS[c.STAGE_20], (draw_x, h, 16, 16))
+			if number_to_draw > 0:
+				draw_x -= 16
+				screen.blit(GRAPHICS[c.STAGE_20], (draw_x, h, 16, 16))
+				number_to_draw -= 1
+			else:
+				return
 
 		for n in range(self.stage_badges[c.STAGE_30]):
-			draw_x -= 16
-			screen.blit(GRAPHICS[c.STAGE_30], (draw_x, h, 16, 16))
+			if number_to_draw > 0:
+				draw_x -= 16
+				screen.blit(GRAPHICS[c.STAGE_30], (draw_x, h, 16, 16))
+				number_to_draw -= 1
+			else:
+				return
 
 		for n in range(self.stage_badges[c.STAGE_50]):
-			draw_x -= 16
-			screen.blit(GRAPHICS[c.STAGE_50], (draw_x, h, 16, 16))
+			if number_to_draw > 0:
+				draw_x -= 16
+				screen.blit(GRAPHICS[c.STAGE_50], (draw_x, h, 16, 16))
+				number_to_draw -= 1
+			else:
+				return
 
 	def show_state(self, screen):
 		if self.is_starting:
@@ -209,13 +296,13 @@ class Play(_State):
 
 	def player_fire(self, a_player):
 		if a_player.can_fire(self.current_time):
-			setup.SFX["player fire"].play()
+			setup.SFX["fighter_fire"].play()
 			# v is multiplied by speed in the missile class
 			# noinspection PyArgumentList
 			v = Vector2(0, -1)
 			x = a_player.rect.centerx
 			y = a_player.rect.top + 10
-			m = missile.Missile((x, y), v, enemy=False)
+			m = missile.Missile((x, y), v, is_enemy=False)
 			a_player.last_fire_time = self.current_time
 			self.missiles.add(m)
 
