@@ -2,6 +2,8 @@
   <dictionary name="ihals">
     <words>
       <w>halseide</w>
+      <w>pygame</w>
+      <w>spritesheet</w>
     </words>
   </dictionary>
 </component>

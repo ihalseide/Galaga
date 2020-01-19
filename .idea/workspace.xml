@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c58585ae-7fcb-4506-80b0-a249525cd591" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="c58585ae-7fcb-4506-80b0-a249525cd591" name="Default Changelist" comment="Changing the stars to match the actual game a little better. Enemy classes are starting to be built. Missiles shoot from the player now.">
+      <change afterPath="$PROJECT_DIR$/data/components/explosion.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/ihals.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/ihals.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/components/centered_sprite.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/components/centered_sprite.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/components/enemies.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/components/enemies.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/components/missile.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/components/missile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/components/stars.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/components/stars.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/constants.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/scoring.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/scoring.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/states/demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/states/demo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/states/main_menu.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/states/main_menu.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/states/play_state.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/states/play_state.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/states/state.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/states/state.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/tools.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,7 +143,14 @@
       <option name="project" value="LOCAL" />
       <updated>1579337294827</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Ignore .idea folder">
+      <created>1579337562865</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1579337562865</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -147,10 +167,13 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="true" />
     <MESSAGE value="Merged two menu states together and the program functions as it did." />
     <MESSAGE value="Fixed the main menu and made the player start spawning in the game. Changed spritesheet functions." />
     <MESSAGE value="Added stage badges animation and fixed it so the player doesn't continuously respawn. Renamed sound files." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added stage badges animation and fixed it so the player doesn't continuously respawn. Renamed sound files." />
+    <MESSAGE value="Ignore .idea folder" />
+    <MESSAGE value="Changing the stars to match the actual game a little better. Enemy classes are starting to be built. Missiles shoot from the player now." />
+    <option name="LAST_COMMIT_MESSAGE" value="Changing the stars to match the actual game a little better. Enemy classes are starting to be built. Missiles shoot from the player now." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="WindowStateProjectService">
@@ -170,61 +193,69 @@
       <screen x="62" y="0" width="1304" height="768" />
     </state>
     <state x="433" y="11" key="#one_galaga/62.0.1304.768@62.0.1304.768" timestamp="1579149467884" />
-    <state x="372" y="28" width="691" height="702" key="CommitChangelistDialog2" timestamp="1579337293983">
+    <state x="372" y="28" width="691" height="702" key="CommitChangelistDialog2" timestamp="1579392369974">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state x="372" y="28" width="691" height="702" key="CommitChangelistDialog2/62.0.1304.768@62.0.1304.768" timestamp="1579337293983" />
-    <state width="1283" height="237" key="GridCell.Tab.0.bottom" timestamp="1579337122165">
+    <state x="372" y="28" width="691" height="702" key="CommitChangelistDialog2/62.0.1304.768@62.0.1304.768" timestamp="1579392369974" />
+    <state width="844" height="466" key="DebuggerActiveHint" timestamp="1579390102161">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="237" key="GridCell.Tab.0.bottom/62.0.1304.768@62.0.1304.768" timestamp="1579337122165" />
-    <state width="1283" height="237" key="GridCell.Tab.0.center" timestamp="1579337122165">
+    <state width="844" height="466" key="DebuggerActiveHint/62.0.1304.768@62.0.1304.768" timestamp="1579390102161" />
+    <state x="188" y="60" key="DiffContextDialog" timestamp="1579392283358">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="237" key="GridCell.Tab.0.center/62.0.1304.768@62.0.1304.768" timestamp="1579337122165" />
-    <state width="1283" height="237" key="GridCell.Tab.0.left" timestamp="1579337122165">
+    <state x="188" y="60" key="DiffContextDialog/62.0.1304.768@62.0.1304.768" timestamp="1579392283358" />
+    <state width="1283" height="355" key="GridCell.Tab.0.bottom" timestamp="1579392239824">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="237" key="GridCell.Tab.0.left/62.0.1304.768@62.0.1304.768" timestamp="1579337122165" />
-    <state width="1283" height="237" key="GridCell.Tab.0.right" timestamp="1579337122165">
+    <state width="1283" height="355" key="GridCell.Tab.0.bottom/62.0.1304.768@62.0.1304.768" timestamp="1579392239824" />
+    <state width="1283" height="355" key="GridCell.Tab.0.center" timestamp="1579392239824">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="237" key="GridCell.Tab.0.right/62.0.1304.768@62.0.1304.768" timestamp="1579337122165" />
-    <state width="1283" height="119" key="GridCell.Tab.1.bottom" timestamp="1579336540129">
+    <state width="1283" height="355" key="GridCell.Tab.0.center/62.0.1304.768@62.0.1304.768" timestamp="1579392239824" />
+    <state width="1283" height="355" key="GridCell.Tab.0.left" timestamp="1579392239824">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="119" key="GridCell.Tab.1.bottom/62.0.1304.768@62.0.1304.768" timestamp="1579336540129" />
-    <state width="1283" height="119" key="GridCell.Tab.1.center" timestamp="1579336540129">
+    <state width="1283" height="355" key="GridCell.Tab.0.left/62.0.1304.768@62.0.1304.768" timestamp="1579392239824" />
+    <state width="1283" height="355" key="GridCell.Tab.0.right" timestamp="1579392239824">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="119" key="GridCell.Tab.1.center/62.0.1304.768@62.0.1304.768" timestamp="1579336540129" />
-    <state width="1283" height="119" key="GridCell.Tab.1.left" timestamp="1579336540129">
+    <state width="1283" height="355" key="GridCell.Tab.0.right/62.0.1304.768@62.0.1304.768" timestamp="1579392239824" />
+    <state width="1283" height="253" key="GridCell.Tab.1.bottom" timestamp="1579390132238">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="119" key="GridCell.Tab.1.left/62.0.1304.768@62.0.1304.768" timestamp="1579336540129" />
-    <state width="1283" height="119" key="GridCell.Tab.1.right" timestamp="1579336540129">
+    <state width="1283" height="253" key="GridCell.Tab.1.bottom/62.0.1304.768@62.0.1304.768" timestamp="1579390132238" />
+    <state width="1283" height="253" key="GridCell.Tab.1.center" timestamp="1579390132238">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state width="1283" height="119" key="GridCell.Tab.1.right/62.0.1304.768@62.0.1304.768" timestamp="1579336540129" />
+    <state width="1283" height="253" key="GridCell.Tab.1.center/62.0.1304.768@62.0.1304.768" timestamp="1579390132238" />
+    <state width="1283" height="253" key="GridCell.Tab.1.left" timestamp="1579390132238">
+      <screen x="62" y="0" width="1304" height="768" />
+    </state>
+    <state width="1283" height="253" key="GridCell.Tab.1.left/62.0.1304.768@62.0.1304.768" timestamp="1579390132238" />
+    <state width="1283" height="253" key="GridCell.Tab.1.right" timestamp="1579390132238">
+      <screen x="62" y="0" width="1304" height="768" />
+    </state>
+    <state width="1283" height="253" key="GridCell.Tab.1.right/62.0.1304.768@62.0.1304.768" timestamp="1579390132238" />
     <state x="215" y="27" key="SettingsEditor" timestamp="1579145501657">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
     <state x="215" y="27" key="SettingsEditor/62.0.1304.768@62.0.1304.768" timestamp="1579145501657" />
-    <state x="306" y="118" key="Vcs.Push.Dialog.v2" timestamp="1579337309703">
+    <state x="306" y="118" key="Vcs.Push.Dialog.v2" timestamp="1579337573144">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state x="306" y="118" key="Vcs.Push.Dialog.v2/62.0.1304.768@62.0.1304.768" timestamp="1579337309703" />
-    <state x="415" y="209" key="com.intellij.ide.util.TipDialog" timestamp="1579332223070">
+    <state x="306" y="118" key="Vcs.Push.Dialog.v2/62.0.1304.768@62.0.1304.768" timestamp="1579337573144" />
+    <state x="415" y="209" key="com.intellij.ide.util.TipDialog" timestamp="1579379971525">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state x="415" y="209" key="com.intellij.ide.util.TipDialog/62.0.1304.768@62.0.1304.768" timestamp="1579332223070" />
+    <state x="415" y="209" key="com.intellij.ide.util.TipDialog/62.0.1304.768@62.0.1304.768" timestamp="1579379971525" />
     <state x="523" y="302" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1579243651574">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
     <state x="523" y="302" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/62.0.1304.768@62.0.1304.768" timestamp="1579243651574" />
-    <state x="377" y="89" width="672" height="678" key="search.everywhere.popup" timestamp="1579243658073">
+    <state x="377" y="89" width="672" height="678" key="search.everywhere.popup" timestamp="1579390580544">
       <screen x="62" y="0" width="1304" height="768" />
     </state>
-    <state x="377" y="89" width="672" height="678" key="search.everywhere.popup/62.0.1304.768@62.0.1304.768" timestamp="1579243658073" />
+    <state x="377" y="89" width="672" height="678" key="search.everywhere.popup/62.0.1304.768@62.0.1304.768" timestamp="1579390580544" />
   </component>
 </project>

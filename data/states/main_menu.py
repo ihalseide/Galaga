@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-#
-# main_menu.py
-
-
 import pygame
 
 from .state import _State
@@ -13,19 +8,20 @@ from .. import tools
 from ..components import stars, hud
 
 # A few constants for the menu
-LIGHT_TITLE = setup.GFX.get('light title')
-GREEN_TITLE = setup.GFX.get('green title')
-WHITE_TITLE = setup.GFX.get('white title')
+# TODO: make the title have transparency so stars can show around it
+LIGHT_TITLE = setup.get_image('light title')
+GREEN_TITLE = setup.get_image('green title')
+WHITE_TITLE = setup.get_image('white title')
 # Positioning on screen
 SCORE_Y = 10
 TITLE_X = c.GAME_CENTER_X - LIGHT_TITLE.get_rect().width/2
 TITLE_Y = SCORE_Y + 80
 START_Y = TITLE_Y + 110
 COPY_Y = START_Y + 60
-# Timing and speeds
+# Timing and speeds (in seconds)
 MENU_SPEED = 2
-TITLE_FLASH_TIME = 0.15 # seconds
-TITLE_FLASH_NUM = 15
+TITLE_FLASH_TIME = 0.1
+TITLE_FLASH_NUM = 12
 
 
 class Menu(_State):
@@ -67,8 +63,13 @@ class Menu(_State):
 					# start the game
 					self.next = c.PLAY_STATE
 					self.done = True
+					self.play_start_noise()
 				else:
 					self.set_ready()
+
+	@staticmethod
+	def play_start_noise():
+		setup.get_sfx('start_noise').play()
 
 	def update(self, dt, keys):
 		# stars
@@ -95,7 +96,7 @@ class Menu(_State):
 	def display(self, screen, dt):
 		# draw background
 		self.hud.display(screen)
-		screen.fill((0, 0, 0))
+		screen.fill(pygame.Color('black'))
 		self.stars.display(screen)
 		# title normal
 		if not self.is_flashing:

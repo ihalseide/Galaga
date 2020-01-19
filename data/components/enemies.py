@@ -1,39 +1,46 @@
-from . import centered_sprite
-from .. import tools
+from data import tools
+from data.components import centered_sprite
 
 
-ANIMATION_TIME = 0.75 # seconds per frame
-DEATH_TIME = 0.2
-# states
-ASSEMBLING = "Assembling"
-TO_FORMATION = "Going to formation"
-FORMATION = "Formation"
-DIVE_BOMB = "Dive bomb run"
-TRACTOR_BEAM = "Tractor beam"
-DYING = "Dying"
+class _Enemy(centered_sprite.CenteredSprite):
 
-TIME_BT_POINTS = 0.7  # time between points in the paths
-
-EXPLOSION = [
-	tools.grab_sheet(8*16, 3*16, 16),
-	tools.grab_sheet(9*16, 3*16, 16),
-	tools.grab_sheet(10*16, 3*16, 16),
-	tools.grab_sheet(11*16, 3*16, 32),
-	tools.grab_sheet(13*16, 3*16, 32),
-]
+	def __init__(self, x: int, y: int, formation_x: int, formation_y: int, can_be_in_formation: bool = True, *groups):
+		super().__init__(*groups)
+		self.x: int = x
+		self.y: int = y
+		self.formation_x: int = formation_x
+		self.formation_y: int = formation_y
+		self.can_be_in_formation = can_be_in_formation
+		self.rotation = 0
 
 
-class Enemy(centered_sprite.CenteredSprite):
-	pass
+class Bee(_Enemy):
+
+	def __init__(self, x: int, y: int, formation_x: int, formation_y: int):
+		super(Bee, self).__init__(x, y, formation_x, formation_y, can_be_in_formation=True)
+		self.image = tools.grab_sheet(224, 32, 16)
+		self.rect = tools.create_center_rect(self.x, self.y, 16, 16)
 
 
-class Bee(Enemy):
-	pass
+class Butterfly(_Enemy):
+
+	def __init__(self, x: int, y: int, formation_x: int, formation_y: int):
+		super(Butterfly, self).__init__(x, y, formation_x, formation_y, can_be_in_formation=True)
+		self.image = tools.grab_sheet(96, 32, 16)
+		self.rect = tools.create_center_rect(self.x, self.y, 16, 16)
 
 
-class Butterfly(Enemy):
-	pass
+# The enemy that tries to capture the player's fighter
+class Boss(_Enemy):
+
+	def __init__(self, x: int, y: int, formation_x: int, formation_y: int):
+		super(Boss, self).__init__(x, y, formation_x, formation_y, can_be_in_formation=True)
+		self.image = tools.grab_sheet(224, 16, 16)
+		self.rect = tools.create_center_rect(self.x, self.y, 16, 16)
 
 
-class Boss(Enemy):
-	pass
+# The enemy that spawns after a kill streak
+class TrumpetBug(_Enemy):
+	
+	def __init__(self, x: int, y: int):
+		super(TrumpetBug, self).__init__(x, y, -1, -1, can_be_in_formation=False)

@@ -1,12 +1,6 @@
-#!/usr/bin/env python3
-
-# scoring.py
-
-
 from collections import namedtuple
 
 from . import constants as c
-
 
 # how many scores to track
 SCORES_LENGTH = 15

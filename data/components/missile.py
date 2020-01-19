@@ -24,15 +24,10 @@ class Missile(centered_sprite.CenteredSprite):
 		else:
 			self.image = PLAYER_TYPE
 
-	def update(self, dt, bounds):
-		# TODO: move detecting bounds to the play_state class
+	def update(self, dt):
 		if self.is_enemy:
 			vel = self.vel * ENEMY_SPEED * dt
 		else:
 			vel = self.vel * PLAYER_SPEED * dt
-
 		self.rect.x += round(vel.x)
 		self.rect.y += round(vel.y)
-
-		if not bounds.contains(self.rect):
-			self.kill()
