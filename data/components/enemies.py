@@ -2,7 +2,7 @@ from data import tools
 from data.components import centered_sprite
 
 
-class _Enemy(centered_sprite.CenteredSprite):
+class Enemy(centered_sprite.CenteredSprite):
 
 	def __init__(self, x: int, y: int, formation_x: int, formation_y: int, can_be_in_formation: bool = True, *groups):
 		super().__init__(*groups)
@@ -14,7 +14,7 @@ class _Enemy(centered_sprite.CenteredSprite):
 		self.rotation = 0
 
 
-class Bee(_Enemy):
+class Bee(Enemy):
 
 	def __init__(self, x: int, y: int, formation_x: int, formation_y: int):
 		super(Bee, self).__init__(x, y, formation_x, formation_y, can_be_in_formation=True)
@@ -22,7 +22,7 @@ class Bee(_Enemy):
 		self.rect = tools.create_center_rect(self.x, self.y, 16, 16)
 
 
-class Butterfly(_Enemy):
+class Butterfly(Enemy):
 
 	def __init__(self, x: int, y: int, formation_x: int, formation_y: int):
 		super(Butterfly, self).__init__(x, y, formation_x, formation_y, can_be_in_formation=True)
@@ -31,7 +31,7 @@ class Butterfly(_Enemy):
 
 
 # The enemy that tries to capture the player's fighter
-class Boss(_Enemy):
+class Boss(Enemy):
 
 	def __init__(self, x: int, y: int, formation_x: int, formation_y: int):
 		super(Boss, self).__init__(x, y, formation_x, formation_y, can_be_in_formation=True)
@@ -40,7 +40,7 @@ class Boss(_Enemy):
 
 
 # The enemy that spawns after a kill streak
-class TrumpetBug(_Enemy):
+class TrumpetBug(Enemy):
 	
 	def __init__(self, x: int, y: int):
 		super(TrumpetBug, self).__init__(x, y, -1, -1, can_be_in_formation=False)

@@ -1,15 +1,15 @@
-import pygame
-from pygame.math import Vector2
-
-from .state import _State
 from .. import constants as c
 from .. import setup
 from .. import tools
 from ..components import missile, player, stars, hud
+from .state import State
+from pygame.math import Vector2
+import pygame
 
 # Where the game area really starts and ends vertically to fit the HUD
 STAGE_TOP = 30
 STAGE_BOTTOM = c.GAME_HEIGHT - 20
+
 # sprite resources
 GRAPHICS = {
 	c.LIFE: tools.grab_sheet(96, 0, 16),
@@ -20,6 +20,7 @@ GRAPHICS = {
 	c.STAGE_30: tools.grab_sheet(144, 48, 16),
 	c.STAGE_50: tools.grab_sheet(128, 48, 16),
 }
+
 # Timing (in seconds)
 STAGE_DURATION = 1.6
 READY_DURATION = 1.6
@@ -32,7 +33,7 @@ START_DURATION = START_NOISE_WAIT + INTRO_MUSIC_DURATION
 STAGE_BADGE_DURATION = 0.15
 
 
-class Play(_State):
+class Play(State):
 
 	@staticmethod
 	def draw_mid_text(screen, text, color, line=1):
@@ -77,7 +78,7 @@ class Play(_State):
 
 	def __init__(self, persist=None):
 		# do the things all states must do...
-		_State.__init__(self, persist)
+		State.__init__(self, persist)
 		self.next = c.PLAY_STATS
 		self.current_time = 0
 

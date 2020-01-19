@@ -3,10 +3,10 @@
 # new_high_score.py
 
 
-from .state import _State
+from .state import State
 
 
-class HighScore(_State):
+class HighScore(State):
 	# TODO: implement
 	pass
 

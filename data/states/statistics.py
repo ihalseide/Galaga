@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-from .state import _State
+from .state import State
 
 
-class Stats(_State):
+class Stats(State):
 	# TODO: implement
 	pass

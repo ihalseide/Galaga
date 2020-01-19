@@ -1,8 +1,6 @@
+from data import setup
 from typing import Tuple, Union
-
 import pygame
-
-from . import setup
 
 
 def lerp(start: float, stop: float, percent: float) -> float:

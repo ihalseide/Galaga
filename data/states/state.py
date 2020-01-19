@@ -1,7 +1,7 @@
 import pygame
 
 
-class _State(object):
+class State(object):
 	def __init__(self, persist=None):
 		if persist is None:
 			persist = dict()

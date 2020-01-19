@@ -1,5 +1,5 @@
-from .state import _State
+from .state import State
 
 
-class Demo(_State):
+class Demo(State):
 	pass  # TODO: implement demo

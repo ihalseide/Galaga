@@ -1,6 +1,6 @@
 import pygame
 
-from .state import _State
+from .state import State
 from .. import constants as c
 from .. import scoring
 from .. import setup
@@ -24,9 +24,9 @@ TITLE_FLASH_TIME = 0.1
 TITLE_FLASH_NUM = 12
 
 
-class Menu(_State):
+class Menu(State):
 	def __init__(self, persist=None):
-		_State.__init__(self, persist)
+		State.__init__(self, persist)
 		# init hud
 		self.hud = hud.Hud(scoring.get_1up_score(), scoring.get_high_score())
 		# initialize the stars
