@@ -1,10 +1,16 @@
-# Galaga (game clone)
+# Galaga (game clone) (WORK IN PROGRESS)
 A clone of the arcade game Galaga written in Python with the Pygame library. 
 Much inspiration for organization of code was taken from this repo: <https://github.com/Hyungmook/MarioLevel1>.
 
+## How to run
+Use Python to run the galaga.py file in the top-level directory.
+
+Run `python galaga.py` in terminal, making sure all the dependencies for Python are met.
+
 ## Dependencies
-- Python v3.8
-- pygame v1.9.6 `python -m pip install pygame`
+- [Python](https://www.python.org/downloads/) v3.8
+- [pygame](https://www.pygame.org/news) v1.9.6 
+( `python -m pip install pygame` with Python and pip installed)
 
 ## The Game
 The point of the game is to get through as many stages as possible and get the high score.
