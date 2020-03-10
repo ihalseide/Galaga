@@ -18,5 +18,8 @@ setuptools.setup(
         "License :: GNU General Public License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.8',
+    install_requires=[
+        "pygame >= 1.9.6"
+    ]
 )
