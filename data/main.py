@@ -1,7 +1,9 @@
+from typing import Union
+
+import pygame
+
 from data import constants as c
 from data.states import main_menu, play_state, statistics, demo, new_high_score, state
-from typing import Union
-import pygame
 
 
 class Control(object):

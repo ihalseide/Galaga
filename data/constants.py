@@ -30,11 +30,18 @@ STAGE_30 = 30
 STAGE_50 = 50
 SPEED = 'speed'
 COLORS = 'colors'
+ON: bool = True
+OFF: bool = False
 
 # Game space
 GAME_WIDTH, GAME_HEIGHT = 224, 288
 SCREEN_WIDTH, SCREEN_HEIGHT = 224, 288
-GAME_CENTER_X, GAME_CENTER_Y = GAME_WIDTH//2, GAME_HEIGHT//2
+GAME_CENTER_X, GAME_CENTER_Y = GAME_WIDTH // 2, GAME_HEIGHT // 2
+
+# Where the game area really starts and ends vertically to fit the HUD
+STAGE_TOP = 30
+STAGE_BOTTOM = GAME_HEIGHT - 20
+BADGE_TOP = GAME_HEIGHT - 19
 
 # Frames per second
 FPS = 30
