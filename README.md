@@ -5,6 +5,8 @@ Much inspiration for organization of code was taken from this repo: <https://git
 ## Contributing [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
 Go ahead and contribute if you want to! I would love to collaborate on this project, even if it strays from the original!
 
+Just start your pull request and/or [email me](mailto:halseide.izak@gmail.com) ([ihalseide](https://github.com/ihalseide))!
+
 ## How to run
 Use Python to run the galaga.py file in the top-level directory.
 
