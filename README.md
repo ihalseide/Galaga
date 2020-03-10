@@ -1,3 +1,5 @@
+[![HitCount](http://hits.dwyl.com/ihalseide/Galaga.svg)](http://hits.dwyl.com/ihalseide/Galaga)
+
 # Galaga (game clone) (WORK IN PROGRESS)
 A clone of the arcade game Galaga written in Python with the Pygame library. 
 Much inspiration for organization of code was taken from this repo: <https://github.com/Hyungmook/MarioLevel1>.
