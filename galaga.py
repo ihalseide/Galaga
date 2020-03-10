@@ -3,10 +3,9 @@
 __author__ = "Izak Halseide"
 
 import sys
-
 import pygame
 
-from src import main
+from data import main
 
 if __name__ == '__main__':
     main.main()
