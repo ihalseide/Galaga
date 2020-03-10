@@ -1,5 +1,6 @@
 # Galaga (game clone)
-A clone of the arcade game Galaga written in Python with the Pygame library. Much inspiration for organization of code was taken from this repo: <https://github.com/Hyungmook/MarioLevel1>.
+A clone of the arcade game Galaga written in Python with the Pygame library. 
+Much inspiration for organization of code was taken from this repo: <https://github.com/Hyungmook/MarioLevel1>.
 
 ## Dependencies
 - Python v3.8
@@ -10,8 +11,11 @@ The point of the game is to get through as many stages as possible and get the h
 
 ### Controls
 Right arrow = move the ship right
+
 Left arrow = move the ship left
+
 Enter key = "start" function
+
 Space key = make the ship fire its missile
 
 ### Completedness
