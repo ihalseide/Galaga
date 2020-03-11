@@ -1,6 +1,7 @@
 from data import setup
 from typing import Tuple, Union
 import pygame
+import math
 
 
 def lerp(start: float, stop: float, percent: float) -> float:
@@ -81,3 +82,46 @@ def create_center_rect(x: int, y: int, width: int, height: int) -> pygame.Rect:
     rect = pygame.Rect(0, 0, width, height)
     rect.center = (x, y)
     return rect
+
+
+def distance(x1: float, y1: float, x2: float, y2: float):
+    """
+    Return distance between two 2D points.
+    """
+    dx = x2 - x1
+    dy = y2 - y1
+    return math.sqrt(dx * dx + dy * dy)
+
+
+def angle_between(x1: float, y1: float, x2: float, y2: float):
+    dx = x2 - x1
+    dy = y2 - y1
+    return math.atan2(dy, dx)
+
+
+def close_to_2d(x1, y1, x2, y2, max_distance=0.001):
+    """
+    Give whether two points in 2d space are "close enough"
+    """
+    return distance(x1, y1, x2, y2) <= max_distance
+
+
+def snap_angle(angle) -> int:
+    """
+    Return the nearest discrete 8-value angle to a continuous radian angle
+    :param angle: input angle in radians
+    :return:
+    """
+    # TODO: implement
+    return angle // 8
+
+
+def clamp_value(n, minimum, maximum):
+    """
+    Clamp a value between a min and max
+    :param n:
+    :param minimum:
+    :param maximum:
+    :return:
+    """
+    return max(minimum, min(n, maximum))

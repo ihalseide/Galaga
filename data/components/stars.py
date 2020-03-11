@@ -1,4 +1,3 @@
-# TODO: fix star twinkling
 import random
 from typing import Tuple, List
 
@@ -10,14 +9,14 @@ from .. import constants as c
 NUM_OF_RANDOM_STARS = 64
 # blue is in the list twice so that it is  selected more often
 LAYERS = (
-	{c.SPEED: 60, c.COLORS: (pygame.Color("red"), pygame.Color("lightgreen"))},
-	{c.SPEED: 100, c.COLORS: (pygame.Color('yellow'), pygame.Color('blue'), pygame.Color('white'))}
+	{c.SPEED: 60/1000, c.COLORS: (pygame.Color("red"), pygame.Color("lightgreen"))},
+	{c.SPEED: 0.1, c.COLORS: (pygame.Color('yellow'), pygame.Color('blue'), pygame.Color('white'))}
 )
-TWINKLING_PHASES = [{c.ON: 0.15, c.OFF: 0.14},
-					{c.ON: 0.21, c.OFF: 0.2},
-					{c.ON: 0.31, c.OFF: 0.3},
-					{c.ON: 0.41, c.OFF: 0.3},
-					{c.ON: 0.51, c.OFF: 0.3}]
+TWINKLING_PHASES = [{c.ON: 150, c.OFF: 140},
+					{c.ON: 210, c.OFF: 200},
+					{c.ON: 310, c.OFF: 300},
+					{c.ON: 410, c.OFF: 300},
+					{c.ON: 510, c.OFF: 300}]
 
 
 class Star(object):
@@ -38,7 +37,7 @@ class Star(object):
 			# update position
 			speed = LAYERS[self.layer][c.SPEED]
 			new_y = self.y + speed * dt * move
-			new_y = new_y % c.GAME_HEIGHT # wrap around screen
+			new_y = new_y % c.GAME_HEIGHT  # wrap around screen
 			self.y = new_y
 		self.pixel_location = round(self.x), round(self.y)
 

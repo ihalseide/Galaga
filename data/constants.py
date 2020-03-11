@@ -2,7 +2,15 @@
 Constants for the rest of the game - no importing from other game code allowed here!
 """
 
+# String constants for in-game
 TITLE = 'Galaga'  # title for the game window
+MENU_MESSAGE = 'GALAGA © 1981'
+START = 'START'
+HI_SCORE = 'HI-SCORE'
+ONE_UP = '1UP'
+HI_SCORE_NUM = '{: =6}'
+STAGE = 'STAGE {: =3}'
+READY = 'READY'
 
 # Resources and other file paths
 RESOURCES = "resources"
@@ -33,6 +41,16 @@ COLORS = 'colors'
 ON: bool = True
 OFF: bool = False
 
+# rotation of things
+ANGLE_UP = 0
+ANGLE_UP_RIGHT = 1
+ANGLE_RIGHT = 2
+ANGLE_DOWN_RIGHT = 3
+ANGLE_DOWN = 4
+ANGLE_DOWN_LEFT = 5
+ANGLE_LEFT = 6
+ANGLE_UP_LEFT = 7
+
 # Game space
 GAME_WIDTH, GAME_HEIGHT = 224, 288
 SCREEN_WIDTH, SCREEN_HEIGHT = 224, 288
@@ -45,3 +63,7 @@ BADGE_TOP = GAME_HEIGHT - 19
 
 # Frames per second
 FPS = 30
+FLASH_FREQUENCY = 800
+
+# Debug flags ( REMEMBER TO REMOVE IN RELEASE!! )
+SKIP_WAITING = True

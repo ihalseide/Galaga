@@ -1,3 +1,5 @@
+__author__ = "Izak Halseide"
+
 import pygame
 from pygame.math import Vector2
 
@@ -5,12 +7,8 @@ from data import constants as c
 from data import setup
 from data import tools
 from data.components import missile, player, stars, hud, stages
-from data.components.enemies import Enemy
 from data.components.explosion import Explosion
 from data.states.state import State
-
-# Debug flags ( REMEMBER TO REMOVE IN RELEASE!! )
-SKIP_WAITING = True
 
 # sprite resources
 GRAPHICS = {
@@ -24,15 +22,15 @@ GRAPHICS = {
 }
 
 # Timing (in seconds)
-STAGE_DURATION = 1.6
-READY_DURATION = 1.6
-TRANSITION_DURATION = 0.45
-NEW_ENEMY_WAIT = 0.3
-NEW_WAVE_WAIT = 1
-INTRO_MUSIC_DURATION = 6.6
-START_NOISE_WAIT = 1
+STAGE_DURATION = 1600
+READY_DURATION = 1600
+TRANSITION_DURATION = 450
+NEW_ENEMY_WAIT = 300
+NEW_WAVE_WAIT = 1000
+INTRO_MUSIC_DURATION = 6600
+START_NOISE_WAIT = 1000
 START_DURATION = START_NOISE_WAIT + INTRO_MUSIC_DURATION
-STAGE_BADGE_DURATION = 0.15
+STAGE_BADGE_DURATION = 150
 
 
 class Play(State):
@@ -132,6 +130,7 @@ class Play(State):
         self.should_show_ready = False
         self.should_show_stage = False
         self.should_spawn_enemies = False
+        self.flashing_timer = 0
 
     def cleanup(self):
         return self.persist
@@ -145,15 +144,15 @@ class Play(State):
         self.play_fire_noise()
         # v is multiplied by speed in the missile class
         # noinspection PyArgumentList
-        v = Vector2(0, -1)
+        v = Vector2(0, -0.350)
         x = self.player.rect.centerx
         y = self.player.rect.top + 10
-        m = missile.Missile((x, y), v, is_enemy=False)
+        m = missile.Missile(x, y, v, is_enemy=False)
         self.last_fire_time = self.current_time
         self.missiles.add(m)
 
     def play_intro_music(self):
-        if SKIP_WAITING:
+        if c.SKIP_WAITING:
             self.has_started_intro_music = True
             self.blocking_timer = START_DURATION
             return
@@ -201,10 +200,9 @@ class Play(State):
     def update_stage(self, dt: float):
         if self.is_ready:
             self.the_stage.update(dt)
-            new_enemies = self.the_stage.get_new_enemies()
-            if new_enemies:
-                for e in new_enemies:
-                    self.enemies.add(e)
+            new_enemy = self.the_stage.get_new_enemy()
+            if new_enemy:
+                self.enemies.add(new_enemy)
 
     def add_explosion(self, x, y):
         self.explosions.add(Explosion(x, y))
@@ -243,6 +241,15 @@ class Play(State):
             self.blocking_timer += dt
             if self.blocking_timer >= READY_DURATION:
                 self.done_with_ready()
+        # the "flashing timer" for synchronized flashing of some things
+        self.flashing_timer += dt
+        if self.flashing_timer >= c.FLASH_FREQUENCY:
+            self.flashing_timer = 0
+            self.flash()
+
+    def flash(self):
+        for enemy in self.enemies:
+            enemy.flash_update()
 
     def show_ready(self):
         self.should_show_ready = True
@@ -310,8 +317,8 @@ class Play(State):
         # draw HUD
         self.display_hud(screen)
         # debug
-        tools.draw_text(screen, str(len(self.explosions)), (40, 40), pygame.Color('red'))
-        if SKIP_WAITING:
+        # tools.draw_text(screen, str(len(self.explosions)), (40, 40), pygame.Color('red'))
+        if c.SKIP_WAITING:
             pygame.draw.rect(screen, pygame.Color('green'), (0, 0, c.GAME_WIDTH, c.GAME_HEIGHT), 1)
 
     # pygame.draw.rect(screen, (255,255,255), self.bounds, 1)
@@ -390,12 +397,12 @@ class Play(State):
 
     def show_state(self, screen):
         if self.is_starting:
-            self.draw_mid_text(screen, "START", pygame.Color("red"))
+            self.draw_mid_text(screen, c.START, pygame.Color("red"))
         elif self.should_show_stage:
             # pad the number to 3 digits
-            self.draw_mid_text(screen, "STAGE {: =3}".format(self.stage_num), pygame.Color('skyblue'))
+            self.draw_mid_text(screen, c.STAGE.format(self.stage_num), pygame.Color('skyblue'))
         elif self.should_show_ready:
-            self.draw_mid_text(screen, 'READY', pygame.Color('red'))
+            self.draw_mid_text(screen, c.READY, pygame.Color('red'))
 
     def update_player(self, dt, keys):
         if self.is_player_alive and self.can_control_player:

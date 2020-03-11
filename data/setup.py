@@ -1,3 +1,5 @@
+__author__ = "Izak Halseide"
+
 import os
 from string import ascii_lowercase
 from typing import Tuple, Union
@@ -49,16 +51,21 @@ def load_font() -> dict:
 	"""
 	Create the coordinate map for the font image
 	"""
+	row_2_y = FONT_ALPHABET_Y + FONT_CHAR_SIZE
 	font = dict()
 	# add alphabet
 	for i, char in enumerate(ascii_lowercase):
 		font[char] = (i * FONT_CHAR_SIZE, FONT_ALPHABET_Y)
 	# add digits
 	for i in range(10):
-		font[str(i)] = (i * FONT_CHAR_SIZE, FONT_ALPHABET_Y + FONT_CHAR_SIZE)
-	font['-'] = (10 * FONT_CHAR_SIZE, FONT_ALPHABET_Y + FONT_CHAR_SIZE)
-	font[' '] = (11 * FONT_CHAR_SIZE, FONT_ALPHABET_Y + FONT_CHAR_SIZE)
-	font[None] = (12 * FONT_CHAR_SIZE, FONT_ALPHABET_Y + FONT_CHAR_SIZE)
+		font[str(i)] = (i * FONT_CHAR_SIZE, row_2_y)
+	font['-'] = (10 * FONT_CHAR_SIZE, row_2_y)
+	font[' '] = (11 * FONT_CHAR_SIZE, row_2_y)
+	font[None] = (12 * FONT_CHAR_SIZE, row_2_y)
+	font[':'] = (13 * FONT_CHAR_SIZE, row_2_y)
+	font['!'] = (14 * FONT_CHAR_SIZE, row_2_y)
+	font[','] = (15 * FONT_CHAR_SIZE, row_2_y)
+	font['©'] = (16 * FONT_CHAR_SIZE, row_2_y)
 	return font
 
 

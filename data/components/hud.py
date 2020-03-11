@@ -1,18 +1,11 @@
-#!/usr/bin/env python3
-
-# hud.py
-
-
-"""
-Code for the shared HUD drawing between the menu state and the play state
-"""
+__author__ = "Izak Halseide"
 
 import pygame
 
-from .. import constants as c
-from .. import tools
+from data import constants as c
+from data import tools
 
-BLINK_1UP = 0.45  # seconds
+BLINK_1UP = 450  # milliseconds
 
 
 class Hud:
@@ -31,10 +24,10 @@ class Hud:
 
 	def display(self, screen, offset_y=0):
 		# 1UP score
-		score_string = "{: =6}".format(self._display_score)
-		tools.draw_text(screen, "1UP", (20, 10 + offset_y), pygame.Color('red'))
+		score_string = c.HI_SCORE_NUM.format(self._display_score)
+		tools.draw_text(screen, c.ONE_UP, (20, 10 + offset_y), pygame.Color('red'))
 		tools.draw_text(screen, score_string, (20, 20 + offset_y), pygame.Color('white'))
 		# high score
-		high_score_string = "{: =6}".format(self._high_score)
-		tools.draw_text(screen, "HI-SCORE", (c.GAME_CENTER_X, 10 + offset_y), pygame.Color('red'), centered_x=True)
+		high_score_string = c.HI_SCORE_NUM.format(self._high_score)
+		tools.draw_text(screen, c.HI_SCORE, (c.GAME_CENTER_X, 10 + offset_y), pygame.Color('red'), centered_x=True)
 		tools.draw_text(screen, high_score_string, (83, 20 + offset_y), pygame.Color('white'))

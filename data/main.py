@@ -1,28 +1,30 @@
-from typing import Union
+__author__ = "Izak Halseide"
 
 import pygame
 
 from data import constants as c
-from data.states import main_menu, play_state, statistics, demo, new_high_score, state
+from data.states import main_menu, play_state, statistics, demo, new_high_score
+from data.states.state import State
 
 
 class Control(object):
 	"""
 	Main class for running the game states and window
 	"""
+
 	def __init__(self):
 		self.clock = pygame.time.Clock()
-		self.fps: int = c.FPS
-		self.paused: bool = False
-		self.running: bool = True
-		self.screen: pygame.Surface = pygame.display.get_surface()
+		self.fps = c.FPS
+		self.paused = False
+		self.running = True
+		self.screen = pygame.display.get_surface()
 
 		# state variables
-		self.state_dict: dict = {}
-		self.state_name: str = 'None'
-		self.state: Union[state.State, None] = None
+		self.state_dict = {}
+		self.state_name = ''
+		self.state: State = State()
 
-	def setup_states(self, state_dict: dict, start_state: state.State):
+	def setup_states(self, state_dict: dict, start_state: State):
 		self.state_dict = state_dict
 		self.state_name = start_state
 		self.state = self.state_dict[self.state_name]({})
@@ -46,17 +48,18 @@ class Control(object):
 
 	def main(self):
 		while self.running:
-			dt = self.clock.tick(self.fps) / 1000 # convert milliseconds to seconds
+			delta_time = self.clock.tick(self.fps)
+			# TODO: fix huge delta times when the window gets unfocused or something
 			keys = self.events()
 			if not self.paused:
-				self.state.update(dt, keys)
+				self.state.update(delta_time, keys)
 
 			if self.state.done:
 				self.flip_state()
 			elif self.state.quit:
 				self.running = False
 
-			self.state.display(self.screen, dt)
+			self.state.display(self.screen, delta_time)
 			pygame.display.update()
 
 

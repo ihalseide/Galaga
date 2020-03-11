@@ -1,9 +1,9 @@
-from typing import Tuple, Optional
+__author__ = "Izak Halseide"
 
 import pygame
 
 from data import constants as c
-from data.components.enemies import Butterfly, Bee, EnemyPath, PathPoint, Enemy
+from data.components.enemies import Butterfly, Bee, EnemyPath, Enemy, WaitStep, LinearMoveStep, OrbitStep
 
 TOP_LEFT = 100, -20
 TOP_RIGHT = c.GAME_WIDTH - 100, -20
@@ -25,9 +25,9 @@ class Stage(object):
         self.waiting_enemies = []
         self._enemy_group_reference = None
 
-    def get_new_enemies(self) -> Tuple[Enemy]:
+    def get_new_enemy(self) -> Enemy:
         if self.waiting_enemies:
-            return (self.waiting_enemies.pop(),)
+            return self.waiting_enemies.pop()
 
     @property
     def enemy_group_reference(self):
@@ -57,9 +57,7 @@ def load_stage(stage_num: int) -> Stage:
     stage = Stage(stage_num)
 
     if stage_num == 1:
-        stage.add_enemy(Bee(50, 50, 0, 0, path=EnemyPath(PathPoint(100, 100, 1)), is_active=True))
-        stage.add_enemy(Bee(80, 50, 0, 0, path=EnemyPath(PathPoint(100, 100, 1)), is_active=True))
-        stage.add_enemy(Bee(110, 50, 0, 0, path=EnemyPath(PathPoint(100, 100, 1)), is_active=True))
+        stage.add_enemy(Bee(0, 0, 0, 0, EnemyPath(WaitStep(3000), LinearMoveStep(100, 200, 2000))))
     elif stage_num == 2:
         stage.is_bonus_stage = True
         stage.add_enemy(Bee(100, 100, 0, 0, None))

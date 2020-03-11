@@ -3,15 +3,13 @@ from data.components import galaga_sprite
 
 import pygame
 
-FRAME_DURATION = 0.1 # milliseconds
+FRAME_DURATION = 120
 
 
 class Explosion(galaga_sprite.GalagaSprite):
 
 	def __init__(self, x: int, y: int):
-		super(Explosion, self).__init__(rect=pygame.Rect(0, 0, 16, 16))
-		self.x = x
-		self.y = y
+		super(Explosion, self).__init__(x, y, 16, 16)
 		self.frame = 0
 		self.frame_timer = 0
 		self.image = tools.grab_sheet(224, 80, 16, 16)

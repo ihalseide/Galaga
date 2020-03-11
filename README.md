@@ -29,7 +29,7 @@ Enter key = "start" function
 
 Space key = make the ship fire its missile
 
-### Completedness
+### Completedness / TODO list
 - Player fires ✔️
 - Player moves ✔️
 - Enemies explode ✔️
@@ -39,6 +39,7 @@ Space key = make the ship fire its missile
 - Lives counter ✔️
 - Stage number display and other displays ✔️
 - High scores are saved ✔️
+- Write tests to make sure each function works as intended
 - Main menu looks correct
 - Main menu becomes a demo after inactivity
 - Enemies swoop down at the player
