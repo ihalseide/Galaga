@@ -5,8 +5,8 @@ import pygame
 from data import constants as c
 from data.components.enemies import Butterfly, Bee, EnemyPath, Enemy, WaitStep, LinearMoveStep, OrbitStep
 
-TOP_LEFT = 100, -20
-TOP_RIGHT = c.GAME_WIDTH - 100, -20
+TOP_LEFT_X = 100
+TOP_RIGHT_X = c.GAME_WIDTH - 100
 
 MAX_ENEMY_ROWS = 12
 MAX_ENEMY_COLUMNS = 12
@@ -57,7 +57,19 @@ def load_stage(stage_num: int) -> Stage:
     stage = Stage(stage_num)
 
     if stage_num == 1:
-        stage.add_enemy(Bee(0, 0, 0, 0, EnemyPath(WaitStep(3000), LinearMoveStep(100, 200, 2000))))
+
+        # TODO: fix enemy's animations being out of sync (not set in this file)
+        stage.add_enemy(Bee(TOP_RIGHT_X, 0, 4, 3, EnemyPath(WaitStep(0), LinearMoveStep(100, 200, 1000))))
+        stage.add_enemy(Bee(TOP_RIGHT_X, 0, 5, 3, EnemyPath(WaitStep(150), LinearMoveStep(100, 200, 1000))))
+        stage.add_enemy(Bee(TOP_RIGHT_X, 0, 4, 4, EnemyPath(WaitStep(300), LinearMoveStep(100, 200, 1000))))
+        stage.add_enemy(Bee(TOP_RIGHT_X, 0, 5, 4, EnemyPath(WaitStep(450), LinearMoveStep(100, 200, 1000))))
+
+        stage.add_enemy(Butterfly(TOP_LEFT_X, 0, 4, 3, EnemyPath(WaitStep(0), LinearMoveStep(100, 200, 1000))))
+        stage.add_enemy(Butterfly(TOP_LEFT_X, 0, 5, 3, EnemyPath(WaitStep(150), LinearMoveStep(100, 200, 1000))))
+        stage.add_enemy(Butterfly(TOP_LEFT_X, 0, 4, 4, EnemyPath(WaitStep(300), LinearMoveStep(100, 200, 1000))))
+        stage.add_enemy(Butterfly(TOP_LEFT_X, 0, 5, 4, EnemyPath(WaitStep(450), LinearMoveStep(100, 200, 1000))))
+
+        OrbitStep
     elif stage_num == 2:
         stage.is_bonus_stage = True
         stage.add_enemy(Bee(100, 100, 0, 0, None))

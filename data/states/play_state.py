@@ -7,10 +7,11 @@ from data import constants as c
 from data import setup
 from data import tools
 from data.components import missile, player, stars, hud, stages
+from data.components.enemies import FormationEnemy
 from data.components.explosion import Explosion
 from data.states.state import State
 
-# sprite resources
+# sprite resources for HUD
 GRAPHICS = {
     c.LIFE: tools.grab_sheet(96, 0, 16),
     c.STAGE_1: tools.grab_sheet(208, 48, 7, 16),
@@ -21,7 +22,7 @@ GRAPHICS = {
     c.STAGE_50: tools.grab_sheet(128, 48, 16),
 }
 
-# Timing (in seconds)
+# Timing (in milliseconds)
 STAGE_DURATION = 1600
 READY_DURATION = 1600
 TRANSITION_DURATION = 450
@@ -37,7 +38,7 @@ class Play(State):
 
     @staticmethod
     def draw_mid_text(screen, text, color, line=1):
-        x, y = c.GAME_CENTER_X, c.GAME_CENTER_Y + 15 * line
+        x, y = c.GAME_CENTER_X, c.GAME_CENTER_Y + 16 * line
         tools.draw_text(screen, text, (x, y), color, centered_x=True, centered_y=True)
 
     @staticmethod
@@ -76,8 +77,6 @@ class Play(State):
         State.__init__(self, persist)
         self.next = c.PLAY_STATS
         self.current_time = 0
-
-        # TODO: load scores?
 
         # init stars
         maybe_stars = self.persist.get(c.STARS)
@@ -131,6 +130,9 @@ class Play(State):
         self.should_show_stage = False
         self.should_spawn_enemies = False
         self.flashing_timer = 0
+
+        # Register with the `FormationEnemy` class
+        FormationEnemy.set_formation_pos_function(self.get_formation_pos, self)
 
     def cleanup(self):
         return self.persist

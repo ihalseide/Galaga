@@ -1,10 +1,12 @@
 __author__ = "Izak Halseide"
 
 import math
+
 import pygame
+
+from data import constants as c
 from data import tools
 from data.components import galaga_sprite
-from data import constants as c
 
 
 class PathStep:
@@ -60,11 +62,9 @@ class LinearMoveStep(PathStep):
             self.x = self.goal_x
             self.y = self.goal_y
             return
-        if self.start_x is None or self.start_y is None:
-            self.start_x = current_x
-            self.start_y = current_y
-        if self.angle is None:
-            self.angle = tools.angle_between(self.start_x, self.start_y, self.goal_x, self.goal_y)
+        self.x = current_x
+        self.y = current_y
+        self.angle = current_angle
         self.current_time += delta_time
         progress = tools.clamp_value(self.current_time / self.travel_time, 0, 1)
         self.x = tools.lerp(self.start_x, self.goal_x, progress)
@@ -138,7 +138,7 @@ class EnemyPath:
             self._current_step.setup_positions(self.x, self.y, self.angle)
             self._step_timer = 0
             return
-        elif 0 < self._current_step.max_time <= self._step_timer:
+        elif 0 <= self._current_step.max_time <= self._step_timer:
             self._current_step.is_done = True
 
         self._current_step.update(delta_time, self.x, self.y, self.angle)
@@ -155,6 +155,7 @@ class Enemy(galaga_sprite.GalagaSprite):
         super().__init__(x, y, 16, 16, *groups)
         self.angle = angle
         self.is_alive = True
+        self.frame_num = 0
 
         # Path to follow
         self._path: EnemyPath = path
@@ -176,7 +177,38 @@ class Enemy(galaga_sprite.GalagaSprite):
         super(Enemy, self).display(surface)
 
 
-class Bee(Enemy):
+class FormationEnemy(Enemy):
+    formation_state = None
+    formation_function = None
+
+    @classmethod
+    def go_to_formation_path(cls, formation_x, formation_y):
+        assert cls.formation_state is not None
+        assert cls.formation_function is not None
+        x, y = cls.formation_function(formation_x, formation_y)
+        return EnemyPath(LinearMoveStep(x, y, 600))
+
+    @classmethod
+    def set_formation_pos_function(cls, function, state):
+        cls.formation_function = function
+        cls.formation_state = state
+
+    def __init__(self, x: int, y: int, formation_x: int, formation_y: int, path: EnemyPath = None):
+        super(FormationEnemy, self).__init__(x, y, path=path)
+        self.rect = tools.create_center_rect(self.x, self.y, 16, 16)
+        self.formation_x = formation_x
+        self.formation_y = formation_y
+        self.is_in_formation = False
+
+    def update(self, delta_time):
+        super(FormationEnemy, self).update(delta_time)
+        if self._path and self._path.is_done and not self.is_in_formation:
+            self._path = self.go_to_formation_path(self.formation_x, self.formation_y)
+            self._path.setup_positions(self.x, self.y, self.angle)
+            self.is_in_formation = True
+
+
+class Bee(FormationEnemy):
     """
     Normal enemy
     """
@@ -185,13 +217,10 @@ class Bee(Enemy):
               (192, 32, 16, 16), (208, 32, 16, 16), (224, 32, 16, 16), (240, 32, 16, 16)]
 
     def __init__(self, x: int, y: int, formation_x: int, formation_y: int, path: EnemyPath = None):
-        super(Bee, self).__init__(x, y, path=path)
+        super(Bee, self).__init__(x, y, formation_x, formation_y, path=path)
         self.image = tools.grab_sheet(224, 32, 16)
         self.rect = tools.create_center_rect(self.x, self.y, 16, 16)
         self.frame_num = 7
-        self.formation_x = formation_x
-        self.formation_y = formation_y
-        self.is_in_formation = False
 
     def flash_update(self):
         if self.is_in_formation:
@@ -206,17 +235,16 @@ class Bee(Enemy):
     def display(self, surface: pygame.Surface):
         self.choose_image()
         super(Bee, self).display(surface)
-        tools.draw_text(surface, "Bee at: {}, {}".format(self.x, self.y), (40, 40), pygame.Color('yellow'))
+        # tools.draw_text(surface, "Bee at: {}, {}".format(self.x, self.y), (40, 40), pygame.Color('yellow'))
 
     def update(self, delta_time):
         super(Bee, self).update(delta_time)
 
 
-class Butterfly(Enemy):
+class Butterfly(FormationEnemy):
     """
     Normal enemy
     """
-    pass
 
 
 class Boss(Enemy):

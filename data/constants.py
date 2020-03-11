@@ -36,10 +36,6 @@ STAGE_10 = 10
 STAGE_20 = 20
 STAGE_30 = 30
 STAGE_50 = 50
-SPEED = 'speed'
-COLORS = 'colors'
-ON: bool = True
-OFF: bool = False
 
 # rotation of things
 ANGLE_UP = 0
@@ -66,4 +62,4 @@ FPS = 30
 FLASH_FREQUENCY = 800
 
 # Debug flags ( REMEMBER TO REMOVE IN RELEASE!! )
-SKIP_WAITING = True
+SKIP_WAITING = False
