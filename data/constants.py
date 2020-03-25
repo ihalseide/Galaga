@@ -23,9 +23,6 @@ PLAY_STATE = 'play'
 PLAY_STATS = 'play stats'
 NEW_SCORE_STATE = 'new high score'
 
-# Game state to start at
-INITIAL_STATE = MENU_STATE
-
 # other keys
 HUD = "hud"
 STARS = 'stars'

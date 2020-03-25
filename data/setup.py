@@ -23,50 +23,50 @@ START_KEYS = [pygame.K_SPACE, pygame.K_RETURN]
 
 
 def load_all_gfx(directory, accept=('.png', '.bmp', '.gif'), color_key=pygame.Color('black')) -> dict:
-	graphics = {}
-	for filename in os.listdir(directory):
-		name, ext = os.path.splitext(filename)
-		if ext.lower() in accept:
-			img = pygame.image.load(os.path.join(directory, filename))
-			if img.get_alpha():
-				img = img.convert_alpha()
-			else:
-				img = img.convert()
-				img.set_colorkey(color_key)
-			graphics[name] = img
-	return graphics
+    graphics = {}
+    for filename in os.listdir(directory):
+        name, ext = os.path.splitext(filename)
+        if ext.lower() in accept:
+            img = pygame.image.load(os.path.join(directory, filename))
+            if img.get_alpha():
+                img = img.convert_alpha()
+            else:
+                img = img.convert()
+                img.set_colorkey(color_key)
+            graphics[name] = img
+    return graphics
 
 
 def load_all_sfx(directory, accept=(".ogg", ".wav")) -> dict:
-	accept_all = len(accept) == 0
-	effects = {}
-	for filename in os.listdir(directory):
-		name, ext = os.path.splitext(filename)
-		if accept_all or ext.lower() in accept:
-			effects[name] = pygame.mixer.Sound(os.path.join(directory, filename))
-	return effects
+    accept_all = len(accept) == 0
+    effects = {}
+    for filename in os.listdir(directory):
+        name, ext = os.path.splitext(filename)
+        if accept_all or ext.lower() in accept:
+            effects[name] = pygame.mixer.Sound(os.path.join(directory, filename))
+    return effects
 
 
 def load_font() -> dict:
-	"""
-	Create the coordinate map for the font image
-	"""
-	row_2_y = FONT_ALPHABET_Y + FONT_CHAR_SIZE
-	font = dict()
-	# add alphabet
-	for i, char in enumerate(ascii_lowercase):
-		font[char] = (i * FONT_CHAR_SIZE, FONT_ALPHABET_Y)
-	# add digits
-	for i in range(10):
-		font[str(i)] = (i * FONT_CHAR_SIZE, row_2_y)
-	font['-'] = (10 * FONT_CHAR_SIZE, row_2_y)
-	font[' '] = (11 * FONT_CHAR_SIZE, row_2_y)
-	font[None] = (12 * FONT_CHAR_SIZE, row_2_y)
-	font[':'] = (13 * FONT_CHAR_SIZE, row_2_y)
-	font['!'] = (14 * FONT_CHAR_SIZE, row_2_y)
-	font[','] = (15 * FONT_CHAR_SIZE, row_2_y)
-	font['©'] = (16 * FONT_CHAR_SIZE, row_2_y)
-	return font
+    """
+    Create the coordinate map for the font image
+    """
+    row_2_y = FONT_ALPHABET_Y + FONT_CHAR_SIZE
+    font = dict()
+    # add alphabet
+    for i, char in enumerate(ascii_lowercase):
+        font[char] = (i * FONT_CHAR_SIZE, FONT_ALPHABET_Y)
+    # add digits
+    for i in range(10):
+        font[str(i)] = (i * FONT_CHAR_SIZE, row_2_y)
+    font['-'] = (10 * FONT_CHAR_SIZE, row_2_y)
+    font[' '] = (11 * FONT_CHAR_SIZE, row_2_y)
+    font[None] = (12 * FONT_CHAR_SIZE, row_2_y)
+    font[':'] = (13 * FONT_CHAR_SIZE, row_2_y)
+    font['!'] = (14 * FONT_CHAR_SIZE, row_2_y)
+    font[','] = (15 * FONT_CHAR_SIZE, row_2_y)
+    font['©'] = (16 * FONT_CHAR_SIZE, row_2_y)
+    return font
 
 
 # load all the resources
@@ -76,24 +76,24 @@ _GFX: dict = load_all_gfx(os.path.join(c.RESOURCES, "graphics"), ('.png', ".bmp"
 
 
 def get_sfx(sound_name: str) -> Union[pygame.mixer.Sound, None]:
-	return _SFX.get(sound_name)
+    return _SFX.get(sound_name)
 
 
 def has_sfx(sound_name: str) -> bool:
-	return get_sfx(sound_name) is not None
+    return get_sfx(sound_name) is not None
 
 
 def get_image(image_name: str) -> Union[pygame.Surface, None]:
-	return _GFX.get(image_name)
+    return _GFX.get(image_name)
 
 
 def has_image(image_name: str) -> bool:
-	return get_image(image_name) is not None
+    return get_image(image_name) is not None
 
 
 def get_from_font(character: Union[str, None]) -> Union[Tuple[int, int], None]:
-	return _FONT.get(character)
+    return _FONT.get(character)
 
 
 def has_char_in_font(character: str) -> bool:
-	return get_from_font(character) is not None
+    return get_from_font(character) is not None

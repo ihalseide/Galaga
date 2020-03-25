@@ -1,5 +1,4 @@
 import math
-from typing import Tuple, Union
 
 import pygame
 
@@ -30,7 +29,7 @@ def map_value(value, in_start, in_stop, out_start, out_stop):
     return out_start + (out_stop - out_start) * ((value - in_start) / (in_stop - in_start))
 
 
-def _font_render(text: str, color: pygame.Color, bg_color: Union[pygame.Color, None] = None):
+def _font_render(text: str, color: pygame.Color, bg_color=None):
     """
     Create a pygame image with the text rendered on it using the custom bitmap font
     :param text:
@@ -47,7 +46,7 @@ def _font_render(text: str, color: pygame.Color, bg_color: Union[pygame.Color, N
         if not font_data:
             font_data = setup.get_from_font(None)
         # grab the image at location
-        glyph = grab_sheet(font_data[0], font_data[1], setup.FONT_CHAR_SIZE)
+        glyph = grab_sheet(font_data[0], font_data[1], setup.FONT_CHAR_SIZE, setup.FONT_CHAR_SIZE)
         surf.blit(glyph, (i * setup.FONT_CHAR_SIZE, 0), )
     # replace colors
     pixels = pygame.PixelArray(surf)
@@ -58,8 +57,8 @@ def _font_render(text: str, color: pygame.Color, bg_color: Union[pygame.Color, N
     return surf
 
 
-def draw_text(screen: pygame.Surface, text: str, position: Tuple[int, int], color: pygame.Color,
-              bg_color: Union[pygame.Color, None] = None, centered_y: bool = False, centered_x: bool = False):
+def draw_text(screen: pygame.Surface, text: str, position, color: pygame.Color, bg_color=None,
+              centered_y: bool = False, centered_x: bool = False):
     surf = _font_render(text, color, bg_color)
     x, y = position
     width, height = surf.get_size()
@@ -70,13 +69,10 @@ def draw_text(screen: pygame.Surface, text: str, position: Tuple[int, int], colo
     screen.blit(surf, (x, y))
 
 
-def grab_sheet(x: int, y: int, width: int, height: Union[int, None] = None) -> pygame.Surface:
+def grab_sheet(x: int, y: int, width: int, height: int) -> pygame.Surface:
     """
     Get a pixel rectangle from an image resource
     """
-    # allow square assumption (w = h)
-    if height is None:
-        height = width
     return setup.get_image('sheet').subsurface((x, y, width, height))
 
 
@@ -130,6 +126,31 @@ def clamp_value(n, minimum, maximum):
 
 
 def range_2d(start_x, start_y, end_x, end_y):
+    """
+    A range across 2D indices in x and y
+    :param start_x:
+    :param start_y:
+    :param end_x: exclusive
+    :param end_y: exclusive
+    :return:
+    """
     for x in range(start_x, end_x):
         for y in range(start_y, end_y):
             yield x, y
+
+
+def irange_2d(start_x, start_y, end_x, end_y):
+    """
+    Be inclusive with the end_x and end_y
+    :param start_x:
+    :param start_y:
+    :param end_x: inclusive
+    :param end_y: inclusive
+    :return:
+    """
+    for x, y in range_2d(start_x, start_y, end_x + 1, end_y + 1):
+        yield x, y
+
+
+def arc_length(start_angle, end_angle, radius):
+    return None

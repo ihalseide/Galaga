@@ -1,24 +1,24 @@
-from data import tools, galaga_sprite
-
-ENEMY_TYPE = tools.grab_sheet(246, 51, 3, 8)
-PLAYER_TYPE = tools.grab_sheet(246, 67, 3, 8)
+from data import tools
+from data.galaga_sprite import GalagaSprite
 
 
-class Missile(galaga_sprite.GalagaSprite):
-	def __init__(self, x, y, vel, is_enemy):
-		super(Missile, self).__init__(x, y, 2, 10)
-		self.vel = vel
-		self.is_enemy = is_enemy
+class Missile(GalagaSprite):
+    ENEMY_MISSILE = 246, 51, 3, 8
+    PLAYER_MISSILE = 246, 67, 3, 8
 
-		if self.is_enemy:
-			self.image = ENEMY_TYPE
-		else:
-			self.image = PLAYER_TYPE
+    def __init__(self, x, y, vel, is_enemy):
+        super(Missile, self).__init__(x, y, 2, 10)
+        self.vel = vel
+        self.is_enemy = is_enemy
 
-	def update(self, dt):
-		if self.is_enemy:
-			vel = self.vel * dt
-		else:
-			vel = self.vel * dt
-		self.x += round(vel.x)
-		self.y += round(vel.y)
+        if self.is_enemy:
+            img_slice = self.ENEMY_MISSILE
+        else:
+            img_slice = self.PLAYER_MISSILE
+        ix, iy, w, h = img_slice
+        self.image = tools.grab_sheet(ix, iy, w, h)
+
+    def update(self, delta_time: int, flash_flag: bool):
+        vel = self.vel * delta_time
+        self.x += round(vel.x)
+        self.y += round(vel.y)

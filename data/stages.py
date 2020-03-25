@@ -5,7 +5,9 @@ from collections import namedtuple
 import pygame
 
 from data import constants as c
-from data.enemies import Butterfly, Bee, EnemyPath, Enemy, WaitStep, TractorEnemy
+from data.enemies import Butterfly, Bee, TractorEnemy
+from data.enemy_paths import EnemyPath, Wait
+from data.galaga_sprite import GalagaSprite
 from data.tools import range_2d
 
 Point = namedtuple("Point", "x y")
@@ -32,7 +34,7 @@ class Stage(object):
         self.waiting_enemies = []
         self._enemy_group_reference = None
 
-    def get_new_enemy(self) -> Enemy:
+    def get_new_enemy(self) -> GalagaSprite:
         if self.waiting_enemies:
             return self.waiting_enemies.pop()
 
@@ -48,7 +50,7 @@ class Stage(object):
     def has_enemy_group_reference(self):
         return self._enemy_group_reference is not None
 
-    def add_enemy(self, enemy: Enemy):
+    def add_enemy(self, enemy: GalagaSprite):
         self.waiting_enemies.append(enemy)
 
     def update(self, dt: float):
@@ -71,12 +73,12 @@ def load_stage(stage_num: int) -> Stage:
         # 4 bees come from the top right and 4 butterflies come from the top left
         for x, y in range_2d(start_x=4, start_y=3, end_x=6, end_y=5):
             stage.add_enemy(Bee(x=TOP_RIGHT.x, y=TOP_RIGHT.y, formation_x=x, formation_y=y,
-                                path=EnemyPath(WaitStep(wait_time))))
+                                path=EnemyPath(Wait(wait_time))))
             wait_time += time_between_enemies
         wait_time = 0
         for x, y in range_2d(start_x=4, start_y=1, end_x=6, end_y=3):
             stage.add_enemy(Butterfly(x=TOP_LEFT.x, y=TOP_LEFT.y, formation_x=x, formation_y=y,
-                                      path=EnemyPath(WaitStep(wait_time))))
+                                      path=EnemyPath(Wait(wait_time))))
             wait_time += time_between_enemies
 
         # 4 bosses and 4 butterflies come in alternating order from the bottom left
@@ -84,21 +86,21 @@ def load_stage(stage_num: int) -> Stage:
         this_wave_time = wait_time
         for x, y in range_2d(3, 0, 7, 1):
             stage.add_enemy(TractorEnemy(x=BOTTOM_LEFT.x, y=BOTTOM_LEFT.y, formation_x=x, formation_y=y,
-                                         path=EnemyPath(WaitStep(wait_time))))
+                                         path=EnemyPath(Wait(wait_time))))
             wait_time += time_between_enemies
         wait_time = this_wave_time
         wait_time += time_between_enemies
         stage.add_enemy(Butterfly(x=BOTTOM_LEFT.x, y=BOTTOM_LEFT.y, formation_x=3, formation_y=1,
-                                  path=EnemyPath(WaitStep(wait_time))))
+                                  path=EnemyPath(Wait(wait_time))))
         wait_time += time_between_enemies
         stage.add_enemy(Butterfly(x=BOTTOM_LEFT.x, y=BOTTOM_LEFT.y, formation_x=3, formation_y=2,
-                                  path=EnemyPath(WaitStep(wait_time))))
+                                  path=EnemyPath(Wait(wait_time))))
         wait_time += time_between_enemies
         stage.add_enemy(Butterfly(x=BOTTOM_LEFT.x, y=BOTTOM_LEFT.y, formation_x=6, formation_y=1,
-                                  path=EnemyPath(WaitStep(wait_time))))
+                                  path=EnemyPath(Wait(wait_time))))
         wait_time += time_between_enemies
         stage.add_enemy(Butterfly(x=BOTTOM_LEFT.x, y=BOTTOM_LEFT.y, formation_x=6, formation_y=2,
-                                  path=EnemyPath(WaitStep(wait_time))))
+                                  path=EnemyPath(Wait(wait_time))))
         wait_time += time_between_enemies
         # 8 butterflies come from the bottom right
         # 8 bees come from the top right

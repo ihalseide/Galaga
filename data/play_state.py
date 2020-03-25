@@ -6,19 +6,18 @@ from pygame.math import Vector2
 from data import constants as c, player, hud, missile, stars, stages
 from data import setup
 from data import tools
-from data.enemies import FormationEnemy
 from data.explosion import Explosion
 from data.state import State
 
 # sprite resources for HUD
 GRAPHICS = {
-    c.LIFE: tools.grab_sheet(96, 0, 16),
+    c.LIFE: tools.grab_sheet(96, 0, 16, 16),
     c.STAGE_1: tools.grab_sheet(208, 48, 7, 16),
     c.STAGE_5: tools.grab_sheet(192, 48, 7, 16),
     c.STAGE_10: tools.grab_sheet(176, 48, 14, 16),
     c.STAGE_20: tools.grab_sheet(160, 48, 15, 16),
-    c.STAGE_30: tools.grab_sheet(144, 48, 16),
-    c.STAGE_50: tools.grab_sheet(128, 48, 16),
+    c.STAGE_30: tools.grab_sheet(144, 48, 16, 16),
+    c.STAGE_50: tools.grab_sheet(128, 48, 16, 16),
 }
 
 # Timing (in milliseconds)
@@ -88,7 +87,7 @@ class Play(State):
 
         # init player
         self.is_player_alive = False
-        self.player = player.Player()
+        self.player = player.Player(x=c.GAME_WIDTH // 2, y=c.GAME_HEIGHT - 25)
         self.extra_lives = 3
         self.can_control_player = False
         self.last_fire_time = 0
@@ -129,9 +128,7 @@ class Play(State):
         self.should_show_stage = False
         self.should_spawn_enemies = False
         self.flashing_timer = 0
-
-        # Register with the `FormationEnemy` class
-        FormationEnemy.set_formation_pos_function(self.get_formation_pos, self)
+        self.flash_flag = False
 
     def cleanup(self):
         return self.persist
@@ -181,22 +178,22 @@ class Play(State):
         y = self.formation_y_offset + formation_y * 17
         return x, y
 
-    def update(self, dt, keys):
-        self.current_time += dt
-        self.update_missiles(dt)
-        self.animate_stage_badges(dt)
-        self.stars.update(dt)
-        self.update_timers(dt)
-        self.explosions.update(dt)
+    def update(self, delta_time, keys):
+        self.current_time += delta_time
+        self.update_missiles(delta_time)
+        self.animate_stage_badges(delta_time)
+        self.stars.update(delta_time)
+        self.update_timers(delta_time)
+        self.explosions.update(delta_time, self.flash_flag)
         # update player
         if self.is_player_alive:
-            self.update_player(dt, keys)
+            self.update_player(delta_time, keys)
         # update stage spawning
         if self.the_stage:
-            self.update_stage(dt)
+            self.update_stage(delta_time)
         # update enemies
         if self.the_stage and self.enemies:
-            self.enemies.update(dt)
+            self.enemies.update(delta_time, self.flash_flag)
 
     def update_stage(self, dt: float):
         if self.is_ready:
@@ -209,9 +206,9 @@ class Play(State):
         self.explosions.add(Explosion(x, y))
         setup.get_sfx("explosion").play()
 
-    def update_missiles(self, dt):
+    def update_missiles(self, delta_time):
         for m in self.missiles.sprites():
-            m.update(dt)
+            m.update(delta_time, self.flash_flag)
             hit_enemies = pygame.sprite.spritecollide(m, self.enemies, dokill=False)
             for sprite in hit_enemies:
                 sprite.kill()
@@ -246,11 +243,7 @@ class Play(State):
         self.flashing_timer += dt
         if self.flashing_timer >= c.FLASH_FREQUENCY:
             self.flashing_timer = 0
-            self.flash()
-
-    def flash(self):
-        for enemy in self.enemies:
-            enemy.flash_update()
+            self.flash_flag = not self.flash_flag
 
     def show_ready(self):
         self.should_show_ready = True
@@ -295,7 +288,7 @@ class Play(State):
 
     def spawn_player(self):
         self.is_player_alive = True
-        self.player = player.Player()
+        self.player = player.Player(c.GAME_WIDTH // 2, c.GAME_HEIGHT - 25)
 
     def display(self, screen, dt):
         # clear screen

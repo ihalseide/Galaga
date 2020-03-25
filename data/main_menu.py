@@ -8,23 +8,23 @@ from data import setup
 from data import tools
 from data.state import State
 
-# A few constants for the menu
-LIGHT_TITLE = setup.get_image('light title')
-GREEN_TITLE = setup.get_image('green title')
-WHITE_TITLE = setup.get_image('white title')
-# Positioning on screen
-SCORE_Y = 10
-TITLE_X = c.GAME_CENTER_X - LIGHT_TITLE.get_rect().width / 2
-TITLE_Y = SCORE_Y + 80
-START_Y = TITLE_Y + 110
-COPY_Y = START_Y + 60
-# Timing and speeds
-MENU_SPEED = 2
-TITLE_FLASH_TIME = 150  # milliseconds
-TITLE_FLASH_NUM = 12
-
 
 class Menu(State):
+    # A few constants for the menu
+    LIGHT_TITLE = setup.get_image('light title')
+    GREEN_TITLE = setup.get_image('green title')
+    WHITE_TITLE = setup.get_image('white title')
+    # Positioning on screen
+    SCORE_Y = 10
+    TITLE_X = c.GAME_CENTER_X - LIGHT_TITLE.get_rect().width / 2
+    TITLE_Y = SCORE_Y + 80
+    START_Y = TITLE_Y + 110
+    COPY_Y = START_Y + 60
+    # Timing and speeds
+    MENU_SPEED = 2
+    TITLE_FLASH_TIME = 150  # milliseconds
+    TITLE_FLASH_NUM = 12
+
     def __init__(self, persist=None):
         State.__init__(self, persist)
         # init hud
@@ -79,17 +79,17 @@ class Menu(State):
         # scroll menu
         if self.ready:
             # flash timer
-            self.is_flashing = self.flash_num < TITLE_FLASH_NUM * 2
+            self.is_flashing = self.flash_num < self.TITLE_FLASH_NUM * 2
             if self.is_flashing:
                 self.timer += dt
-                if self.timer >= TITLE_FLASH_TIME:
+                if self.timer >= self.TITLE_FLASH_TIME:
                     self.timer = 0
                     self.flash_num += 1
                     self.is_title_white = not self.is_title_white
             else:
                 pass  # TODO: make it flash later or invoke demo?
         elif self.offset_y > 0:
-            self.offset_y -= MENU_SPEED
+            self.offset_y -= self.MENU_SPEED
             if self.offset_y <= 0:
                 self.set_ready()
 
@@ -100,20 +100,20 @@ class Menu(State):
         self.stars.display(screen)
         # title normal
         if not self.is_flashing:
-            surf = LIGHT_TITLE
+            surf = self.LIGHT_TITLE
         elif self.is_title_white:
-            surf = WHITE_TITLE
+            surf = self.WHITE_TITLE
         else:
-            surf = GREEN_TITLE
-        screen.blit(surf, (TITLE_X, TITLE_Y + self.offset_y))
+            surf = self.GREEN_TITLE
+        screen.blit(surf, (self.TITLE_X, self.TITLE_Y + self.offset_y))
         # hud
         score_1up = 20210  # TODO: use scoring.get_1up_score()
         highscore = 1000  # TODO: use scoring.get_high_score()
         # draw 1up and high score hud
         self.hud.display(screen, self.offset_y)
         # draw start text
-        tools.draw_text(screen, c.START, (c.GAME_CENTER_X, self.offset_y + START_Y), pygame.Color('white'),
+        tools.draw_text(screen, c.START, (c.GAME_CENTER_X, self.offset_y + self.START_Y), pygame.Color('white'),
                         centered_x=True)
         # draw copyright on bottom
-        tools.draw_text(screen, c.MENU_MESSAGE, (c.GAME_CENTER_X, self.offset_y + COPY_Y), pygame.Color('white'),
+        tools.draw_text(screen, c.MENU_MESSAGE, (c.GAME_CENTER_X, self.offset_y + self.COPY_Y), pygame.Color('white'),
                         centered_x=True)
