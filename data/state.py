@@ -2,6 +2,7 @@ import pygame
 
 
 class State(object):
+
     def __init__(self, persist=None):
         if persist is None:
             persist = dict()
@@ -14,10 +15,10 @@ class State(object):
         return self.persist
 
     def get_event(self, event: pygame.event.Event):
-        pass
+        raise NotImplementedError()
 
-    def update(self, dt: float, keys):
-        pass
+    def update(self, delta_time: int, keys):
+        raise NotImplementedError()
 
-    def display(self, surf: pygame.Surface, dt: float):
-        pass
+    def display(self, surface: pygame.Surface, delta_time: float):
+        raise NotImplementedError()

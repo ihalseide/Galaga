@@ -1,10 +1,19 @@
-__author__ = "Izak Halseide"
-
 import pygame
 
-from data import tools
-from data.enemy_paths import EnemyPath
+from data.enemy_paths import EnemyPath, MoveTowards
 from data.galaga_sprite import GalagaSprite
+from data.tools import grab_sheet
+
+
+class MoveToFormation(MoveTowards):
+
+    def __init__(self, formation_x, formation_y, speed):
+        # TODO: somehow get the pos
+        x, y = somehow_get_pos(formation_x, formation_y)
+        super(MoveToFormation, self).__init__(x, y, speed)
+
+    def update(self, step_timer, x, y, angle):
+        pass
 
 
 class Enemy(GalagaSprite):
@@ -21,7 +30,7 @@ class Bee(Enemy):
 
     def __init__(self, x: int, y: int, formation_x: int, formation_y: int, path: EnemyPath = None):
         super(Bee, self).__init__(x, y, 16, 16)
-        self.image = tools.grab_sheet(224, 32, 16, 16)
+        self.image = grab_sheet(224, 32, 16, 16)
         self.frame_num = 7
         self.is_in_formation = False
         self.formation_x = formation_x
@@ -31,7 +40,7 @@ class Bee(Enemy):
 
     def display(self, surface: pygame.Surface):
         x, y, w, h = self.FRAMES[self.frame_num]
-        self.image = tools.grab_sheet(x, y, w, h)
+        self.image = grab_sheet(x, y, w, h)
         super(Bee, self).display(surface)
 
     def update(self, delta_time: int, flash_flag: bool):
@@ -55,8 +64,7 @@ class Butterfly(Enemy):
 
     def __init__(self, x: int, y: int, formation_x: int, formation_y: int, path: EnemyPath = None):
         super(Butterfly, self).__init__(x, y, 16, 16)
-        self.image = tools.grab_sheet(224, 32, 16, 16)
-        self.rect = tools.create_center_rect(self.x, self.y, 16, 16)
+        self.image = grab_sheet(224, 32, 16, 16)
         self.frame_num = 7
         self.is_in_formation = False
 
@@ -68,7 +76,7 @@ class Butterfly(Enemy):
                 self.frame_num = 7
 
     def choose_image(self):
-        self.image = tools.grab_sheet(*self.FRAMES[self.frame_num])
+        self.image = grab_sheet(*self.FRAMES[self.frame_num])
 
     def display(self, surface: pygame.Surface):
         self.choose_image()
@@ -86,7 +94,7 @@ class TractorEnemy(Enemy):
 
     def __init__(self, x: int, y: int, formation_x: int, formation_y: int, path: EnemyPath = None):
         super(TractorEnemy, self).__init__(x, y, 16, 16)
-        self.image = tools.grab_sheet(128, 16, 16, 16)
+        self.image = grab_sheet(128, 16, 16, 16)
 
 
 class TrumpetBug(Enemy):

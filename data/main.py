@@ -1,5 +1,3 @@
-__author__ = "Izak Halseide"
-
 import pygame
 
 from data import constants as c, statistics, demo, play_state, main_menu, new_high_score

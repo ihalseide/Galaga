@@ -1,5 +1,3 @@
-__author__ = "Izak Halseide"
-
 import pygame
 
 from data import constants as c
@@ -19,10 +17,10 @@ class Hud:
     def set_display_high_score(self, score: int):
         self._high_score = score
 
-	def update(self, dt: float):
-		pass
+    def update(self, dt: float):
+        pass
 
-	def display(self, screen, offset_y=0):
+    def display(self, screen, offset_y=0):
         # 1UP score
         score_string = c.HI_SCORE_NUM.format(self._display_score)
         draw_text(screen, c.ONE_UP, (20, 10 + offset_y), pygame.Color('red'))

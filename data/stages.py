@@ -1,5 +1,3 @@
-__author__ = "Izak Halseide"
-
 from collections import namedtuple
 
 import pygame

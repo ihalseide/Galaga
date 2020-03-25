@@ -1,5 +1,3 @@
-__author__ = "Izak Halseide"
-
 import os
 from string import ascii_lowercase
 from typing import Tuple, Union

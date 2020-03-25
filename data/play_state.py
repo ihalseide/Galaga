@@ -1,5 +1,3 @@
-__author__ = "Izak Halseide"
-
 import pygame
 from pygame.math import Vector2
 
@@ -290,7 +288,7 @@ class Play(State):
         self.is_player_alive = True
         self.player = player.Player(c.GAME_WIDTH // 2, c.GAME_HEIGHT - 25)
 
-    def display(self, screen, dt):
+    def display(self, screen, delta_time):
         # clear screen
         screen.fill(pygame.Color('black'))
         # stars

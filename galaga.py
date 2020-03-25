@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
-__author__ = "Izak Halseide"
-
 import sys
+
 import pygame
 
 from data import main

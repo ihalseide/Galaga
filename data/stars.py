@@ -1,5 +1,3 @@
-__author__ = "Izak Halseide"
-
 import random
 from collections import namedtuple
 from typing import Tuple, List

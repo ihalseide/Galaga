@@ -1,5 +1,3 @@
-__author__ = "Izak Halseide"
-
 import pygame
 
 from data import constants as c, hud, stars
@@ -71,17 +69,17 @@ class Menu(State):
     def play_start_noise():
         setup.get_sfx('start_noise').play()
 
-    def update(self, dt, keys):
+    def update(self, delta_time, keys):
         # stars
-        self.stars.update(dt)
+        self.stars.update(delta_time)
         # hud
-        self.hud.update(dt)
+        self.hud.update(delta_time)
         # scroll menu
         if self.ready:
             # flash timer
             self.is_flashing = self.flash_num < self.TITLE_FLASH_NUM * 2
             if self.is_flashing:
-                self.timer += dt
+                self.timer += delta_time
                 if self.timer >= self.TITLE_FLASH_TIME:
                     self.timer = 0
                     self.flash_num += 1
@@ -93,7 +91,7 @@ class Menu(State):
             if self.offset_y <= 0:
                 self.set_ready()
 
-    def display(self, screen, dt):
+    def display(self, screen, delta_time):
         # draw background
         self.hud.display(screen)
         screen.fill(pygame.Color('black'))
