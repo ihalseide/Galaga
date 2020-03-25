@@ -1,17 +1,16 @@
-from data import tools
-from data.components import galaga_sprite
-
 import pygame
+
+from data import tools, galaga_sprite
 
 FRAME_DURATION = 120
 
 
 class Explosion(galaga_sprite.GalagaSprite):
 
-	def __init__(self, x: int, y: int):
-		super(Explosion, self).__init__(x, y, 16, 16)
-		self.frame = 0
-		self.frame_timer = 0
+    def __init__(self, x: int, y: int):
+        super(Explosion, self).__init__(x, y, 16, 16)
+        self.frame = 0
+        self.frame_timer = 0
 		self.image = tools.grab_sheet(224, 80, 16, 16)
 
 	def update(self, dt):

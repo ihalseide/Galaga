@@ -2,19 +2,18 @@ __author__ = "Izak Halseide"
 
 import pygame
 
-from data import constants as c
-from data.states import main_menu, play_state, statistics, demo, new_high_score
-from data.states.state import State
+from data import constants as c, statistics, demo, play_state, main_menu, new_high_score
+from data.state import State
 
 
 class Control(object):
-	"""
-	Main class for running the game states and window
-	"""
+    """
+    Main class for running the game states and window
+    """
 
-	def __init__(self):
-		self.clock = pygame.time.Clock()
-		self.fps = c.FPS
+    def __init__(self):
+        self.clock = pygame.time.Clock()
+        self.fps = c.FPS
 		self.paused = False
 		self.running = True
 		self.screen = pygame.display.get_surface()

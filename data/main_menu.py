@@ -2,12 +2,11 @@ __author__ = "Izak Halseide"
 
 import pygame
 
-from data.states.state import State
-from data import constants as c
+from data import constants as c, hud, stars
 from data import scoring
 from data import setup
 from data import tools
-from data.components import stars, hud
+from data.state import State
 
 # A few constants for the menu
 LIGHT_TITLE = setup.get_image('light title')

@@ -1,7 +1,9 @@
-from data import setup
-from typing import Tuple, Union
-import pygame
 import math
+from typing import Tuple, Union
+
+import pygame
+
+from data import setup
 
 
 def lerp(start: float, stop: float, percent: float) -> float:
@@ -125,3 +127,9 @@ def clamp_value(n, minimum, maximum):
     :return:
     """
     return max(minimum, min(n, maximum))
+
+
+def range_2d(start_x, start_y, end_x, end_y):
+    for x in range(start_x, end_x):
+        for y in range(start_y, end_y):
+            yield x, y

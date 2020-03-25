@@ -3,13 +3,12 @@ __author__ = "Izak Halseide"
 import pygame
 from pygame.math import Vector2
 
-from data import constants as c
+from data import constants as c, player, hud, missile, stars, stages
 from data import setup
 from data import tools
-from data.components import missile, player, stars, hud, stages
-from data.components.enemies import FormationEnemy
-from data.components.explosion import Explosion
-from data.states.state import State
+from data.enemies import FormationEnemy
+from data.explosion import Explosion
+from data.state import State
 
 # sprite resources for HUD
 GRAPHICS = {

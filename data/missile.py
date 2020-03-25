@@ -1,7 +1,4 @@
-import pygame
-
-from . import galaga_sprite
-from .. import tools
+from data import tools, galaga_sprite
 
 ENEMY_TYPE = tools.grab_sheet(246, 51, 3, 8)
 PLAYER_TYPE = tools.grab_sheet(246, 67, 3, 8)

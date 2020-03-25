@@ -1,8 +1,7 @@
 import pygame
 
-from data import constants as c
+from data import constants as c, galaga_sprite
 from data import tools
-from data.components import galaga_sprite
 
 FIRE_COOLDOWN = 400
 SPEED = 0.085

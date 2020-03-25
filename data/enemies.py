@@ -1,12 +1,10 @@
 __author__ = "Izak Halseide"
-
-import math
+# TODO: fix enemy's animations being out of sync
 
 import pygame
 
-from data import constants as c
+from data import constants as c, galaga_sprite
 from data import tools
-from data.components import galaga_sprite
 
 
 class PathStep:
@@ -86,13 +84,9 @@ class OrbitStep(PathStep):
         self.travel_time = travel_time
         self.do_change_angle = do_change_angle
 
-    def calc_position(self):
-        # TODO: finish
-        x = self.orbit_center_x + math.cos(self.start_orbit_angle) * self.orbit_radius
-        y = self.orbit_center_y + math.sin(self.start_orbit_angle) * self.orbit_radius
-        if self.do_change_angle:
-            self.angle = self.start_orbit_angle + (math.pi / 2.0)  # TODO: maybe (-) instead of (+)??
-        return x, y
+    def update(self, delta_time, current_x, current_y, current_angle):
+        # TODO: implement circular path
+        pass
 
 
 class EnemyPath:
@@ -186,7 +180,7 @@ class FormationEnemy(Enemy):
         assert cls.formation_state is not None
         assert cls.formation_function is not None
         x, y = cls.formation_function(formation_x, formation_y)
-        return EnemyPath(LinearMoveStep(x, y, 600))
+        return EnemyPath(LinearMoveStep(x, y, 1000))
 
     @classmethod
     def set_formation_pos_function(cls, function, state):
@@ -246,12 +240,42 @@ class Butterfly(FormationEnemy):
     Normal enemy
     """
 
+    FRAMES = [(0, 32, 16, 16), (16, 32, 16, 16), (32, 32, 16, 16), (48, 32, 16, 16),
+              (64, 32, 16, 16), (80, 32, 16, 16), (96, 32, 16, 16), (112, 32, 16, 16)]
 
-class Boss(Enemy):
+    def __init__(self, x: int, y: int, formation_x: int, formation_y: int, path: EnemyPath = None):
+        super(Butterfly, self).__init__(x, y, formation_x, formation_y, path=path)
+        self.image = tools.grab_sheet(224, 32, 16)
+        self.rect = tools.create_center_rect(self.x, self.y, 16, 16)
+        self.frame_num = 7
+
+    def flash_update(self):
+        if self.is_in_formation:
+            if self.frame_num == 7:
+                self.frame_num = 6
+            elif self.frame_num == 6:
+                self.frame_num = 7
+
+    def choose_image(self):
+        self.image = tools.grab_sheet(*self.FRAMES[self.frame_num])
+
+    def display(self, surface: pygame.Surface):
+        self.choose_image()
+        super(Butterfly, self).display(surface)
+        # tools.draw_text(surface, "Bee at: {}, {}".format(self.x, self.y), (40, 40), pygame.Color('yellow'))
+
+    def update(self, delta_time):
+        super(Butterfly, self).update(delta_time)
+
+
+class TractorEnemy(FormationEnemy):
     """
     The enemy that tries to capture the player's fighter
     """
-    pass
+
+    def __init__(self, x: int, y: int, formation_x: int, formation_y: int, path: EnemyPath = None):
+        super(TractorEnemy, self).__init__(x, y, formation_x, formation_y, path)
+        self.image = tools.grab_sheet(128, 16, 16, 16)
 
 
 class TrumpetBug(Enemy):
