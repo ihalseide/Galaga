@@ -1,58 +1,78 @@
-from collections import namedtuple
-
-import pygame
-
-from data import constants as c
-from data.enemies import Butterfly, Bee, TractorEnemy
-from data.enemy_paths import EnemyPath, Wait
-from data.galaga_sprite import GalagaSprite
-from data.tools import range_2d
-
-Point = namedtuple("Point", "x y")
-
-TOP_LEFT = Point(100, 0)
-TOP_RIGHT = Point(c.GAME_WIDTH - 100, 0)
-BOTTOM_LEFT = Point(0, 200)
-BOTTOM_RIGHT = Point(c.GAME_WIDTH, 200)
-
-MAX_ENEMY_ROWS = 12
-MAX_ENEMY_COLUMNS = 12
-
-# how long a squad waits to spawn the next enemy
-SQUAD_INTERVAL = 0.5  # seconds
-WAVE_INTERVAL = 0.6  # seconds
+from . import constants as c
+from .constants import Point
+from .enemy_paths import EnemyPath, Wait
+from .sprites import Enemy, Bee, Butterfly, Purple, GalagaSprite
 
 
 class Stage(object):
+    # Some set enemy spawning locations
+    TOP_LEFT = Point(100, 0)
+    TOP_RIGHT = Point(c.GAME_SIZE.width - 100, 0)
+    BOTTOM_LEFT = Point(0, 200)
+    BOTTOM_RIGHT = Point(c.GAME_SIZE.width, 200)
 
-    def __init__(self, stage_num: int, is_bonus_stage: bool = False):
-        self.is_bonus_stage = is_bonus_stage
-        self.is_done_spawning = False
+    MAX_ENEMY_ROWS = 12
+    MAX_ENEMY_COLUMNS = 12
+
+    # Times in milliseconds
+    TIME_BETWEEN_ENEMIES = 500  # 200
+
+    def __init__(self, stage_num: int):
+        # Initial settings
         self.stage_num = stage_num
-        self.waiting_enemies = []
-        self._enemy_group_reference = None
+        self.is_bonus_stage = False
+
+        # Variables that are stepped when the stage is being defined
+        self.enemies = []
+        self.wave_0_defined = False
+        self.num_of_waves = 0
+        self.defining_wave_num = 0
+        self.defining_enemy_num = 0
+        self.wave_wait_time = 0
+        self.current_enemy_origin = None
 
     def get_new_enemy(self) -> GalagaSprite:
-        if self.waiting_enemies:
-            return self.waiting_enemies.pop()
+        if self.enemies:
+            return self.enemies.pop()
 
-    @property
-    def enemy_group_reference(self):
-        return self._enemy_group_reference
+    def queue_enemy(self, enemy_class: Enemy.__class__, formation_x, formation_y, *path_steps):
+        if self.current_enemy_origin is None:
+            raise ValueError("Current enemy origin is not set!")
+        origin_x, origin_y = self.current_enemy_origin
+        path = EnemyPath(Wait(self.wave_wait_time), *path_steps)
+        enemy = enemy_class(x=origin_x, y=origin_y, formation_x=formation_x, formation_y=formation_y, path=path)
+        enemy.number_in_wave = self.defining_enemy_num
+        enemy.wave_number = self.defining_wave_num
+        self.wave_wait_time += self.TIME_BETWEEN_ENEMIES
+        self.defining_enemy_num += 1
+        self.enemies.append(enemy)
 
-    @enemy_group_reference.setter
-    def enemy_group_reference(self, enemy_group: pygame.sprite.Group):
-        assert isinstance(enemy_group, pygame.sprite.Group)
-        self._enemy_group_reference = enemy_group
+        # print('Time: {}, Wave #{}, Enemy #{} ({})'.format(self.wave_wait_time, self.defining_wave_num,
+        #                                                   self.defining_enemy_num, enemy_class.__name__))
 
-    def has_enemy_group_reference(self):
-        return self._enemy_group_reference is not None
+    def define_enemy_origin(self, enemy_origin: Point):
+        self.current_enemy_origin = enemy_origin
 
-    def add_enemy(self, enemy: GalagaSprite):
-        self.waiting_enemies.append(enemy)
+    def roll_to_start_of_wave(self):
+        self.defining_enemy_num = 0
+        self.wave_wait_time = 0
 
-    def update(self, dt: float):
-        pass
+    def define_next_wave(self, enemy_origin: Point = None):
+        if enemy_origin is not None:
+            self.define_enemy_origin(enemy_origin)
+
+        self.num_of_waves += 1
+        if self.wave_0_defined:
+            self.defining_wave_num += 1
+        else:
+            self.wave_0_defined = True
+
+        self.roll_to_start_of_wave()
+
+    def define_another_squad(self, enemy_origin: Point = None):
+        if enemy_origin is not None:
+            self.define_enemy_origin(enemy_origin)
+        self.roll_to_start_of_wave()
 
 
 def load_stage(stage_num: int) -> Stage:
@@ -61,50 +81,75 @@ def load_stage(stage_num: int) -> Stage:
     :param stage_num: Should be an int between 1 and 255
     :return: A Stage object, which needs to be given a sprite group reference to spawn enemies into later.
     """
+
+    assert stage_num in range(1, 256)
+
     stage = Stage(stage_num)
 
     if stage_num == 1:
-        wait_time = 0
-        time_between_enemies = 200
-        time_between_waves = 800
-
         # 4 bees come from the top right and 4 butterflies come from the top left
-        for x, y in range_2d(start_x=4, start_y=3, end_x=6, end_y=5):
-            stage.add_enemy(Bee(x=TOP_RIGHT.x, y=TOP_RIGHT.y, formation_x=x, formation_y=y,
-                                path=EnemyPath(Wait(wait_time))))
-            wait_time += time_between_enemies
-        wait_time = 0
-        for x, y in range_2d(start_x=4, start_y=1, end_x=6, end_y=3):
-            stage.add_enemy(Butterfly(x=TOP_LEFT.x, y=TOP_LEFT.y, formation_x=x, formation_y=y,
-                                      path=EnemyPath(Wait(wait_time))))
-            wait_time += time_between_enemies
+        stage.define_next_wave(Stage.TOP_RIGHT)
+        stage.queue_enemy(Bee, formation_x=4, formation_y=3)
+        stage.queue_enemy(Bee, formation_x=4, formation_y=4)
+        stage.queue_enemy(Bee, formation_x=5, formation_y=3)
+        stage.queue_enemy(Bee, formation_x=5, formation_y=4)
+
+        stage.define_another_squad(Stage.TOP_LEFT)
+        stage.queue_enemy(Butterfly, formation_x=4, formation_y=1)
+        stage.queue_enemy(Butterfly, formation_x=5, formation_y=1)
+        stage.queue_enemy(Butterfly, formation_x=4, formation_y=2)
+        stage.queue_enemy(Butterfly, formation_x=5, formation_y=2)
 
         # 4 bosses and 4 butterflies come in alternating order from the bottom left
-        wait_time += time_between_waves
-        this_wave_time = wait_time
-        for x, y in range_2d(3, 0, 7, 1):
-            stage.add_enemy(TractorEnemy(x=BOTTOM_LEFT.x, y=BOTTOM_LEFT.y, formation_x=x, formation_y=y,
-                                         path=EnemyPath(Wait(wait_time))))
-            wait_time += time_between_enemies
-        wait_time = this_wave_time
-        wait_time += time_between_enemies
-        stage.add_enemy(Butterfly(x=BOTTOM_LEFT.x, y=BOTTOM_LEFT.y, formation_x=3, formation_y=1,
-                                  path=EnemyPath(Wait(wait_time))))
-        wait_time += time_between_enemies
-        stage.add_enemy(Butterfly(x=BOTTOM_LEFT.x, y=BOTTOM_LEFT.y, formation_x=3, formation_y=2,
-                                  path=EnemyPath(Wait(wait_time))))
-        wait_time += time_between_enemies
-        stage.add_enemy(Butterfly(x=BOTTOM_LEFT.x, y=BOTTOM_LEFT.y, formation_x=6, formation_y=1,
-                                  path=EnemyPath(Wait(wait_time))))
-        wait_time += time_between_enemies
-        stage.add_enemy(Butterfly(x=BOTTOM_LEFT.x, y=BOTTOM_LEFT.y, formation_x=6, formation_y=2,
-                                  path=EnemyPath(Wait(wait_time))))
-        wait_time += time_between_enemies
+        stage.define_next_wave(Stage.BOTTOM_LEFT)
+        stage.queue_enemy(Purple, formation_x=3, formation_y=0)
+        stage.queue_enemy(Butterfly, formation_x=3, formation_y=1)
+        stage.queue_enemy(Purple, formation_x=4, formation_y=0)
+        stage.queue_enemy(Butterfly, formation_x=3, formation_y=2)
+        stage.queue_enemy(Purple, formation_x=5, formation_y=0)
+        stage.queue_enemy(Butterfly, formation_x=6, formation_y=1)
+        stage.queue_enemy(Purple, formation_x=6, formation_y=0)
+        stage.queue_enemy(Butterfly, formation_x=6, formation_y=2)
+
         # 8 butterflies come from the bottom right
+        stage.define_next_wave(Stage.BOTTOM_RIGHT)
+        stage.queue_enemy(Butterfly, formation_x=1, formation_y=1)
+        stage.queue_enemy(Butterfly, formation_x=1, formation_y=2)
+        stage.queue_enemy(Butterfly, formation_x=2, formation_y=1)
+        stage.queue_enemy(Butterfly, formation_x=2, formation_y=2)
+        stage.queue_enemy(Butterfly, formation_x=7, formation_y=1)
+        stage.queue_enemy(Butterfly, formation_x=7, formation_y=2)
+        stage.queue_enemy(Butterfly, formation_x=8, formation_y=1)
+        stage.queue_enemy(Butterfly, formation_x=8, formation_y=2)
+
         # 8 bees come from the top right
+        stage.define_next_wave(Stage.TOP_RIGHT)
+        stage.queue_enemy(Bee, formation_x=2, formation_y=3)
+        stage.queue_enemy(Bee, formation_x=2, formation_y=4)
+        stage.queue_enemy(Bee, formation_x=3, formation_y=3)
+        stage.queue_enemy(Bee, formation_x=3, formation_y=4)
+        stage.queue_enemy(Bee, formation_x=6, formation_y=3)
+        stage.queue_enemy(Bee, formation_x=6, formation_y=4)
+        stage.queue_enemy(Bee, formation_x=7, formation_y=3)
+        stage.queue_enemy(Bee, formation_x=7, formation_y=4)
+
         # 8 bees come from the top left
+        stage.define_next_wave(Stage.TOP_LEFT)
+        stage.queue_enemy(Bee, formation_x=0, formation_y=3)
+        stage.queue_enemy(Bee, formation_x=0, formation_y=4)
+        stage.queue_enemy(Bee, formation_x=1, formation_y=3)
+        stage.queue_enemy(Bee, formation_x=1, formation_y=4)
+        stage.queue_enemy(Bee, formation_x=8, formation_y=3)
+        stage.queue_enemy(Bee, formation_x=8, formation_y=4)
+        stage.queue_enemy(Bee, formation_x=9, formation_y=3)
+        stage.queue_enemy(Bee, formation_x=9, formation_y=4)
+
     elif stage_num == 2:
+
+        pass
+
+    elif stage_num == 3:
+
         stage.is_bonus_stage = True
-        stage.add_enemy(Bee(100, 100, 0, 0, None))
 
     return stage

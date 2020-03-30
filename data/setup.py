@@ -10,14 +10,27 @@ from . import constants as c
 FONT_ALPHABET_Y = 224
 FONT_CHAR_SIZE = 8
 
-# Setup pygame
-os.environ['SDL_VIDEO_CENTERED'] = '1'
-pygame.init()
-SCREEN = pygame.display.set_mode([c.SCREEN_WIDTH, c.SCREEN_HEIGHT])
-pygame.display.set_caption(c.TITLE)
-
 # Pygame key constants
 START_KEYS = [pygame.K_SPACE, pygame.K_RETURN]
+
+# Setup pygame
+SCREEN = FONT = SOUNDS = GRAPHICS = None
+
+
+def setup_game():
+    global SCREEN, FONT, SOUNDS, GRAPHICS
+
+    # Center the window
+    os.environ['SDL_VIDEO_CENTERED'] = '1'
+
+    pygame.init()
+    SCREEN = pygame.display.set_mode(c.DEFAULT_SCREEN_SIZE)
+    pygame.display.set_caption(c.TITLE)
+
+    # Load these
+    FONT = load_font()
+    SOUNDS = load_all_sfx(os.path.join(c.RESOURCE_DIR, "audio"), (".ogg",))
+    GRAPHICS = load_all_gfx(os.path.join(c.RESOURCE_DIR, "graphics"), ('.png', ".bmp"))
 
 
 def load_all_gfx(directory, accept=('.png', '.bmp', '.gif'), color_key=pygame.Color('black')) -> dict:
@@ -64,17 +77,13 @@ def load_font() -> dict:
     font['!'] = (14 * FONT_CHAR_SIZE, row_2_y)
     font[','] = (15 * FONT_CHAR_SIZE, row_2_y)
     font['©'] = (16 * FONT_CHAR_SIZE, row_2_y)
+    font['.'] = (17 * FONT_CHAR_SIZE, row_2_y)
+    font['%'] = (18 * FONT_CHAR_SIZE, row_2_y)
     return font
 
 
-# load all the resources
-_FONT: dict = load_font()
-_SFX: dict = load_all_sfx(os.path.join(c.RESOURCES, "audio"), (".ogg",))
-_GFX: dict = load_all_gfx(os.path.join(c.RESOURCES, "graphics"), ('.png', ".bmp"))
-
-
 def get_sfx(sound_name: str) -> Union[pygame.mixer.Sound, None]:
-    return _SFX.get(sound_name)
+    return SOUNDS.get(sound_name)
 
 
 def has_sfx(sound_name: str) -> bool:
@@ -82,7 +91,7 @@ def has_sfx(sound_name: str) -> bool:
 
 
 def get_image(image_name: str) -> Union[pygame.Surface, None]:
-    return _GFX.get(image_name)
+    return GRAPHICS.get(image_name)
 
 
 def has_image(image_name: str) -> bool:
@@ -90,8 +99,20 @@ def has_image(image_name: str) -> bool:
 
 
 def get_from_font(character: Union[str, None]) -> Union[Tuple[int, int], None]:
-    return _FONT.get(character)
+    return FONT.get(character)
 
 
 def has_char_in_font(character: str) -> bool:
     return get_from_font(character) is not None
+
+
+def play_sound(sound_name):
+    SOUNDS.get(sound_name).play()
+
+
+def stop_sounds():
+    pygame.mixer.stop()
+
+
+# load all the resources
+setup_game()

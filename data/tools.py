@@ -2,10 +2,11 @@ import math
 
 import pygame
 
-from data import setup
+from . import constants as c
+from . import setup
 
 
-def lerp(start: float, stop: float, percent: float) -> float:
+def linear_interpolation(start: float, stop: float, percent: float) -> float:
     """
     Linear interpolation function
     :param start: starting value for interpolation
@@ -57,16 +58,18 @@ def _font_render(text: str, color: pygame.Color, bg_color=None):
     return surf
 
 
-def draw_text(screen: pygame.Surface, text: str, position, color: pygame.Color, bg_color=None,
-              centered_y: bool = False, centered_x: bool = False):
-    surf = _font_render(text, color, bg_color)
+def draw_text(surface, text, position, color, background_color=None, center_x=False, center_y=False):
+    text_surface = _font_render(str(text), color, background_color)
     x, y = position
-    width, height = surf.get_size()
-    if centered_y:
-        y -= height // 2
-    if centered_x:
+    width, height = text_surface.get_size()
+    if center_x:
         x -= width // 2
-    screen.blit(surf, (x, y))
+    if center_y:
+        y -= height // 2
+    if surface is None:
+        return text_surface
+    else:
+        return surface.blit(text_surface, (x, y))
 
 
 def grab_sheet(x: int, y: int, width: int, height: int) -> pygame.Surface:
@@ -153,4 +156,35 @@ def irange_2d(start_x, start_y, end_x, end_y):
 
 
 def arc_length(start_angle, end_angle, radius):
-    return None
+    """
+    Takes angles in radians
+    :param start_angle:
+    :param end_angle:
+    :param radius:
+    :return:
+    """
+    theta = abs(end_angle - start_angle)
+    return theta * radius
+
+
+def calc_stage_badges(stage_num):
+    """
+    Calculate how many of each stage badges there are for a given stage
+    """
+
+    assert stage_num in range(256)
+
+    w_stage = stage_num  # temp. var
+
+    num_50 = w_stage // 50
+    w_stage -= num_50 * 50
+    num_30 = w_stage // 30
+    w_stage -= num_30 * 30
+    num_20 = w_stage // 20
+    w_stage -= num_20 * 20
+    num_10 = w_stage // 10
+    w_stage -= num_10 * 10
+    num_5 = w_stage // 5
+    num_1 = w_stage - num_5 * 5
+
+    return c.StageBadges(num_1, num_5, num_10, num_20, num_30, num_50)

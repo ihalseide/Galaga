@@ -2,61 +2,72 @@
 Constants for the rest of the game - no importing from other game code allowed here!
 """
 
+from collections import namedtuple
+
+# Named tuples for convenient member access
+
+# Class for persistent data shared between states
+Persist = namedtuple("Persist", "stars scores current_score one_up_score high_score num_shots num_hits stage_num")
+
+# Point tuple
+Point = namedtuple("Point", "x y")
+
+# Rectangle tuple
+Rectangle = namedtuple("Rectangle", "x y width height")
+
+# Area tuple
+Area = namedtuple("Area", "width height")
+
+StageBadges = namedtuple("StageBadges", "stage_1 stage_5 stage_10 stage_20 stage_30 stage_50")
+
+# Game state keys
+TITLE_STATE = 'title state'
+PLAY_STATE = 'play state'
+SCORE_ENTRY_STATE = 'score entry state'
+GAME_OVER_STATE = 'game over state'
+DEMO_STATE = 'demo state'
+
 # String constants for in-game
 TITLE = 'Galaga'  # title for the game window
-MENU_MESSAGE = 'GALAGA © 1981'
-START = 'START'
-HI_SCORE = 'HI-SCORE'
-ONE_UP = '1UP'
-HI_SCORE_NUM = '{: =6}'
-STAGE = 'STAGE {: =3}'
-READY = 'READY'
+TITLE_FOOTER_TEXT = 'GALAGA © 1981'  # shown at the bottom of the screen on the menu
+START_TEXT = 'START'  # Start message in play state
+HI_SCORE_MESSAGE = 'HI-SCORE'  # HUD high score label
+ONE_UP = '1UP'  # HUD 1up label
+ONE_UP_NUM_FORMAT = '{: =6}'  # number format string for 1up score
+HI_SCORE_NUM_FORMAT = '{: =6}'  # number format string for high score
+STAGE_FORMAT_STR = 'STAGE {: =3}'  # number format string for the stage number
+READY = 'READY'  # ready message in play state
+
+# Sting messages for game over
+RESULT_TEXT = "- Result -"  # text is red
+SHOTS_FIRED_TEXT = 'Shots fired {: >12}'  # text is light blue
+NUM_HITS_TEXT = 'Number of hits {: >9}'  # text is white
+HIT_MISS_RATIO = 'Hit-miss ratio {: >9.1%}'  # text is yellow
 
 # Resources and other file paths
-RESOURCES = "resources"
+RESOURCE_DIR = "resources"
 SCORE_FILE = "scores.txt"
 
-# Game states
-MENU_STATE = 'menu'
-MENU_DEMO = 'menu demo'
-PLAY_STATE = 'play'
-PLAY_STATS = 'play stats'
-NEW_SCORE_STATE = 'new high score'
-
-# other keys
-HUD = "hud"
-STARS = 'stars'
-LIFE = 'life'
-STAGE_1 = 1
-STAGE_5 = 5
-STAGE_10 = 10
-STAGE_20 = 20
-STAGE_30 = 30
-STAGE_50 = 50
-
-# rotation of things
-ANGLE_UP = 0
-ANGLE_UP_RIGHT = 1
-ANGLE_RIGHT = 2
-ANGLE_DOWN_RIGHT = 3
-ANGLE_DOWN = 4
-ANGLE_DOWN_LEFT = 5
-ANGLE_LEFT = 6
-ANGLE_UP_LEFT = 7
-
 # Game space
-GAME_WIDTH, GAME_HEIGHT = 224, 288
-SCREEN_WIDTH, SCREEN_HEIGHT = 224, 288
-GAME_CENTER_X, GAME_CENTER_Y = GAME_WIDTH // 2, GAME_HEIGHT // 2
-
-# Where the game area really starts and ends vertically to fit the HUD
-STAGE_TOP = 30
-STAGE_BOTTOM = GAME_HEIGHT - 20
-BADGE_TOP = GAME_HEIGHT - 19
+GAME_SIZE = Area(224, 288)
+GAME_CENTER = Point(GAME_SIZE.width // 2, GAME_SIZE.height // 2)
+DEFAULT_SCREEN_SIZE = GAME_SIZE
+STAGE_TOP_Y = 30  # Y-coord. for the top of the stage
+STAGE_BOTTOM_Y = GAME_SIZE.height - 20  # Y-coord. for the bottom of the stage
+BADGE_Y = GAME_SIZE.height - 19  # Y-coord for the top of the stage badges
 
 # Frames per second
 FPS = 30
 FLASH_FREQUENCY = 800
 
-# Debug flags ( REMEMBER TO REMOVE IN RELEASE!! )
-SKIP_WAITING = True
+# Scoring
+NUM_TRACKED_SCORES = 5
+
+# Used colors
+RED = (255, 0, 0)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+LIGHT_BLUE = (135, 206, 235)
+LIGHT_GREEN = (144, 238, 144)

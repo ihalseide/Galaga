@@ -115,3 +115,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+# GIMP image format
+*.xcf
+
+# Ignore my .OLD files
+*.old

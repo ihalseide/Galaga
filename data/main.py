@@ -1,7 +1,8 @@
 import pygame
 
-from data import constants as c, statistics, demo, play_state, main_menu, new_high_score
-from data.state import State
+from data import constants as c
+from data.states import State
+from .states import GameOver, Demo, Play, TitleScreen, ScoreEntry
 
 
 class Control(object):
@@ -9,63 +10,69 @@ class Control(object):
     Main class for running the game states and window
     """
 
-    def __init__(self):
+    def __init__(self, state_dict: dict, initial_state_name: str, persist=None):
+        # Init
+        self.state_dict = state_dict
+        self.state_name = initial_state_name
+
         self.clock = pygame.time.Clock()
-        self.fps = c.FPS
+        self.fps: int = c.FPS
         self.paused = False
         self.running = True
-        self.screen = pygame.display.get_surface()
-
-        # state variables
-        self.state_dict = {}
-        self.state_name = ''
-        self.state: State = State()
-
-    def setup_states(self, state_dict: dict, start_state: State):
-        self.state_dict = state_dict
-        self.state_name = start_state
-        self.state = self.state_dict[self.state_name]({})
+        self.screen: pygame.Surface = pygame.display.get_surface()
+        state_class: State.__class__ = self.state_dict[self.state_name]
+        self.state: State = state_class(persist=persist)
 
     def flip_state(self):
         persist = self.state.cleanup()
-        prev, self.state_name = self.state_name, self.state.next
-        self.state = self.state_dict[self.state_name](persist)
+        self.state_name = self.state.next_state_name
+        state_class = self.state_dict[self.state_name]
+        self.state = state_class(persist)
+        self.state.state_start_time = pygame.time.get_ticks()
 
-    def events(self):
+    def poll_events(self):
         for event in pygame.event.get():
-            t = event.type
-            if t == pygame.QUIT:
+            event_type = event.type
+            if event_type == pygame.QUIT:
                 self.running = False
+                self.state.cleanup()
+                return
             self.state.get_event(event)
-        return pygame.key.get_pressed()
+        pressed_keys = pygame.key.get_pressed()
+        return pressed_keys
 
-    def main(self):
+    def main_loop(self):
         while self.running:
-            # TODO: fix huge delta times when the window gets unfocused or something
+            # TODO: fix huge delta times when the window gets unfocused or something (if possible?)
             delta_time = self.clock.tick(self.fps)
 
             # Poll events and get the pressed keys from pygame
-            pressed_keys = self.events()
+            pressed_keys = self.poll_events()
+            if not self.running:
+                break
 
+            self.state.current_time = pygame.time.get_ticks()  # update the state's time for it
             self.state.update(delta_time, pressed_keys)
 
-            if self.state.done:
+            if self.state.is_done:
                 self.flip_state()
-            elif self.state.quit:
+            elif self.state.is_quit:
                 self.running = False
 
-            self.state.display(self.screen, delta_time)
+            self.state.display(self.screen)
             pygame.display.update()
 
 
 def main():
-    the_app = Control()
-    state_dict = {
-        c.MENU_STATE: main_menu.Menu,
-        c.PLAY_STATE: play_state.Play,
-        c.NEW_SCORE_STATE: new_high_score.HighScore,
-        c.PLAY_STATS: statistics.Stats,
-        c.MENU_DEMO: demo.Demo
-    }
-    the_app.setup_states(state_dict, c.MENU_STATE)
-    the_app.main()
+    # This function begins the main game loop inside the CONTROL class
+    initial_state = c.TITLE_STATE
+    state_dict = {c.TITLE_STATE: TitleScreen,
+                  c.PLAY_STATE: Play,
+                  c.SCORE_ENTRY_STATE: ScoreEntry,
+                  c.GAME_OVER_STATE: GameOver,
+                  c.DEMO_STATE: Demo}
+    # persist = c.Persist(stars=Stars(), scores=[], current_score=16000, one_up_score=0, high_score=100000, \
+    # num_shots=132, num_hits=257)
+    persist = None
+    the_galaga = Control(state_dict=state_dict, initial_state_name=initial_state, persist=persist)
+    the_galaga.main_loop()

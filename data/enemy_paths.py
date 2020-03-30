@@ -1,6 +1,6 @@
 from math import cos, sin
 
-from data.tools import distance, lerp, arc_length
+from .tools import distance, linear_interpolation, arc_length
 
 
 class PathStep:
@@ -59,8 +59,8 @@ class MoveTowards(PathStep):
             self.duration = dist / self.speed
             return x, y, angle
         progress = step_timer / self.duration
-        x = lerp(self.start_x, self.end_x, progress)
-        y = lerp(self.start_y, self.end_y, progress)
+        x = linear_interpolation(self.start_x, self.end_x, progress)
+        y = linear_interpolation(self.start_y, self.end_y, progress)
         return x, y, angle
 
 
@@ -80,7 +80,7 @@ class MoveOnCircle(PathStep):
 
     def update(self, step_timer, x, y, angle):
         progress = step_timer / self.duration
-        angle_from_center = lerp(self.start_angle, self.end_angle, progress)
+        angle_from_center = linear_interpolation(self.start_angle, self.end_angle, progress)
         x = self.center_x + self.radius * cos(angle_from_center)
         y = self.center_y + self.radius * sin(angle_from_center)
         return x, y, angle
@@ -89,10 +89,13 @@ class MoveOnCircle(PathStep):
 class EnemyPath:
 
     def __init__(self, *steps: PathStep):
-        self.steps = iter(steps)
-        self.current_step: PathStep = next(self.steps)
+        self.steps = steps
+        self.step_iter = iter(self.steps)
+        self.current_step: PathStep = next(self.step_iter)
         self.step_timer = 0
         self.is_done = False
+        if not len(self.steps):
+            self.is_done = True
 
     def update(self, delta_time, x, y, angle):
         if self.is_done or self.current_step is None:
@@ -105,7 +108,7 @@ class EnemyPath:
 
         if step_is_done:
             try:
-                self.current_step = next(self.steps)
+                self.current_step = next(self.step_iter)
             except StopIteration:
                 self.is_done = True
                 self.current_step = None
