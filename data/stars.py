@@ -1,72 +1,69 @@
 import random
 from collections import namedtuple
-from typing import Tuple, List
+from dataclasses import dataclass
 
-import pygame
-
-from data import constants as c
-
-TwinklingPhase = namedtuple("TwinklingPhase", "on off")
-StarLayer = namedtuple("StarLayer", "speed colors")
+from . import constants as c
 
 NUM_OF_RANDOM_STARS = 64
 
-LAYERS = StarLayer(0.050, (pygame.Color("red"), c.LIGHT_GREEN)), \
-         StarLayer(0.075, (pygame.Color('yellow'), c.BLUE, c.WHITE))
+StarLayer = namedtuple("StarLayer", "speed colors")
+
+
+@dataclass
+class TwinklingPhase:
+    on_time: int
+    off_time: int
+    current_time: int = 0
+    is_shown: bool = True
+
+
+LAYERS = StarLayer(0.050, (c.RED, c.LIGHT_GREEN)), \
+         StarLayer(0.075, (c.YELLOW, c.BLUE, c.WHITE))
 
 TWINKLING_PHASES = TwinklingPhase(150, 140), TwinklingPhase(210, 200), TwinklingPhase(310, 300), \
                    TwinklingPhase(410, 300), TwinklingPhase(510, 300)
 
 
-class Star(object):
+@dataclass
+class Star:
     """
-    A star object, that has color, moves, and takes up a single pixel
+    A star particle, that has color, moves, and takes up a single pixel
     """
-
-    def __init__(self, loc: Tuple[int, int], color, layer: int, twinkle_phase: int = 0):
-        self.x: float = loc[0]
-        self.y: float = loc[1]
-        self.color: pygame.Color = color
-        self.layer: int = layer
-        self.show: bool = True
-        self.twinkle_phase: int = twinkle_phase
-
-    def update(self, dt, move=1):
-        if move:
-            # update position
-            speed = LAYERS[self.layer].speed
-            new_y = self.y + speed * dt * move
-            new_y = new_y % c.GAME_SIZE.height  # wrap around screen
-            self.y = new_y
-
-    def draw(self, screen):
-        x, y = round(self.x), round(self.y)
-        screen.set_at((x, y), self.color)
+    start_x: int
+    start_y: float
+    color: tuple
+    layer_num: int
+    twinkle_phase: int
+    speed: float
+    show: bool = True
 
 
-def random_star(rng: random.Random = random) -> Star:
-    x = rng.randint(0, c.GAME_SIZE.width)
-    y = rng.randint(0, c.GAME_SIZE.height)
-    layer = rng.randint(0, len(LAYERS) - 1)
-    color = rng.choice(LAYERS[layer].colors)
-    phase = rng.randint(0, len(TWINKLING_PHASES) - 1)
-    return Star((x, y), color=color, layer=layer, twinkle_phase=phase)
+def random_star() -> Star:
+    x = random.randint(0, c.GAME_SIZE.width)
+    y = random.randint(0, c.GAME_SIZE.height)
+    layer = random.randint(0, len(LAYERS) - 1)
+    color = random.choice(LAYERS[layer].colors)
+    phase = random.randint(0, len(TWINKLING_PHASES) - 1)
+    return Star(x, y, color, layer, phase, speed=LAYERS[layer].speed)
 
 
-class Stars(object):
+class StarField:
     """
     Aesthetic stars for the background
     """
 
     def __init__(self):
-        self.rng = random.Random()
-        self.rng.seed(101)
         self._moving: int = 1
-        self._stars: List[Star] = [random_star(self.rng) for _ in range(NUM_OF_RANDOM_STARS)]
-        self.twinkling_timers: List[int] = [0 for _ in TWINKLING_PHASES]
-        self.shown_twinkling_phases: List[bool] = [True for _ in TWINKLING_PHASES]
+        self.stars = [random_star() for _ in range(NUM_OF_RANDOM_STARS)]
+        self.twinkling_timers = [phase for phase in TWINKLING_PHASES]
+        self.current_time = 0
 
-    def set_moving(self, direction: int):
+    @property
+    def moving(self) -> int:
+        return self._moving
+
+    @moving.setter
+    def moving(self, direction: int):
         if direction < 0:
             self._moving = -1
         elif direction > 0:
@@ -74,20 +71,21 @@ class Stars(object):
         else:
             self._moving = 0
 
-    def update(self, dt):
-        for s in self._stars:
-            s.update(dt, self._moving)
-        # update twinkling timers
-        for i in range(len(self.twinkling_timers)):
-            self.twinkling_timers[i] += dt
-            if self.shown_twinkling_phases[i] and self.twinkling_timers[i] >= TWINKLING_PHASES[i].on:
-                self.twinkling_timers[i] = 0
-                self.shown_twinkling_phases[i] = False
-            elif not self.shown_twinkling_phases[i] and self.twinkling_timers[i] >= TWINKLING_PHASES[i].off:
-                self.twinkling_timers[i] = 0
-                self.shown_twinkling_phases[i] = True
+    def update(self, delta_time: int):
+        self.current_time += delta_time
+        # update each timer
+        for timer in self.twinkling_timers:
+            timer.current_time += delta_time
+            if timer.is_shown and timer.current_time >= timer.on_time:
+                timer.current_time = 0
+                timer.is_shown = False
+            elif not timer.is_shown and timer.current_time >= timer.off_time:
+                timer.current_time = 0
+                timer.is_shown = True
 
     def display(self, screen):
-        for star in self._stars:
-            if self.shown_twinkling_phases[star.twinkle_phase]:
-                star.draw(screen)
+        for star in self.stars:
+            is_shown = self.twinkling_timers[star.twinkle_phase].is_shown
+            if is_shown:
+                y = round((star.start_y + (star.speed * self.current_time * self._moving)) % c.GAME_SIZE.height)
+                screen.set_at((star.start_x, y), star.color)

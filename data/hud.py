@@ -78,15 +78,16 @@ def draw_stage_badges(screen, stage_badges, stage_badge_animation_step):
 
 
 def display(screen: pygame.Surface, one_up_score: int, high_score: int, offset_y: int = 0, num_extra_lives=0,
-            stage_badges=None, stage_badge_animation_step=None):
+            stage_badges=None, stage_badge_animation_step=None, show_1up=True):
     # clear the top and bottom for the hud when in play state
     screen.fill(pygame.Color('black'), (0, 0, c.GAME_SIZE.width, c.STAGE_TOP_Y))
     screen.fill(pygame.Color('black'), (0, c.STAGE_BOTTOM_Y, c.GAME_SIZE.width,
                                         c.GAME_SIZE.height - c.STAGE_BOTTOM_Y))
 
     # 1UP score
+    if show_1up:
+        draw_text(screen, c.ONE_UP, Point(20, 10 + offset_y), c.RED)
     score_string = c.HI_SCORE_NUM_FORMAT.format(one_up_score)
-    draw_text(screen, c.ONE_UP, Point(20, 10 + offset_y), c.RED)
     draw_text(screen, score_string, Point(20, 20 + offset_y), c.WHITE)
 
     # high score

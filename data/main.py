@@ -2,7 +2,7 @@ import pygame
 
 from data import constants as c
 from data.states import State
-from .states import GameOver, Demo, Play, TitleScreen, ScoreEntry
+from .states import GameOver, Demo, Play, Title, ScoreEntry
 
 
 class Control(object):
@@ -66,7 +66,7 @@ class Control(object):
 def main():
     # This function begins the main game loop inside the CONTROL class
     initial_state = c.TITLE_STATE
-    state_dict = {c.TITLE_STATE: TitleScreen,
+    state_dict = {c.TITLE_STATE: Title,
                   c.PLAY_STATE: Play,
                   c.SCORE_ENTRY_STATE: ScoreEntry,
                   c.GAME_OVER_STATE: GameOver,

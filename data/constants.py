@@ -37,12 +37,13 @@ ONE_UP_NUM_FORMAT = '{: =6}'  # number format string for 1up score
 HI_SCORE_NUM_FORMAT = '{: =6}'  # number format string for high score
 STAGE_FORMAT_STR = 'STAGE {: =3}'  # number format string for the stage number
 READY = 'READY'  # ready message in play state
+GAME_OVER_TEXT = 'GAME OVER'
 
 # Sting messages for game over
 RESULT_TEXT = "- Result -"  # text is red
 SHOTS_FIRED_TEXT = 'Shots fired {: >12}'  # text is light blue
 NUM_HITS_TEXT = 'Number of hits {: >9}'  # text is white
-HIT_MISS_RATIO = 'Hit-miss ratio {: >9.1%}'  # text is yellow
+HIT_MISS_RATIO = 'Hit-miss ratio {: >10.1%}'  # text is yellow
 
 # Resources and other file paths
 RESOURCE_DIR = "resources"
@@ -56,9 +57,10 @@ STAGE_TOP_Y = 30  # Y-coord. for the top of the stage
 STAGE_BOTTOM_Y = GAME_SIZE.height - 20  # Y-coord. for the bottom of the stage
 BADGE_Y = GAME_SIZE.height - 19  # Y-coord for the top of the stage badges
 
-# Frames per second
-FPS = 30
-FLASH_FREQUENCY = 800
+# Timing and frequencies:
+FPS = 30  # Frames per second
+ENEMY_ANIMATION_FREQ = 800  # milliseconds
+TEXT_FLASH_FREQ = 300  # "
 
 # Scoring
 NUM_TRACKED_SCORES = 5

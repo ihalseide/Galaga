@@ -1,6 +1,5 @@
 import os
 from string import ascii_lowercase
-from typing import Tuple, Union
 
 import pygame
 
@@ -82,7 +81,7 @@ def load_font() -> dict:
     return font
 
 
-def get_sfx(sound_name: str) -> Union[pygame.mixer.Sound, None]:
+def get_sfx(sound_name: str) -> pygame.mixer.Sound:
     return SOUNDS.get(sound_name)
 
 
@@ -90,7 +89,7 @@ def has_sfx(sound_name: str) -> bool:
     return get_sfx(sound_name) is not None
 
 
-def get_image(image_name: str) -> Union[pygame.Surface, None]:
+def get_image(image_name: str) -> pygame.Surface:
     return GRAPHICS.get(image_name)
 
 
@@ -98,7 +97,7 @@ def has_image(image_name: str) -> bool:
     return get_image(image_name) is not None
 
 
-def get_from_font(character: Union[str, None]) -> Union[Tuple[int, int], None]:
+def get_from_font(character) -> tuple:
     return FONT.get(character)
 
 

@@ -2,7 +2,7 @@ from typing import Optional
 
 import pygame
 
-from data import tools, constants as c
+from data import constants as c
 from data.constants import Rectangle
 from data.enemy_paths import EnemyPath
 from data.tools import grab_sheet
@@ -66,7 +66,7 @@ class Player(GalagaSprite):
 
     def __init__(self, x, y):
         super(Player, self).__init__(x, y, 13, 12)
-        self.image = tools.grab_sheet(6 * 16, 0 * 16, 16, 16)
+        self.image = grab_sheet(6 * 16, 0 * 16, 16, 16)
         self.last_fire_time = 0
         self.image_offset_x = 1
 
@@ -214,7 +214,7 @@ class Missile(GalagaSprite):
         else:
             img_slice = self.PLAYER_MISSILE
         ix, iy, w, h = img_slice
-        self.image = tools.grab_sheet(ix, iy, w, h)
+        self.image = grab_sheet(ix, iy, w, h)
 
     def update(self, delta_time: int, flash_flag: bool):
         vel = self.vel * delta_time
@@ -223,29 +223,47 @@ class Missile(GalagaSprite):
 
 
 class Explosion(GalagaSprite):
-    FRAME_DURATION = 120
+    PLAYER_FRAME_DURATION = 140
+    OTHER_FRAME_DURATION = 120
 
-    def __init__(self, x: int, y: int):
+    PLAYER_FRAMES = [Rectangle(64, 112, 32, 32), Rectangle(96, 112, 32, 32), Rectangle(128, 112, 32, 32),
+                     Rectangle(160, 112, 32, 32)]
+
+    OTHER_FRAMES = [Rectangle(224, 80, 16, 16), Rectangle(240, 80, 16, 16), Rectangle(224, 96, 16, 16),
+                    Rectangle(0, 112, 32, 32), Rectangle(32, 112, 32, 32)]
+
+    def __init__(self, x: int, y: int, is_player_type=False):
         super(Explosion, self).__init__(x, y, 16, 16)
-        self.frame = 0
+        self.is_player_type = is_player_type
+
         self.frame_timer = 0
-        self.image = tools.grab_sheet(224, 80, 16, 16)
+
+        if self.is_player_type:
+            self.image = grab_sheet(64, 112, 32, 32)
+            self.frames = iter(self.PLAYER_FRAMES)
+            self.frame_duration = self.PLAYER_FRAME_DURATION
+        else:
+            self.image = grab_sheet
+            self.frames = iter(self.OTHER_FRAMES)
+            self.frame_duration = self.OTHER_FRAME_DURATION
+
+        self.frame = None
+        self.next_frame()
+
+    def next_frame(self):
+        self.frame = next(self.frames)
+        x, y, w, h = self.frame
+        self.image = grab_sheet(x, y, w, h)
+        self.frame_timer = 0
 
     def update(self, delta_time: int, flash_flag: bool):
         self.frame_timer += delta_time
-        if self.frame_timer >= self.FRAME_DURATION:
-            self.frame += 1
-            self.frame_timer = 0
-        if self.frame == 1:
-            self.image = tools.grab_sheet(240, 80, 16, 16)
-        elif self.frame == 2:
-            self.image = tools.grab_sheet(224, 96, 16, 16)
-        elif self.frame == 3:
-            self.image = tools.grab_sheet(0, 112, 32, 32)
-        elif self.frame == 4:
-            self.image = tools.grab_sheet(32, 112, 32, 32)
-        elif self.frame != 0:
-            self.kill()
+        if self.frame_timer >= self.frame_duration:
+            try:
+                self.next_frame()
+            except StopIteration:
+                self.kill()
+                return
 
     def display(self, surface: pygame.Surface):
         super(Explosion, self).display(surface)

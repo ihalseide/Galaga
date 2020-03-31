@@ -74,7 +74,7 @@ def draw_text(surface, text, position, color, background_color=None, center_x=Fa
 
 def grab_sheet(x: int, y: int, width: int, height: int) -> pygame.Surface:
     """
-    Get a pixel rectangle from an image resource
+    Get a pixel rectangle from an the spritesheet resource
     """
     return setup.get_image('sheet').subsurface((x, y, width, height))
 

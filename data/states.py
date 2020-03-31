@@ -1,24 +1,13 @@
 import pygame
 from pygame.math import Vector2
 
-import data.sprites
-from data import constants as c, tools, stages, setup, hud, scoring
-from data.setup import play_sound, stop_sounds
-from data.sprites import Bee, Butterfly, Purple, Explosion, ScoreText
-from data.stars import Stars
-from data.tools import calc_stage_badges, draw_text
-
-STAGE_DURATION = 1600
-READY_DURATION = 1600
-INTRO_MUSIC_DURATION = 6600
-START_NOISE_WAIT = 1000
-START_DURATION = START_NOISE_WAIT + INTRO_MUSIC_DURATION
-STAGE_BADGE_DURATION = 150
-LINE_TEXT_HEIGHT = 16
-FIRE_COOLDOWN = 200
+from . import constants as c, tools, stages, setup, hud, scoring, sprites
+from .setup import play_sound, stop_sounds
+from .stars import StarField
+from .tools import calc_stage_badges, draw_text
 
 
-class State(object):
+class State:
     """
     Base class for game states.
     """
@@ -28,9 +17,8 @@ class State(object):
         self.next_state_name = None  # Next state
         self.is_done = False  # Ready to switch to next state
         self.is_quit = False  # Wants to quit the program
-        self.current_time = 0  # Current time since the beginning of the Python program
-        self.state_start_time = 0  # When the state started
-        self.current_state_time = 0  # Current time since this state started
+        self.current_time = 0  # Current time since the beginning of the pygame ticks
+        self.start_time = 0  # When the state started
 
     def cleanup(self):
         return self.persist
@@ -45,7 +33,28 @@ class State(object):
         raise NotImplementedError()
 
 
+# Play state timings
+STAGE_DURATION = 1600
+READY_DURATION = 1600
+INTRO_MUSIC_DURATION = 6600
+START_NOISE_WAIT = 0
+START_DURATION = START_NOISE_WAIT + INTRO_MUSIC_DURATION
+STAGE_BADGE_DURATION = 200
+FIRE_COOLDOWN = 200
+GAME_OVER_DURATION = 3000
+
+# For displaying the text in the middle for the play state
+LINE_TEXT_HEIGHT = 16
+
+
+def draw_mid_text(screen, text, color, line=1):
+    x, y = c.GAME_CENTER.x, c.GAME_CENTER.y + LINE_TEXT_HEIGHT * (line - 1)
+    tools.draw_text(screen, text, (x, y), color, center_y=True, center_x=True)
+
+
 class Play(State):
+    # game area boundary
+    STAGE_BOUNDS = pygame.Rect(0, c.STAGE_TOP_Y, c.GAME_SIZE.width, c.STAGE_BOTTOM_Y - c.STAGE_TOP_Y)
 
     def __init__(self, persist):
         # do the things all states must do...
@@ -54,7 +63,7 @@ class Play(State):
         self.current_time = 0
 
         # Setup stars
-        self.persist.stars.set_moving(False)
+        self.persist.stars.moving = False
 
         # Score
         self.score = 0
@@ -63,7 +72,7 @@ class Play(State):
 
         # init player
         self.is_player_alive = False
-        self.player = data.sprites.Player(x=c.GAME_SIZE.width // 2, y=c.GAME_SIZE.height - 25)
+        self.player = None
         self.extra_lives = 3
         self.can_control_player = False
         self.last_fire_time = 0
@@ -88,29 +97,29 @@ class Play(State):
         # enemies and level
         self.formation_spread: int = 0
         self.formation_x_offset: int = 0
-        self.formation_y_offset = c.STAGE_TOP_Y + 10
+        self.formation_y_offset = c.STAGE_TOP_Y + 16
         self.the_stage: stages.Stage = stages.load_stage(1)  # pre-load stage 1
         self.enemies: pygame.sprite.Group = pygame.sprite.Group()
         self.enemies.add(self.the_stage.enemies)
-        self.is_ready = False
-        self.should_return_enemies_to_formation = False
 
-        # game area boundary
-        self.bounds = pygame.Rect(0, c.STAGE_TOP_Y, c.GAME_SIZE.width, c.STAGE_BOTTOM_Y - c.STAGE_TOP_Y)
-
-        # timers
+        # timers:
         self.blocking_timer = 0  # this timer is for timing how long to show messages on screen
+        self.flashing_text_timer = 0
+        self.animation_beat_timer = 0
+        self.animation_flag = False
+        self.is_flashing_text = False
+        self.show_1up_text = True
+
+        # state
         self.is_starting = True
         self.has_started_intro_music = False
         self.should_show_ready = False
         self.should_show_stage = False
         self.should_spawn_enemies = False
-        self.flashing_timer = 0
-        self.flash_flag = False
-
-    def draw_mid_text(self, screen, text, color, line=1):
-        x, y = c.GAME_CENTER.x, c.GAME_CENTER.y + LINE_TEXT_HEIGHT * line
-        tools.draw_text(screen, text, (x, y), color, center_y=True, center_x=True)
+        self.is_done_spawning_enemies = False
+        self.is_ready = False
+        self.should_reform_enemies = False
+        self.should_show_game_over = False
 
     def cleanup(self):
         return c.Persist(stars=self.persist.stars,
@@ -128,9 +137,17 @@ class Play(State):
                 if self.current_time >= (self.last_fire_time + FIRE_COOLDOWN):
                     self.fighter_shoots()
                     self.last_fire_time = self.current_time
-            if event.key == pygame.K_ESCAPE:
-                self.is_done = True
-                self.next_state_name = c.GAME_OVER_STATE
+            # TODO: remove these DEBUG shortcuts
+            elif event.key == pygame.K_ESCAPE:
+                if not self.is_ready:
+                    self.done_starting()
+                    self.done_with_ready()
+                    self.done_showing_stage()
+                    stop_sounds()
+            elif event.key == pygame.K_r:
+                self.__init__(self.persist)
+            elif event.key == pygame.K_k:
+                self.kill_player()
 
     def fighter_shoots(self):
         play_sound('fighter_fire')
@@ -139,7 +156,7 @@ class Play(State):
         v = Vector2(0, -0.350)
         x = self.player.rect.centerx
         y = self.player.rect.top + 10
-        m = data.sprites.Missile(x, y, v, is_enemy=False)
+        m = sprites.Missile(x, y, v, is_enemy=False)
         self.missiles.add(m)
         self.num_shots += 1
 
@@ -148,6 +165,7 @@ class Play(State):
         # self.has_started_intro_music = True
         # self.blocking_timer = START_DURATION
         # return
+        stop_sounds()
         setup.get_sfx("theme").play()
         self.has_started_intro_music = True
 
@@ -167,30 +185,35 @@ class Play(State):
             play_sound('stage_award')
 
     def update(self, delta_time, keys):
-        self.current_time += delta_time
-        self.update_missiles(delta_time)
-        self.animate_stage_badges(delta_time)
-        self.persist.stars.update(delta_time)
         self.update_timers(delta_time)
-        self.explosions.update(delta_time, self.flash_flag)
+        self.animate_stage_badges(delta_time)
+
+        self.update_missiles(delta_time)
+        self.persist.stars.update(delta_time)
+        self.explosions.update(delta_time, self.animation_flag)
+
         # update player
         if self.is_player_alive:
             self.update_player(delta_time, keys)
+
         # update enemies
         if self.the_stage and self.enemies:
-            self.enemies.update(delta_time, self.flash_flag)
-        # update score text things
-        ScoreText.text_sprites.update(delta_time, self.flash_flag)
+            self.enemies.update(delta_time, self.animation_flag)
 
-    def add_explosion(self, x, y):
-        self.explosions.add(Explosion(x, y))
+        # update score text things
+        sprites.ScoreText.text_sprites.update(delta_time, self.animation_flag)
+
+    def add_explosion(self, x, y, is_player_type=False):
+        self.explosions.add(sprites.Explosion(x, y, is_player_type=is_player_type))
 
     def update_missiles(self, delta_time):
         for a_missile in self.missiles.sprites():
-            a_missile.update(delta_time, self.flash_flag)
+            a_missile.update(delta_time, self.animation_flag)
 
             # Only work on the first enemy hit
             for enemy in self.enemies:
+                if not enemy.is_visible:
+                    continue
                 if enemy.rect.colliderect(a_missile.rect):
                     enemy.kill()
                     a_missile.kill()
@@ -198,49 +221,81 @@ class Play(State):
                     self.add_explosion(enemy.x, enemy.y)
                     play_sound("enemy_hit_1")
                     points = 0
-                    if isinstance(enemy, Bee):
+                    if isinstance(enemy, sprites.Bee):
                         points = 400
-                    elif isinstance(enemy, Butterfly):
+                    elif isinstance(enemy, sprites.Butterfly):
                         points = 400
-                    elif isinstance(enemy, Purple):
+                    elif isinstance(enemy, sprites.Purple):
                         points = 800
-                        ScoreText(enemy.x, enemy.y, points)
+                        sprites.ScoreText(enemy.x, enemy.y, points)
                     self.score += points
                     self.high_score = max(self.score, self.high_score)
-                    if not self.bounds.contains(a_missile.rect):
+                    if not self.STAGE_BOUNDS.contains(a_missile.rect):
                         a_missile.kill()
                     break
+
+    def kill_player(self):
+        if self.player is None or not self.is_player_alive:
+            return
+        play_sound("explosion")
+        self.is_player_alive = False
+        self.player.kill()
+        self.add_explosion(self.player.x, self.player.y, is_player_type=True)
+        self.reform_enemies()
+
+    def reform_enemies(self):
+        self.is_ready = False
+        self.should_reform_enemies = True
+        # TODO: fix
+        self.done_reforming_enemies()
+
+    def done_reforming_enemies(self):
+        self.should_show_ready = True
+        self.should_reform_enemies = False
+        self.spawn_player()
 
     def decrement_lives(self):
         self.extra_lives -= 1
 
-    def update_timers(self, dt: float):
+    def update_timers(self, delta_time: float):
         # the "blocking" timer that blocks stuff
         if self.is_starting:
-            self.blocking_timer += dt
+            self.blocking_timer += delta_time
             if not self.has_started_intro_music:
                 if self.blocking_timer >= START_NOISE_WAIT:
                     self.play_intro_music()
             if self.blocking_timer >= START_DURATION:
                 self.done_starting()
         elif self.should_show_stage:
-            self.blocking_timer += dt
+            self.blocking_timer += delta_time
             if self.blocking_timer >= STAGE_DURATION:
                 self.done_showing_stage()
                 self.show_ready()
         elif self.should_show_ready:
-            self.blocking_timer += dt
+            self.blocking_timer += delta_time
             if self.blocking_timer >= READY_DURATION:
                 self.done_with_ready()
-        # the "flashing timer" for synchronized flashing of some things
-        self.flashing_timer += dt
-        if self.flashing_timer >= c.FLASH_FREQUENCY:
-            self.flashing_timer = 0
-            self.flash_flag = not self.flash_flag
+        elif self.should_show_game_over:
+            self.blocking_timer += delta_time
+            if self.blocking_timer >= GAME_OVER_DURATION:
+                self.done_showing_game_over()
+
+        # The separate timer for synchronized animation of some things
+        self.animation_beat_timer += delta_time
+        if self.animation_beat_timer >= c.ENEMY_ANIMATION_FREQ:
+            self.animation_beat_timer = 0
+            self.animation_flag = not self.animation_flag
+
+        # The separate timer for flashing the 1UP text
+        if self.is_flashing_text:
+            self.flashing_text_timer += delta_time
+            if self.flashing_text_timer >= c.TEXT_FLASH_FREQ:
+                self.flashing_text_timer = 0
+                self.show_1up_text = not self.show_1up_text
 
     def show_ready(self):
         self.should_show_ready = True
-        self.persist.stars.set_moving(1)
+        self.persist.stars.moving = 1
 
     def done_showing_stage(self):
         self.should_show_stage = False
@@ -256,15 +311,14 @@ class Play(State):
         self.is_starting = False
         self.blocking_timer = 0
         self.spawn_player()
-        self.decrement_lives()
         self.stage_num = 0
         self.next_stage()
         self.should_show_stage = True
+        self.is_flashing_text = True
 
     def next_stage(self):
         self.stage_num += 1
-        # this check is made because stage #1 is pre-loaded
-        # ERROR BELOW: self.the_stage is None
+        # This check is made because stage #1 is pre-loaded:
         if not self.the_stage.stage_num == self.stage_num:
             self.the_stage = stages.load_stage(self.stage_num)
             self.enemies.add(self.the_stage.enemies)
@@ -280,12 +334,24 @@ class Play(State):
         self.num_badges = sum(self.stage_badges)
 
     def spawn_player(self):
+        if self.extra_lives == 0:
+            self.show_game_over()
+            return
+        self.decrement_lives()
         self.is_player_alive = True
-        self.player = data.sprites.Player(c.GAME_SIZE.width // 2, c.GAME_SIZE.height - 25)
+        self.player = sprites.Player(x=c.GAME_SIZE.width // 2, y=c.STAGE_BOTTOM_Y - 16)
+
+    def show_game_over(self):
+        self.should_show_game_over = True
+
+    def done_showing_game_over(self):
+        self.should_show_game_over = False
+        self.is_done = True
+        self.next_state_name = c.GAME_OVER_STATE
 
     def display(self, screen: pygame.Surface):
         # clear screen
-        screen.fill(pygame.Color('black'))
+        screen.fill(c.BLACK)
         # stars
         self.persist.stars.display(screen)
         if self.the_stage:
@@ -302,30 +368,32 @@ class Play(State):
         for x in self.explosions:
             x.display(screen)
         # display text sprites
-        for ts in ScoreText.text_sprites:
+        for ts in sprites.ScoreText.text_sprites:
             ts.display(screen)
         # draw HUD
         self.show_state(screen)
         hud.display(screen, one_up_score=self.persist.one_up_score, high_score=self.persist.high_score,
                     offset_y=0, num_extra_lives=self.extra_lives, stage_badges=self.stage_badges,
-                    stage_badge_animation_step=self.stage_badge_animation_step)
+                    stage_badge_animation_step=self.stage_badge_animation_step, show_1up=self.show_1up_text)
 
     def show_state(self, screen):
         if self.is_starting:
-            self.draw_mid_text(screen, c.START_TEXT, c.RED)
+            draw_mid_text(screen, c.START_TEXT, c.RED)
         elif self.should_show_stage:
             # pad the number to 3 digits
-            self.draw_mid_text(screen, c.STAGE_FORMAT_STR.format(self.stage_num), pygame.Color('skyblue'))
+            draw_mid_text(screen, c.STAGE_FORMAT_STR.format(self.stage_num), c.LIGHT_BLUE)
         elif self.should_show_ready:
-            self.draw_mid_text(screen, c.READY, pygame.Color('red'))
+            draw_mid_text(screen, c.READY, c.RED)
+        elif self.should_show_game_over:
+            draw_mid_text(screen, c.GAME_OVER_TEXT, c.RED)
 
     def update_player(self, dt, keys):
         if self.is_player_alive and self.can_control_player:
             self.player.update(dt, keys)
-        if self.player.rect.left < self.bounds.left:
-            self.player.rect.left = self.bounds.left
-        elif self.player.rect.right > self.bounds.right:
-            self.player.rect.right = self.bounds.right
+        if self.player.rect.left < self.STAGE_BOUNDS.left:
+            self.player.rect.left = self.STAGE_BOUNDS.left
+        elif self.player.rect.right > self.STAGE_BOUNDS.right:
+            self.player.rect.right = self.STAGE_BOUNDS.right
 
 
 LIGHT_TITLE = setup.get_image('light_title')
@@ -341,14 +409,14 @@ TITLE_FLASH_TIME = 150  # millis.
 TITLE_FLASH_NUM = 12
 
 
-class TitleScreen(State):
+class Title(State):
 
     def __init__(self, persist):
         # initialize the persistent data because it is the initial state
         if persist is None:
             scores = scoring.load_scores()
             high_score = max(scores, key=lambda record: record.score).score
-            persist = c.Persist(stars=Stars(),
+            persist = c.Persist(stars=StarField(),
                                 scores=scores,
                                 current_score=0,
                                 one_up_score=0,
@@ -384,7 +452,6 @@ class TitleScreen(State):
                     # start the game
                     self.next_state_name = c.PLAY_STATE
                     self.is_done = True
-                    play_sound('start_noise')
                 else:
                     self.set_ready()
 
@@ -438,7 +505,7 @@ class GameOver(State):
         play_sound("game_over")
         self.start_time = pygame.time.get_ticks()
 
-        self.persist.stars.set_moving(1)
+        self.persist.stars.moving = 1
 
         self.stage_badges = calc_stage_badges(self.persist.stage_num)
 
@@ -453,7 +520,7 @@ class GameOver(State):
 
     def update(self, delta_time: int, keys: list):
         self.persist.stars.update(delta_time)
-        if pygame.time.get_ticks() > self.start_time + DURATION:
+        if self.current_time > self.start_time + DURATION:
             self.is_done = True
             self.next_state_name = c.TITLE_STATE
             stop_sounds()
@@ -467,14 +534,15 @@ class GameOver(State):
         draw_text(surface=screen, text=c.RESULT_TEXT,
                   position=(x, y), color=c.RED, center_x=True)
 
+        x = c.GAME_CENTER.x - 100
         draw_text(surface=screen, text=c.SHOTS_FIRED_TEXT.format(self.persist.num_shots),
-                  position=(x, y + 16), color=c.LIGHT_BLUE, center_x=True)
+                  position=(x, y + 16), color=c.LIGHT_BLUE)
 
         draw_text(surface=screen, text=c.NUM_HITS_TEXT.format(self.persist.num_hits),
-                  position=(x, y + 32), color=c.WHITE, center_x=True)
+                  position=(x, y + 32), color=c.WHITE)
 
         draw_text(surface=screen, text=c.HIT_MISS_RATIO.format(self.ratio),
-                  position=(x, y + 48), color=c.YELLOW, center_x=True)
+                  position=(x, y + 48), color=c.YELLOW)
 
         hud.display(screen, one_up_score=self.persist.one_up_score, high_score=self.persist.high_score,
                     stage_badges=self.stage_badges, stage_badge_animation_step=sum(self.stage_badges))
