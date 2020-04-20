@@ -1,9 +1,11 @@
-# Galaga (game clone) (WORK IN PROGRESS)
+# Galaga
 A clone of the arcade game Galaga written in Python with the Pygame library. 
 Much inspiration for organization of code was taken from this repo: <https://github.com/Hyungmook/MarioLevel1>.
 
 ## Contributing [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
 Go ahead and contribute if you want to! I would love to collaborate on this project, even if it strays from the original!
+
+The github repo is at [github.com/ihalseide/Galaga](https://github.com/ihalseide/Galaga).
 
 Just start your pull request and/or [email me](mailto:halseide.izak@gmail.com) ([ihalseide](https://github.com/ihalseide))!
 
@@ -29,7 +31,7 @@ Enter key = "start" function
 
 Space key = make the ship fire its missile
 
-### Completedness / TODO list
+### TODO List 
 - [x] Player fires
 - [x] Player moves
 - [x] Enemies explode
