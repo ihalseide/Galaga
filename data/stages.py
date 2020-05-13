@@ -1,21 +1,29 @@
+# stages.py
+# Author: Izak Halseide
+
 from . import constants as c
 from .constants import Point
 from .enemy_paths import EnemyPath, Wait
 from .sprites import Enemy, Bee, Butterfly, Purple, GalagaSprite
 
+# Some set enemy spawning locations
+TOP_LEFT = Point(100, 0)
+TOP_RIGHT = Point(c.GAME_SIZE.width - 100, 0)
+BOTTOM_LEFT = Point(0, 200)
+BOTTOM_RIGHT = Point(c.GAME_SIZE.width, 200)
+
+MAX_ENEMY_ROWS = 12
+MAX_ENEMY_COLUMNS = 12
+
+# Times in milliseconds
+TIME_BETWEEN_ENEMIES = 500  # 200
+
 
 class Stage(object):
-    # Some set enemy spawning locations
-    TOP_LEFT = Point(100, 0)
-    TOP_RIGHT = Point(c.GAME_SIZE.width - 100, 0)
-    BOTTOM_LEFT = Point(0, 200)
-    BOTTOM_RIGHT = Point(c.GAME_SIZE.width, 200)
-
-    MAX_ENEMY_ROWS = 12
-    MAX_ENEMY_COLUMNS = 12
-
-    # Times in milliseconds
-    TIME_BETWEEN_ENEMIES = 500  # 200
+    """
+    Mutable stage object that represents a single stage in Galaga.
+    It is mutable for when the representation of the stage is being built.
+    """
 
     def __init__(self, stage_num: int):
         # Initial settings
@@ -43,12 +51,9 @@ class Stage(object):
         enemy = enemy_class(x=origin_x, y=origin_y, formation_x=formation_x, formation_y=formation_y, path=path)
         enemy.number_in_wave = self.defining_enemy_num
         enemy.wave_number = self.defining_wave_num
-        self.wave_wait_time += self.TIME_BETWEEN_ENEMIES
+        self.wave_wait_time += TIME_BETWEEN_ENEMIES
         self.defining_enemy_num += 1
         self.enemies.append(enemy)
-
-        # print('Time: {}, Wave #{}, Enemy #{} ({})'.format(self.wave_wait_time, self.defining_wave_num,
-        #                                                   self.defining_enemy_num, enemy_class.__name__))
 
     def define_enemy_origin(self, enemy_origin: Point):
         self.current_enemy_origin = enemy_origin
@@ -88,20 +93,20 @@ def load_stage(stage_num: int) -> Stage:
 
     if stage_num == 1:
         # 4 bees come from the top right and 4 butterflies come from the top left
-        stage.define_next_wave(Stage.TOP_RIGHT)
+        stage.define_next_wave(TOP_RIGHT)
         stage.queue_enemy(Bee, formation_x=4, formation_y=3)
         stage.queue_enemy(Bee, formation_x=4, formation_y=4)
         stage.queue_enemy(Bee, formation_x=5, formation_y=3)
         stage.queue_enemy(Bee, formation_x=5, formation_y=4)
 
-        stage.define_another_squad(Stage.TOP_LEFT)
+        stage.define_another_squad(TOP_LEFT)
         stage.queue_enemy(Butterfly, formation_x=4, formation_y=1)
         stage.queue_enemy(Butterfly, formation_x=5, formation_y=1)
         stage.queue_enemy(Butterfly, formation_x=4, formation_y=2)
         stage.queue_enemy(Butterfly, formation_x=5, formation_y=2)
 
         # 4 bosses and 4 butterflies come in alternating order from the bottom left
-        stage.define_next_wave(Stage.BOTTOM_LEFT)
+        stage.define_next_wave(BOTTOM_LEFT)
         stage.queue_enemy(Purple, formation_x=3, formation_y=0)
         stage.queue_enemy(Butterfly, formation_x=3, formation_y=1)
         stage.queue_enemy(Purple, formation_x=4, formation_y=0)
@@ -112,7 +117,7 @@ def load_stage(stage_num: int) -> Stage:
         stage.queue_enemy(Butterfly, formation_x=6, formation_y=2)
 
         # 8 butterflies come from the bottom right
-        stage.define_next_wave(Stage.BOTTOM_RIGHT)
+        stage.define_next_wave(BOTTOM_RIGHT)
         stage.queue_enemy(Butterfly, formation_x=1, formation_y=1)
         stage.queue_enemy(Butterfly, formation_x=1, formation_y=2)
         stage.queue_enemy(Butterfly, formation_x=2, formation_y=1)
@@ -123,7 +128,7 @@ def load_stage(stage_num: int) -> Stage:
         stage.queue_enemy(Butterfly, formation_x=8, formation_y=2)
 
         # 8 bees come from the top right
-        stage.define_next_wave(Stage.TOP_RIGHT)
+        stage.define_next_wave(TOP_RIGHT)
         stage.queue_enemy(Bee, formation_x=2, formation_y=3)
         stage.queue_enemy(Bee, formation_x=2, formation_y=4)
         stage.queue_enemy(Bee, formation_x=3, formation_y=3)
@@ -134,7 +139,7 @@ def load_stage(stage_num: int) -> Stage:
         stage.queue_enemy(Bee, formation_x=7, formation_y=4)
 
         # 8 bees come from the top left
-        stage.define_next_wave(Stage.TOP_LEFT)
+        stage.define_next_wave(TOP_LEFT)
         stage.queue_enemy(Bee, formation_x=0, formation_y=3)
         stage.queue_enemy(Bee, formation_x=0, formation_y=4)
         stage.queue_enemy(Bee, formation_x=1, formation_y=3)

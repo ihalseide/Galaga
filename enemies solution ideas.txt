@@ -1,0 +1,7 @@
+Maybe enemy sprites don't have any functionality other than to store the data about it, and the behavior is implemented in the Play State.
+
+
+Loading a stage:
+- Load enemies and info
+- play state adds all enemies into enemies group and spawns them
+- dunno???

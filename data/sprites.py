@@ -1,8 +1,9 @@
-from typing import Optional
+# sprites.py
+# Author: Izak Halseide
 
+from data.tools import time_millis
 import pygame
-
-from data import constants as c
+from data import constants as c, tools
 from data.constants import Rectangle
 from data.enemy_paths import EnemyPath
 from data.tools import grab_sheet
@@ -24,7 +25,7 @@ class GalagaSprite(pygame.sprite.Sprite):
         self.y = y
 
         # Display and image variables
-        self.image: Optional[pygame.Surface] = None
+        self.image = None
         self.image_offset_x: int = 0
         self.image_offset_y: int = 0
         self.is_visible: bool = True
@@ -61,24 +62,18 @@ class GalagaSprite(pygame.sprite.Sprite):
 
 
 class Player(GalagaSprite):
-    FIRE_COOLDOWN = 400
-    SPEED = 0.085
 
     def __init__(self, x, y):
         super(Player, self).__init__(x, y, 13, 12)
         self.image = grab_sheet(6 * 16, 0 * 16, 16, 16)
-        self.last_fire_time = 0
         self.image_offset_x = 1
 
     def update(self, delta_time, keys):
-        s = round(self.SPEED * delta_time)
+        s = round(c.PLAYER_SPEED * delta_time)
         if keys[pygame.K_RIGHT]:
             self.x += s
         elif keys[pygame.K_LEFT]:
             self.x -= s
-
-    def can_fire(self, time):
-        return time - self.last_fire_time >= self.FIRE_COOLDOWN
 
 
 class Enemy(GalagaSprite):
@@ -87,7 +82,7 @@ class Enemy(GalagaSprite):
                  wave_number=None, number_in_wave=None, is_visible=False):
         super(Enemy, self).__init__(x, y, width, height)
         self.can_be_in_formation = can_be_in_formation
-        self.is_in_formation = False
+        self.is_in_formation = True#False
         self.formation_x = formation_x
         self.formation_y = formation_y
         self.wave_number = wave_number
@@ -95,21 +90,18 @@ class Enemy(GalagaSprite):
         self.path = path
         self.is_visible = is_visible
 
-    def calc_formation_pos(self, formation_spread, formation_x_offset, formation_y_offset):
+    def display(self, surface: pygame.Surface):
+        super(Enemy, self).display(surface)
+        pygame.draw.rect(surface, (255, 255, 255), self.rect, 1)
+
+    def update(self, delta_time: int, flash_flag: bool):
+        if self.is_in_formation:
+            self.go_to_formation()
+
+    def go_to_formation(self):
         if self.formation_x is None or self.formation_y is None:
             return
-        x = formation_x_offset + self.formation_x * (16 + formation_spread)
-        y = formation_y_offset + self.formation_y * (16 + formation_spread)
-        return x, y
-
-    # def display(self, surface: pygame.Surface):
-    #     super(Enemy, self).display(surface)
-    #     pygame.draw.rect(surface, (255, 255, 255), self.rect, 1)
-
-    def go_to_formation(self, formation_spread, formation_x_offset, formation_y_offset):
-        if self.formation_x is None or self.formation_y is None:
-            return
-        self.x, self.y = self.calc_formation_pos(formation_spread, formation_x_offset, formation_y_offset)
+        self.x, self.y = tools.calc_formation_pos_from_time(self.formation_x, self.formation_y, time_millis())
 
 
 class Bee(Enemy):
@@ -127,6 +119,7 @@ class Bee(Enemy):
         self.image = grab_sheet(224, 32, 16, 16)
         self.frame_num = 7
         self.angle = 0
+        self.is_visible = True
 
     def display(self, surface: pygame.Surface):
         x, y, w, h = self.FRAMES[self.frame_num]
@@ -134,6 +127,9 @@ class Bee(Enemy):
         super(Bee, self).display(surface)
 
     def update(self, delta_time: int, flash_flag: bool):
+        x, y, angle = self.path.update(delta_time, self.x, self.y, self.angle)
+        self.x, self.y, self.angle = x, y, angle
+
         if flash_flag:
             self.frame_num = 6
         else:
@@ -160,6 +156,7 @@ class Butterfly(Enemy):
         self.frame_num = 7
 
     def update(self, delta_time: int, flash_flag: bool):
+        super(Butterfly, self).update(delta_time, flash_flag)
         if flash_flag:
             self.frame_num = 6
         else:
@@ -182,6 +179,7 @@ class Purple(Enemy):
         self.frame_num = 0
 
     def update(self, delta_time: int, flash_flag: bool):
+        super(Purple, self).update(delta_time, flash_flag)
         if flash_flag:
             self.frame_num = 0
         else:

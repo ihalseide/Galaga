@@ -1,9 +1,13 @@
+# tools.py
+# Author: Izak Halseide
+
 import math
-
+import time
 import pygame
-
+from functools import wraps
 from . import constants as c
 from . import setup
+from math import sin
 
 
 def linear_interpolation(start: float, stop: float, percent: float) -> float:
@@ -188,3 +192,62 @@ def calc_stage_badges(stage_num):
     num_1 = w_stage - num_5 * 5
 
     return c.StageBadges(num_1, num_5, num_10, num_20, num_30, num_50)
+
+
+def update_wrapper_ms(func, argument_name="delta_time"):
+    """
+    Wrapper to make a function keep track of the time elapsed since it's last call.
+    Time is tracked in milliseconds
+    """
+
+    last_call_time = None
+
+    @wraps(func)
+    def func_wrapper(*args, **kwargs):
+        nonlocal last_call_time
+
+        now = time.perf_counter_ns()
+        if last_call_time is None:
+            elapsed = 0
+        else:
+            elapsed = now - last_call_time
+        last_call_time = now
+        elapsed_millis = elapsed // 1_000_000
+
+        kwargs[argument_name] = elapsed_millis
+        return func(*args, **kwargs)
+
+    return func_wrapper
+
+
+def calc_formation(time):
+    # Time should be in millis
+
+    mod_time = time % c.FORMATION_CYCLE_TIME
+    norm_time = 2 * math.pi * mod_time / c.FORMATION_CYCLE_TIME
+
+    middle_spread = (c.FORMATION_MAX_SPREAD + c.FORMATION_MIN_SPREAD) / 2
+    spread_magnitude = c.FORMATION_MAX_SPREAD - c.FORMATION_MIN_SPREAD
+    offset = sin(norm_time) * spread_magnitude
+    spread = round(middle_spread + offset)
+
+    center_x = 0 #c.GAME_CENTER.x
+    offset = sin(2 * norm_time) * c.FORMATION_MAX_X
+    x = round(center_x + offset)
+
+    return spread, x, c.FORMATION_OFFSET_Y
+
+
+def calc_formation_pos_from_time(formation_x, formation_y, time):
+    spread, x_offset, y_offset = calc_formation(time)
+    return calc_formation_pos(formation_x, formation_y, spread, x_offset, y_offset)
+
+
+def calc_formation_pos(formation_x, formation_y, formation_spread, formation_x_offset, formation_y_offset):
+    x = formation_x_offset + formation_x * (16 + formation_spread)
+    y = formation_y_offset + formation_y * (16 + formation_spread)
+    return x, y
+
+
+def time_millis():
+    return time.perf_counter_ns() // 1_000_000

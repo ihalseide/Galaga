@@ -1,5 +1,7 @@
-import pygame
+# main.py
+# Author: Izak Halseide
 
+import pygame
 from data import constants as c
 from data.states import State
 from .states import GameOver, Demo, Play, Title, ScoreEntry

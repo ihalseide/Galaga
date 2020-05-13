@@ -1,5 +1,7 @@
-from math import cos, sin
+# enemy_paths.py
+# Author: Izak Halseide
 
+from math import cos, sin
 from .tools import distance, linear_interpolation, arc_length
 
 
@@ -98,6 +100,9 @@ class EnemyPath:
             self.is_done = True
 
     def update(self, delta_time, x, y, angle):
+        """
+        Given current x, y, angle, output the goal x, y, and angle.
+        """
         if self.is_done or self.current_step is None:
             return x, y, angle
 
