@@ -1,12 +1,12 @@
 # sprites.py
 # Author: Izak Halseide
 
-from data.tools import time_millis
+from .tools import time_millis
 import pygame
-from data import constants as c, tools
-from data.constants import Rectangle
-from data.enemy_paths import EnemyPath
-from data.tools import grab_sheet
+from . import constants as c, tools
+from .constants import Rectangle
+from .enemy_paths import EnemyPath
+from .tools import grab_sheet
 
 
 class GalagaSprite(pygame.sprite.Sprite):

@@ -2,9 +2,8 @@
 # Author: Izak Halseide
 
 import pygame
-from data import constants as c
-from data.states import State
-from .states import GameOver, Demo, Play, Title, ScoreEntry
+from . import constants as c
+from .states import GameOver, Demo, Play, Title, ScoreEntry, State
 
 
 class Control(object):
