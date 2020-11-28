@@ -1,7 +1,6 @@
 import random
 from collections import namedtuple
 from dataclasses import dataclass
-
 from . import constants as c
 
 NUM_OF_RANDOM_STARS = 64

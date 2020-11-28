@@ -1,6 +1,3 @@
-# states.py
-# Author: Izak Halseide
-
 import pygame
 from pygame.math import Vector2
 from . import constants as c, tools, stages, setup, hud, scoring, sprites
@@ -21,7 +18,6 @@ GAME_OVER_DURATION = 3000
 # game area boundary
 STAGE_BOUNDS = pygame.Rect(0, c.STAGE_TOP_Y, c.GAME_SIZE.width, c.STAGE_BOTTOM_Y - c.STAGE_TOP_Y)
 
-
 # For displaying the text in the middle for the play state
 LINE_TEXT_HEIGHT = 16
 
@@ -41,40 +37,11 @@ TITLE_FLASH_NUM = 12
 # How many milliseconds to show the game over screen
 GAME_OVER_STATE_DURATION = 14500
 
-
 def draw_mid_text(screen, text, color, line=1):
     x, y = c.GAME_CENTER.x, c.GAME_CENTER.y + LINE_TEXT_HEIGHT * (line - 1)
     tools.draw_text(screen, text, (x, y), color, center_y=True, center_x=True)
 
-
-class State:
-    """
-    Base class for game states.
-    """
-
-    def __init__(self, persist):
-        self.persist: c.Persist = persist
-        self.next_state_name = None  # Next state
-        self.is_done = False  # Ready to switch to next state
-        self.is_quit = False  # Wants to quit the program
-        self.current_time = 0  # Current time since the beginning of the pygame ticks
-        self.start_time = 0  # When the state started
-
-    def cleanup(self):
-        return self.persist
-
-    def get_event(self, event: pygame.event.Event):
-        raise NotImplementedError()
-
-    def update(self, delta_time: int, keys: list):
-        raise NotImplementedError()
-
-    def display(self, surface: pygame.Surface):
-        raise NotImplementedError()
-
-
-class Play(State):
-
+class Play:
     def __init__(self, persist):
         # do the things all states must do...
         State.__init__(self, persist)
@@ -428,8 +395,7 @@ class Play(State):
         self.explosions.update(delta_time, self.animation_flag)
 
 
-class Title(State):
-
+class Title:
     def __init__(self, persist):
         # initialize the persistent data because it is the initial state
         if persist is None:
@@ -514,8 +480,7 @@ class Title(State):
         tools.draw_text(screen, c.TITLE_FOOTER_TEXT, (c.GAME_CENTER.x, self.offset_y + COPY_Y), c.WHITE, center_x=True)
 
 
-class GameOver(State):
-
+class GameOver:
     def __init__(self, persist):
         super(GameOver, self).__init__(persist)
         play_sound("game_over")
@@ -562,31 +527,3 @@ class GameOver(State):
 
         hud.display(screen, one_up_score=self.persist.one_up_score, high_score=self.persist.high_score,
                     stage_badges=self.stage_badges, stage_badge_animation_step=sum(self.stage_badges))
-
-
-class Demo(State):
-    # TODO: implement
-
-    def update(self, delta_time: int, keys):
-        pass
-
-    def display(self, surface: pygame.Surface):
-        pass
-
-    def get_event(self, event: pygame.event.Event):
-        pass
-
-
-class ScoreEntry(State):
-
-    def __init__(self, persist):
-        super(ScoreEntry, self).__init__(persist)
-
-    def get_event(self, event: pygame.event.Event):
-        pass
-
-    def update(self, delta_time: int, keys: list):
-        pass
-
-    def display(self, surface: pygame.Surface):
-        pass

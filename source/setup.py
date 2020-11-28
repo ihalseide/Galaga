@@ -1,8 +1,5 @@
-import os
+import pygame, os
 from string import ascii_lowercase
-
-import pygame
-
 from . import constants as c
 
 # font spritesheet coordinates and stuff

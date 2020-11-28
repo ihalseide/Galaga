@@ -1,7 +1,5 @@
 from collections import namedtuple
-
 import pygame
-
 from . import constants as c
 from .constants import Point
 from .tools import draw_text, grab_sheet

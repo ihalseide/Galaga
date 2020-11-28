@@ -1,5 +1,4 @@
 from collections import namedtuple
-
 from . import constants as c
 
 ScoreRecord = namedtuple('Score', 'name score')

@@ -1,6 +1,3 @@
-# main.py
-# Author: Izak Halseide
-
 import pygame
 from . import constants as c
 from .states import GameOver, Demo, Play, Title, ScoreEntry, State
