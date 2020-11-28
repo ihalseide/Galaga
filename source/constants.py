@@ -84,3 +84,35 @@ FORMATION_MIN_SPREAD = 4
 FORMATION_MAX_SPREAD = 8
 FORMATION_MAX_X = 16
 FORMATION_CYCLE_TIME = 8000 # millis
+
+# Play state timings
+STAGE_DURATION = 1600
+READY_DURATION = 1600
+INTRO_MUSIC_DURATION = 6600
+START_NOISE_WAIT = 0
+START_DURATION = START_NOISE_WAIT + INTRO_MUSIC_DURATION
+STAGE_BADGE_DURATION = 200
+FIRE_COOLDOWN = 200
+GAME_OVER_DURATION = 3000
+
+# game area boundary
+STAGE_BOUNDS = pygame.Rect(0, c.STAGE_TOP_Y, c.GAME_SIZE.width, c.STAGE_BOTTOM_Y - c.STAGE_TOP_Y)
+
+# For displaying the text in the middle for the play state
+LINE_TEXT_HEIGHT = 16
+
+# Title settings
+LIGHT_TITLE = setup.get_image('light_title')
+GREEN_TITLE = setup.get_image('green_title')
+WHITE_TITLE = setup.get_image('white_title')
+SCORE_Y = 10
+TITLE_X = c.GAME_CENTER.x - LIGHT_TITLE.get_rect().width // 2
+TITLE_Y = SCORE_Y + 80
+START_Y = TITLE_Y + 110
+COPY_Y = START_Y + 60
+MENU_SPEED = 3
+TITLE_FLASH_TIME = 150  # millis.
+TITLE_FLASH_NUM = 12
+
+# How many milliseconds to show the game over screen
+GAME_OVER_STATE_DURATION = 14500
