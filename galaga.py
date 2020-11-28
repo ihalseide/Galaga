@@ -6,208 +6,52 @@ from collections import namedtuple
 from pygame.math import Vector2
 from pygame.rect import Rect
 from math import sin
-from string import ascii_lowercase
+from string import ascii_lowercase, digits, ascii_letters
 
-# Directories
-SOUNDS_DIR = os.path.join('resources', 'audio')
-GRAPHICS_DIR = os.path.join('resources','graphics')
+from constants import *
 
-# Game state keys
-STATE_TITLE = 'title state'
-STATE_DEMO = 'demo state'
-STATE_PLAY = 'play state'
-STATE_SCORE_ENTRY = 'score entry state'
-STATE_GAME_OVER = 'game over state'
-
-# String constants for in-game
-TITLE = 'Galaga'  # title for the game window
-TITLE_FOOTER_TEXT = 'GALAGA © 1981'  # shown at the bottom of the screen on the menu
-START_TEXT = 'START'  # Start message in play state
-HI_SCORE_MESSAGE = 'HI-SCORE'  # HUD high score label
-ONE_UP = '1UP'  # HUD 1up label
-ONE_UP_NUM_FORMAT = '{: =6}'  # number format string for 1up score
-HI_SCORE_NUM_FORMAT = '{: =6}'  # number format string for high score
-STAGE_FORMAT_STR = 'STAGE {: =3}'  # number format string for the stage number
-READY = 'READY'  # ready message in play state
-GAME_OVER_TEXT = 'GAME OVER'
-
-# Sting messages for game over
-RESULT_TEXT = "- Result -"  # text is red
-SHOTS_FIRED_TEXT = 'Shots fired {: >12}'  # text is light blue
-NUM_HITS_TEXT = 'Number of hits {: >9}'  # text is white
-HIT_MISS_RATIO = 'Hit-miss ratio {: >10.1%}'  # text is yellow
-
-# Resources and other file paths
-RESOURCE_DIR = "resources"
-SCORE_FILE = "scores.txt"
-
-# Game space
-GAME_WIDTH, GAME_HEIGHT = 224, 288
-GAME_CENTER_X, GAME_CENTER_Y = GAME_WIDTH // 2, GAME_HEIGHT // 2
-STAGE_TOP_Y = 30  # Y-coord. for the top of the stage
-STAGE_BOTTOM_Y = GAME_HEIGHT - 20  # Y-coord. for the bottom of the stage
-BADGE_Y = GAME_HEIGHT - 19  # Y-coord for the top of the stage badges
-STAGE_BOUNDS = pygame.Rect(0, STAGE_TOP_Y, GAME_WIDTH, STAGE_BOTTOM_Y - STAGE_TOP_Y)
-
-# Timing and frequencies in milliseconds unless otherwise noted
-EXPLOSION_PLAYER_FRAME = 140
-EXPLOSION_ENEMY_FRAME = 120
-FPS = 30 # frames per second
-TEXT_FLASH_FREQ = 300
-PLAYER_FIRE_COOLDOWN = 400
-PLAYER_SPEED = 0.085
-STAGE_DURATION = 1600
-READY_DURATION = 1600
-INTRO_MUSIC_DURATION = 6600
-START_NOISE_WAIT = 0
-START_DURATION = START_NOISE_WAIT + INTRO_MUSIC_DURATION
-STAGE_BADGE_DURATION = 200
-FIRE_COOLDOWN = 200
-GAME_OVER_DURATION = 3000
-LINE_TEXT_HEIGHT = 16
-GAME_OVER_STATE_DURATION = 14500
-BLINK_1UP = 450
-
-# Used colors
-RED = (255, 0, 0)
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-BLUE = (0, 0, 255)
-YELLOW = (255, 255, 0)
-LIGHT_BLUE = (135, 206, 235)
-LIGHT_GREEN = (144, 238, 144)
-
-# Title settings
-SCORE_Y = 10
-TITLE_Y = SCORE_Y + 80
-START_Y = TITLE_Y + 110
-COPY_Y = START_Y + 60
-MENU_SPEED = 3
-TITLE_FLASH_TIME = 150  # millis.
-TITLE_FLASH_NUM = 12
-
-# font spritesheet coordinates and stuff
-FONT_ALPHABET_Y = 224
-FONT_CHAR_SIZE = 8
-
-# Number of stars in the star field background
-STAR_COUNT = 64
+# Globals
+the_stars = None 
+the_stars_direction = None
+the_screen = None
+the_sprites = None
+the_spritesheet = None
 
 class GalagaSprite (pygame.sprite.Sprite):
     # A Galaga Sprite is different because it aligns the hitbox rect to its sprite rect center.
 
-    def __init__ (self, hitbox, sprite, offset_x=0, offset_y=0, *groups: pygame.sprite.Group):
-        super(GalagaSprite, self).__init__(groups)
+    def __init__ (self, x, y, width, height, sprite=None, offset_x=0, offset_y=0):
+        super(GalagaSprite, self).__init__()
         # Rect is the hitbox in the world, and it must be named "rect" for pygame
-        self.rect = hitbox
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
         # Sprite is the rectangle selection in the sprite sheet
-        self.sprite = None
+        self.sprite = sprite
         # Offset between the sprite image and the hitbox
         self.offset_x = offset_x
         self.offset_y = offset_y
+        # Replace color
+        self.replace_white = None
 
-    def display(self, surface, flip_horizontal=False, flip_vertical=False):
+    def display(self, flip_horizontal=False, flip_vertical=False):
         if self.sprite is not None:
-            img = grab_sheet(self.sprite.x, self.sprite.y, self.sprite.width, self.sprite.height)
+            x, y, width, height = self.sprite
+            img = sprite(x, y, width, height)
             img = pygame.transform.flip(img, flip_horizontal, flip_vertical)
+            # For text sprite coloring
+            if self.replace_white:
+                pass
             # Center the image
-            x = self.rect.x - sprite.width // 2 + self.offset_x
-            y = self.rect.y - sprite.height // 2 + self.offset_y
-            surface.blit(img, (x, y))
+            x = self.x - width // 2 + self.offset_x
+            y = self.y - height // 2 + self.offset_y
+            the_screen.blit(img, (x, y))
 
-Star = namedtuple('Star', 'x y color layer_num time_on time_off')
+Star = namedtuple('Star', 'x y color layer time_on time_off')
 
-def get_sfx(sound_name: str) -> pygame.mixer.Sound:
-    return SOUNDS.get(sound_name)
-
-def has_sfx(sound_name: str) -> bool:
-    return get_sfx(sound_name) is not None
-
-def get_image(image_name: str) -> pygame.Surface:
-    return game.graphics.get(image_name)
-
-def has_image(image_name: str) -> bool:
-    return get_image(image_name) is not None
-
-def get_from_font(character) -> tuple:
-    return FONT.get(character)
-
-def has_char_in_font(character: str) -> bool:
-    return get_from_font(character) is not None
-
-def play_sound(sound_name):
-    SOUNDS.get(sound_name).play()
-
-def stop_sounds():
-    pygame.mixer.stop()
-
-def linear_interpolation(start: float, stop: float, percent: float) -> float:
-    """
-    Linear interpolation function
-    :param start: starting value for interpolation
-    :param stop: ending value for interpolation
-    :param percent: proportion of the way through interpolation (0.0 -> 1.0)
-    :return: the interpolated value
-    """
-    return (1 - percent) * start + percent * stop
-
-def map_value(value, in_start, in_stop, out_start, out_stop):
-    """
-    Map a value from an input range to an output range
-    :param value:
-    :param in_start:
-    :param in_stop:
-    :param out_start:
-    :param out_stop:
-    :return:
-    """
-    return out_start + (out_stop - out_start) * ((value - in_start) / (in_stop - in_start))
-
-def _font_render(text: str, color: pygame.Color, bg_color=None):
-    """
-    Create a pygame image with the text rendered on it using the custom bitmap font
-    :param text:
-    :param color:
-    :param bg_color:
-    :return:
-    """
-    surf = pygame.Surface((len(text) * FONT_CHAR_SIZE, FONT_CHAR_SIZE))
-    if bg_color is None:
-        surf.set_colorkey(pygame.Color('black'))
-    for i, char in enumerate(text):
-        # get font location for the char, default to unknown symbol
-        font_data = get_from_font(char.lower())
-        if not font_data:
-            font_data = get_from_font(None)
-        # grab the image at location
-        glyph = grab_sheet(font_data[0], font_data[1], FONT_CHAR_SIZE, FONT_CHAR_SIZE)
-        surf.blit(glyph, (i * FONT_CHAR_SIZE, 0), )
-    # replace colors
-    pixels = pygame.PixelArray(surf)
-    if bg_color:
-        pixels.replace(pygame.Color('black'), bg_color)
-    pixels.replace(pygame.Color('white'), color)
-    pixels.close()
-    return surf
-
-def draw_text(surface, text, position, color, background_color=None, center_x=False, center_y=False):
-    text_surface = _font_render(str(text), color, background_color)
-    x, y = position
-    width, height = text_surface.get_size()
-    if center_x:
-        x -= width // 2
-    if center_y:
-        y -= height // 2
-    if surface is None:
-        return text_surface
-    else:
-        return surface.blit(text_surface, (x, y))
-
-def grab_sheet(x: int, y: int, width: int, height: int) -> pygame.Surface:
-    """
-    Get a pixel rectangle from an the spritesheet resource
-    """
-    return get_image('sheet').subsurface((x, y, width, height))
+def sprite(x: int, y: int, width: int, height: int) -> pygame.Surface:
+    return the_spritesheet.subsurface((x, y, width, height))
 
 def calc_stage_badges(stage_num):
     # Calculate how many of each stage badges there are for a given stage
@@ -223,24 +67,24 @@ def calc_stage_badges(stage_num):
     w_stage -= num_10 * 10
     num_5 = w_stage // 5
     num_1 = w_stage - num_5 * 5
-    return StageBadges(num_1, num_5, num_10, num_20, num_30, num_50)
+    return ...
 
-def random_star () -> Star:
+def random_star ():
     x = random.randint(0, GAME_WIDTH)
     y = random.randint(0, GAME_HEIGHT)
     time_on, time_off = random.choice([(150, 140), (210, 200), (310, 300), (410, 300), (510, 300)])
     layer = random.randint(0, 1)
     if layer == 0:
-        # speed = 0.050
-        color = random.choice(RED, LIGHT_GREEN)
+        color = random.choice((RED, LIGHT_GREEN))
     elif layer == 1:
-        # speed = 0.075
-        color = random.choice(YELLOW, BLUE, WHITE)
-    return Star(x, y, color, layer, time_on, time_off, speed)
+        color = random.choice((YELLOW, BLUE, WHITE))
+    return Star(x, y, color, layer, time_on, time_off)
 
 def stars_init ():
-    game.stars_direction = 1
-    game.stars = [random_star() for _ in range(STAR_COUNT)]
+    global the_stars, the_stars_direction
+    random.seed(-404)
+    the_stars_direction = 1
+    the_stars = [random_star() for _ in range(STAR_COUNT)]
 
 def stars_update(delta_time: int):
     self.current_time += delta_time
@@ -254,28 +98,34 @@ def stars_update(delta_time: int):
             timer.current_time = 0
             timer.is_shown = True
 
-def show_star_p (star_layer, star_on, star_off):
+def show_star_p (star_on, star_off, time):
+    # TODO: implement blinking stars
     return True
 
-def star_calc_y (star_y, star_layer):
-    pass
+def layer_speed (star_layer):
+    return [71, 83][star_layer]
 
-def star_display (star):
-    if show_star_p(star.layer, star.time_on, star.time_off):
-        y = star_calc_y(star.y, star.layer)
-        game.screen.set_at((star.x, y), star.color)
+def star_y (star_y, star_layer, time):
+    change = (the_stars_direction * layer_speed(star_layer) * time // 1000) 
+    return (star_y + change) % GAME_HEIGHT
+
+def star_display (star, time):
+    if show_star_p(star.time_on, star.time_off, time):
+        y = star_y(star.y, star.layer, time)
+        the_screen.set_at((star.x, y), star.color)
 
 def stars_display ():
-    for star in game.stars:
-        star_display(star)
+    time = pygame.time.get_ticks()
+    for star in the_stars:
+        star_display(star, time)
 
 def poll_events ():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             #game.running = False
-            cleanup()
+            quit()
             return
-        give_event(event)
+        #give_event(event)
     return pygame.key.get_pressed()
 
 def load_graphics () -> dict:
@@ -304,32 +154,73 @@ def load_sounds () -> dict:
     game.sounds = effects
     return effects
 
-def create_font () -> dict:
-    y = FONT_ALPHABET_Y + FONT_CHAR_SIZE
-    font = dict()
-    # Add alphabet
-    for i, char in enumerate(ascii_lowercase):
-        font[char] = (i * FONT_CHAR_SIZE, FONT_ALPHABET_Y)
-    # Add digits
-    for i in range(10):
-        font[str(i)] = (i * FONT_CHAR_SIZE, y)
-    # Add other symbols
-    font['-']  = (10 * FONT_CHAR_SIZE, y)
-    font[' ']  = (11 * FONT_CHAR_SIZE, y)
-    font[None] = (12 * FONT_CHAR_SIZE, y)
-    font[':']  = (13 * FONT_CHAR_SIZE, y)
-    font['!']  = (14 * FONT_CHAR_SIZE, y)
-    font[',']  = (15 * FONT_CHAR_SIZE, y)
-    font['©']  = (16 * FONT_CHAR_SIZE, y)
-    font['.']  = (17 * FONT_CHAR_SIZE, y)
-    font['%']  = (18 * FONT_CHAR_SIZE, y)
-    return font
+def char_to_sprite (char) -> Rect:
+    # Note: this function relies on the specific details of the layout in the spritesheet!
+    char = char.lower()
+    charset = 'abcdefghijklmnopqrstuvwxyz0123456789 -:!,.%©?'
+    if char in charset:
+        i = charset.index(char)
+        x = 17 + i % 15
+        y = 0 + i // 15
+        return (x*8, y*8, 8, 8)
+    else:
+        return char_to_sprite('?')
+
+def text_sprite_create_char (char, x, y, color):
+    global the_sprites
+    sprite = GalagaSprite(x, y, FONT_CHAR_SIZE, FONT_CHAR_SIZE, 0, 0)
+    sprite.sprite = char_to_sprite(char)
+    the_sprites.append(sprite)
+
+def text_sprite_create (text, x, y, color):
+    x_offset = len(text) * FONT_CHAR_SIZE // 2
+    for i, char in enumerate(text):
+        text_sprite_create_char(char, x + i * FONT_CHAR_SIZE - x_offset, y, color)
 
 def set_video_centered ():
     os.environ['SDL_VIDEO_CENTERED'] = '1'
 
+def sprites_display ():
+    for s in the_sprites:
+        s.display()
+
+def display ():
+    the_screen.fill(BLACK)
+    stars_display()
+    sprites_display()
+    pygame.display.update()
+
+def display_init ():
+    global the_screen
+    set_video_centered()
+    pygame.init()
+    the_screen = pygame.display.set_mode((GAME_WIDTH, GAME_HEIGHT))
+    pygame.display.set_caption('GALAGA (Python)')
+
+def sprites_init ():
+    global the_sprites
+    the_sprites = [] 
+    text_sprite_create('1UP', 30, 5, RED)
+    title_init()
+
+def spritesheet_init ():
+    global the_spritesheet
+    the_spritesheet = pygame.image.load('resources/spritesheet.png')
+
+def title_init ():
+    text_sprite_create('GALAGA © 1981', GAME_CENTER_X, 275, WHITE)
+    text_sprite_create('START', GAME_CENTER_X, 180, WHITE)
+
 def main ():
-    pass
+    display_init()
+    spritesheet_init()
+    stars_init()
+    sprites_init()
+    clock = pygame.time.Clock()
+    while True:
+        clock.tick(FPS)
+        poll_events()
+        display()
 
 if __name__ == '__main__':
     try:
