@@ -17,6 +17,8 @@ the_screen = None
 the_sprites = None
 the_spritesheet = None
 
+Star = namedtuple('Star', 'x y color layer time_on time_off')
+
 class GalagaSprite (pygame.sprite.Sprite):
     # A Galaga Sprite is different because it aligns the hitbox rect to its sprite rect center.
 
@@ -42,13 +44,13 @@ class GalagaSprite (pygame.sprite.Sprite):
             img = pygame.transform.flip(img, flip_horizontal, flip_vertical)
             # For text sprite coloring
             if self.replace_white:
-                pass
+                img2 = img
+                img = img2.copy()
+                pygame.transform.threshold(img, img2, WHITE, set_color=self.replace_white, inverse_set=True)
             # Center the image
             x = self.x - width // 2 + self.offset_x
             y = self.y - height // 2 + self.offset_y
             the_screen.blit(img, (x, y))
-
-Star = namedtuple('Star', 'x y color layer time_on time_off')
 
 def sprite(x: int, y: int, width: int, height: int) -> pygame.Surface:
     return the_spritesheet.subsurface((x, y, width, height))
@@ -158,18 +160,18 @@ def char_to_sprite (char) -> Rect:
     # Note: this function relies on the specific details of the layout in the spritesheet!
     char = char.lower()
     charset = 'abcdefghijklmnopqrstuvwxyz0123456789 -:!,.%©?'
-    if char in charset:
-        i = charset.index(char)
-        x = 17 + i % 15
-        y = 0 + i // 15
-        return (x*8, y*8, 8, 8)
-    else:
-        return char_to_sprite('?')
+    if char not in charset:
+        char = '?'
+    i = charset.index(char)
+    x = 17 + i % 15
+    y = 0 + i // 15
+    return (x*8, y*8, 8, 8)
 
 def text_sprite_create_char (char, x, y, color):
     global the_sprites
     sprite = GalagaSprite(x, y, FONT_CHAR_SIZE, FONT_CHAR_SIZE, 0, 0)
     sprite.sprite = char_to_sprite(char)
+    sprite.replace_white = color
     the_sprites.append(sprite)
 
 def text_sprite_create (text, x, y, color):
