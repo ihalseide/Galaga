@@ -210,6 +210,7 @@ def sprite_add (s):
 def spritesheet_init ():
     global the_spritesheet
     the_spritesheet = pygame.image.load('resources/spritesheet.png')
+    the_spritesheet.set_colorkey(BLACK)
 
 def title_init ():
     text_sprite_create('GALAGA © 1981', GAME_CENTER_X, GAME_HEIGHT - 20, WHITE)
