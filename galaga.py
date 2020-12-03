@@ -16,6 +16,7 @@ the_stars_direction = None
 the_screen = None
 the_sprites = None
 the_spritesheet = None
+the_sounds = None
 
 Star = namedtuple('Star', 'x y color layer time_on time_off')
 
@@ -130,31 +131,23 @@ def poll_events ():
         #give_event(event)
     return pygame.key.get_pressed()
 
-def load_graphics () -> dict:
-    graphics = {}
-    color_key = BLACK
-    for filename in os.listdir(GRAPHICS_DIR):
-        name, ext = os.path.splitext(filename)
-        if ext.lower() == '.png':
-            img = pygame.image.load(os.path.join(GRAPHICS_DIR, filename))
-            if img.get_alpha():
-                img = img.convert_alpha()
-            else:
-                img = img.convert()
-                img.set_colorkey(color_key)
-            graphics[name] = img
-    game.graphics = graphics
-    return graphics
-
 def load_sounds () -> dict:
-    effects = {}
-    accept=(".ogg", ".wav")
-    for filename in os.listdir(SOUNDS_DIR):
+    sfx = {}
+    accept = (".ogg", ".wav")
+    pygame.mixer.init()
+    directory = os.path.join('resources', SOUNDS_DIR)
+    for filename in os.listdir(directory):
         name, ext = os.path.splitext(filename)
         if ext.lower() in accept:
-            effects[name] = pygame.mixer.Sound(os.path.join(SOUNDS_DIR, filename))
-    game.sounds = effects
-    return effects
+            sfx[name] = pygame.mixer.Sound(os.path.join(directory, filename))
+    return sfx
+
+def get_sound (name):
+    global the_sounds
+    return the_sounds.get(name)
+
+def play_sound (name):
+    get_sound(name).play()
 
 def char_to_sprite (char) -> Rect:
     # Note: this function relies on the specific details of the layout in the spritesheet!
@@ -197,25 +190,40 @@ def display_init ():
     set_video_centered()
     pygame.init()
     the_screen = pygame.display.set_mode((GAME_WIDTH, GAME_HEIGHT))
-    pygame.display.set_caption('GALAGA (Python)')
+    pygame.display.set_caption('GALAGA')
+
+def hud_init ():
+    top = 20
+    text_sprite_create('1UP', 30, top, RED)
+    text_sprite_create('HI-SCORE', GAME_CENTER_X, top, RED)
 
 def sprites_init ():
     global the_sprites
     the_sprites = [] 
-    text_sprite_create('1UP', 30, 5, RED)
+    hud_init()
     title_init()
+
+def sprite_add (s):
+    global the_sprites
+    the_sprites.append(s)
 
 def spritesheet_init ():
     global the_spritesheet
     the_spritesheet = pygame.image.load('resources/spritesheet.png')
 
 def title_init ():
-    text_sprite_create('GALAGA © 1981', GAME_CENTER_X, 275, WHITE)
-    text_sprite_create('START', GAME_CENTER_X, 180, WHITE)
+    text_sprite_create('GALAGA © 1981', GAME_CENTER_X, GAME_HEIGHT - 20, WHITE)
+    text_sprite_create('START', GAME_CENTER_X, 200, WHITE)
+    sprite_add(GalagaSprite(GAME_CENTER_X, GAME_CENTER_Y, 0, 0, sprite=(0, 0, 134, 72)))
+
+def sound_init ():
+    global the_sounds
+    the_sounds = load_sounds()
 
 def main ():
     display_init()
     spritesheet_init()
+    sound_init()
     stars_init()
     sprites_init()
     clock = pygame.time.Clock()
