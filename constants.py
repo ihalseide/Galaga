@@ -1,7 +1,7 @@
 # Directories
 SOUNDS_DIR = 'audio'
-RESOURCE_DIR = "resources"
-SCORE_FILE = "scores.txt"
+RESOURCE_DIR = 'resources'
+SCORE_FILE = 'scores.txt'
 
 # Game state keys
 STATE_TITLE = 'title state'
@@ -11,7 +11,7 @@ STATE_SCORE_ENTRY = 'score entry state'
 STATE_GAME_OVER = 'game over state'
 
 # Sting messages for game over
-RESULT_TEXT = "- Results -"  # text is red
+RESULT_TEXT = '- Results -'  # text is red
 SHOTS_FIRED_TEXT = 'Shots Fired {: >12}'  # text is light blue
 NUM_HITS_TEXT = 'Number of Hits {: >9}'  # text is white
 HIT_MISS_RATIO = 'Hit-Miss ratio {: >10.1%}'  # text is yellow
@@ -29,7 +29,7 @@ EXPLOSION_ENEMY_FRAME = 120
 FPS = 30 # frames per second
 TEXT_FLASH_FREQ = 300
 PLAYER_FIRE_COOLDOWN = 400
-PLAYER_SPEED = 0.085
+PLAYER_SPEED = 0.85
 STAGE_DURATION = 1600
 READY_DURATION = 1600
 INTRO_MUSIC_DURATION = 6600
@@ -65,4 +65,4 @@ FONT_CHAR_SIZE = 8
 LINE_TEXT_HEIGHT = 16
 
 # Number of stars in the star field background
-STAR_COUNT = 64
+STAR_COUNT = 128
