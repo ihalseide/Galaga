@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys, pygame, math, os, time, random, traceback
+import sys, pygame, math, os, time, random
 from dataclasses import dataclass
 from collections import namedtuple
 from pygame.math import Vector2
@@ -17,6 +17,7 @@ the_screen = None
 the_sprites = None
 the_spritesheet = None
 the_sounds = None
+the_state = None
 
 Star = namedtuple('Star', 'x y color layer time_on time_off')
 
@@ -54,6 +55,7 @@ class GalagaSprite (pygame.sprite.Sprite):
             the_screen.blit(img, (x, y))
 
 def sprite(x: int, y: int, width: int, height: int) -> pygame.Surface:
+    # Get a sprite surface image from the spritesheet
     return the_spritesheet.subsurface((x, y, width, height))
 
 def calc_stage_badges(stage_num):
@@ -70,20 +72,30 @@ def calc_stage_badges(stage_num):
     w_stage -= num_10 * 10
     num_5 = w_stage // 5
     num_1 = w_stage - num_5 * 5
-    return ...
+    return (num_1, num_5, num_10, num_20, num_30, num_50)
 
-def random_star ():
+def random_star () -> Star:
+    # Create a random star
     x = random.randint(0, GAME_WIDTH)
     y = random.randint(0, GAME_HEIGHT)
-    time_on, time_off = random.choice([(150, 140), (210, 200), (310, 300), (410, 300), (510, 300)])
+    time_on, time_off = random.choice([
+        (150, 140),
+        (210, 200),
+        (310, 300),
+        (410, 300),
+        (510, 300)
+    ])
     layer = random.randint(0, 1)
+
     if layer == 0:
         color = random.choice((RED, LIGHT_GREEN))
     elif layer == 1:
         color = random.choice((YELLOW, BLUE, WHITE))
+
     return Star(x, y, color, layer, time_on, time_off)
 
 def stars_init ():
+    # Initialize the stars background
     global the_stars, the_stars_direction
     random.seed(-404)
     the_stars_direction = 1
@@ -102,11 +114,12 @@ def stars_update(delta_time: int):
             timer.is_shown = True
 
 def show_star_p (star_on, star_off, time):
-    # TODO: implement blinking stars
-    return True
+    # Whether a star is showing or not
+    return time % (star_on + star_off) < star_on
 
 def layer_speed (star_layer):
-    return [71, 83][star_layer]
+    speeds = [71, 83] 
+    return speeds[star_layer]
 
 def star_y (star_y, star_layer, time):
     change = (the_stars_direction * layer_speed(star_layer) * time // 1000) 
@@ -122,14 +135,48 @@ def stars_display ():
     for star in the_stars:
         star_display(star, time)
 
-def poll_events ():
+def start_play_state ():
+    global the_state, title_sprite, the_player_sprite
+    the_state = STATE_PLAY
+    sprites_init()
+    hud_init()
+    the_player_sprite = GalagaSprite(
+        x=GAME_WIDTH//2, y=GAME_HEIGHT-20, width=16, height=16,
+        sprite=(240, 128, 16, 16))
+    sprite_add(the_player_sprite)
+
+def play_tick (dt):
+    global the_player_sprite
+
+    print(dt)
+
+    shoot = False
+    left = False
+    right = False
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            #game.running = False
             quit()
-            return
-        #give_event(event)
-    return pygame.key.get_pressed()
+        if event.type == pygame.KEYDOWN:
+            k = event.key
+            if pygame.K_RIGHT == k:
+                right = True
+            elif pygame.K_LEFT == k:
+                left = True
+            else:
+                shoot = True
+
+    if left and not right:
+        the_player_sprite.x -= PLAYER_SPEED * dt
+    elif right and not left:
+        the_player_sprite.x += PLAYER_SPEED * dt
+
+    if shoot:
+        # Shoot a new missile sprite
+        m = GalagaSprite(
+            x=the_player_sprite.x, y=the_player_sprite.y - 8,
+            width=8, height=10,
+            sprite=(248, 24, 8, 8))
+        sprite_add(m)
 
 def load_sounds () -> dict:
     sfx = {}
@@ -201,7 +248,6 @@ def sprites_init ():
     global the_sprites
     the_sprites = [] 
     hud_init()
-    title_init()
 
 def sprite_add (s):
     global the_sprites
@@ -213,27 +259,53 @@ def spritesheet_init ():
     the_spritesheet.set_colorkey(BLACK)
 
 def title_init ():
+    global title_sprite
     text_sprite_create('GALAGA © 1981', GAME_CENTER_X, GAME_HEIGHT - 20, WHITE)
     text_sprite_create('START', GAME_CENTER_X, 200, WHITE)
-    sprite_add(GalagaSprite(GAME_CENTER_X, GAME_CENTER_Y, 0, 0, sprite=(0, 0, 134, 72)))
+    title_sprite = GalagaSprite(GAME_CENTER_X, GAME_CENTER_Y, 0, 0, sprite=(0, 0, 134, 72))
+    sprite_add(title_sprite)
 
 def sound_init ():
     global the_sounds
     the_sounds = load_sounds()
 
-def main ():
+def tick (dt): # dt: delta time
+    global the_state
+    if the_state == STATE_TITLE:
+        for event in pygame.event.get():
+            if pygame.KEYDOWN == event.type:
+                start_play_state()
+                break
+    elif the_state == STATE_PLAY:
+        play_tick(dt)
+
+def init ():
+    global the_state
+
+    # 1st time init
     display_init()
     spritesheet_init()
     sound_init()
     stars_init()
+
     sprites_init()
+
+    # Start in the game title
+    the_state = STATE_TITLE
+    title_init()
+
+def main ():
+    init()
     clock = pygame.time.Clock()
     while True:
-        clock.tick(FPS)
-        poll_events()
+        if pygame.event.get(pygame.QUIT):
+            break
+        dt = clock.tick(FPS)
+        tick(dt)
         display()
 
 if __name__ == '__main__':
+    import traceback
     try:
         main()
     except:
