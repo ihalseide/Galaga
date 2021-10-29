@@ -1,4 +1,7 @@
 # Galaga
+
+Note: this project is not complete and is still in progress!
+
 A clone of the arcade game Galaga written in Python with the Pygame library. 
 Much inspiration for organization of code was taken from this repo: <https://github.com/Hyungmook/MarioLevel1>.
 
