@@ -7,9 +7,6 @@ Much inspiration for organization of code was taken from this repo: <https://git
 
 The github repo is at [github.com/ihalseide/Galaga](https://github.com/ihalseide/Galaga).
 
-# Note:
-Progress on Galaga is paused right now because of the huge amount of work it would take to put in all of the levels. There are 256 levels.
-
 ## How to run
 Use Python to run the galaga.py file in the top-level directory.
 
