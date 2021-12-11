@@ -111,16 +111,6 @@ def close_to_2d(x1, y1, x2, y2, max_distance=0.001):
     return distance(x1, y1, x2, y2) <= max_distance
 
 
-def snap_angle(angle) -> int:
-    """
-    Return the nearest discrete 8-value angle to a continuous radian angle
-    :param angle: input angle in radians
-    :return:
-    """
-    # TODO: implement
-    return angle // 8
-
-
 def clamp_value(n, minimum, maximum):
     """
     Clamp a value between a min and max
@@ -159,18 +149,6 @@ def irange_2d(start_x, start_y, end_x, end_y):
         yield x, y
 
 
-def arc_length(start_angle, end_angle, radius):
-    """
-    Takes angles in radians
-    :param start_angle:
-    :param end_angle:
-    :param radius:
-    :return:
-    """
-    theta = abs(end_angle - start_angle)
-    return theta * radius
-
-
 def calc_stage_badges(stage_num):
     """
     Calculate how many of each stage badges there are for a given stage
@@ -192,32 +170,6 @@ def calc_stage_badges(stage_num):
     num_1 = w_stage - num_5 * 5
 
     return c.StageBadges(num_1, num_5, num_10, num_20, num_30, num_50)
-
-
-def update_wrapper_ms(func, argument_name="delta_time"):
-    """
-    Wrapper to make a function keep track of the time elapsed since it's last call.
-    Time is tracked in milliseconds
-    """
-
-    last_call_time = None
-
-    @wraps(func)
-    def func_wrapper(*args, **kwargs):
-        nonlocal last_call_time
-
-        now = time.perf_counter_ns()
-        if last_call_time is None:
-            elapsed = 0
-        else:
-            elapsed = now - last_call_time
-        last_call_time = now
-        elapsed_millis = elapsed // 1_000_000
-
-        kwargs[argument_name] = elapsed_millis
-        return func(*args, **kwargs)
-
-    return func_wrapper
 
 
 def calc_formation(time):
@@ -251,3 +203,4 @@ def calc_formation_pos(formation_x, formation_y, formation_spread, formation_x_o
 
 def time_millis():
     return time.perf_counter_ns() // 1_000_000
+

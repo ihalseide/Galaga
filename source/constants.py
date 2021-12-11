@@ -1,12 +1,7 @@
-"""
-Constants for the rest of the game - no importing from other game code allowed here!
-"""
-
+# Constants for the rest of the game - no importing from other game code allowed here!
 from collections import namedtuple
 
-# Named tuples for convenient member access
-
-# Class for persistent data shared between states
+# persistent data shared between states
 Persist = namedtuple("Persist", "stars scores current_score one_up_score high_score num_shots num_hits stage_num")
 
 # Point tuple
@@ -84,3 +79,4 @@ FORMATION_MIN_SPREAD = 4
 FORMATION_MAX_SPREAD = 8
 FORMATION_MAX_X = 16
 FORMATION_CYCLE_TIME = 8000 # millis
+

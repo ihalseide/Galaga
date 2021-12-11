@@ -1,11 +1,7 @@
-# sprites.py
-# Author: Izak Halseide
-
 from .tools import time_millis
 import pygame
 from . import constants as c, tools
 from .constants import Rectangle
-from .enemy_paths import EnemyPath
 from .tools import grab_sheet
 
 
@@ -78,124 +74,22 @@ class Player(GalagaSprite):
 
 class Enemy(GalagaSprite):
 
-    def __init__(self, x, y, width, height, can_be_in_formation, formation_x=None, formation_y=None, path=None,
-                 wave_number=None, number_in_wave=None, is_visible=False):
-        super(Enemy, self).__init__(x, y, width, height)
-        self.can_be_in_formation = can_be_in_formation
-        self.is_in_formation = True#False
-        self.formation_x = formation_x
-        self.formation_y = formation_y
-        self.wave_number = wave_number
-        self.number_in_wave = number_in_wave
-        self.path = path
-        self.is_visible = is_visible
+    FRAMES = {
+            'test': [(96, 32, 16, 16)],
+            }
+
+    def __init__(self, x, y, enemy_type):
+        super(Enemy, self).__init__(x, y, 16, 16)
+        self.enemy_type = enemy_type
+
+    def get_frame (self):
+        return 0
 
     def display(self, surface: pygame.Surface):
-        super(Enemy, self).display(surface)
-        pygame.draw.rect(surface, (255, 255, 255), self.rect, 1)
-
-    def update(self, delta_time: int, flash_flag: bool):
-        if self.is_in_formation:
-            self.go_to_formation()
-
-    def go_to_formation(self):
-        if self.formation_x is None or self.formation_y is None:
-            return
-        self.x, self.y = tools.calc_formation_pos_from_time(self.formation_x, self.formation_y, time_millis())
-
-
-class Bee(Enemy):
-    """
-    Normal enemy
-    """
-
-    FRAMES = [Rectangle(128, 32, 16, 16), Rectangle(144, 32, 16, 16), Rectangle(160, 32, 16, 16),
-              Rectangle(176, 32, 16, 16), Rectangle(192, 32, 16, 16), Rectangle(208, 32, 16, 16),
-              Rectangle(224, 32, 16, 16), Rectangle(240, 32, 16, 16)]
-
-    def __init__(self, x: int, y: int, formation_x: int, formation_y: int, path: EnemyPath = None):
-        super(Bee, self).__init__(x, y, 16, 16,
-                                  can_be_in_formation=True, formation_x=formation_x, formation_y=formation_y, path=path)
-        self.image = grab_sheet(224, 32, 16, 16)
-        self.frame_num = 7
-        self.angle = 0
-        self.is_visible = True
-
-    def display(self, surface: pygame.Surface):
-        x, y, w, h = self.FRAMES[self.frame_num]
+        frame_num = get_frame()
+        x, y, w, h = self.FRAMES[self.enemy_type][frame_num]
         self.image = grab_sheet(x, y, w, h)
-        super(Bee, self).display(surface)
-
-    def update(self, delta_time: int, flash_flag: bool):
-        x, y, angle = self.path.update(delta_time, self.x, self.y, self.angle)
-        self.x, self.y, self.angle = x, y, angle
-
-        if flash_flag:
-            self.frame_num = 6
-        else:
-            self.frame_num = 7
-        if self.path is not None:
-            # Not using the angle right now
-            self.x, self.y, _ = self.path.update(delta_time, self.x, self.y, self.angle)
-
-
-class Butterfly(Enemy):
-    """
-    Normal enemy
-    """
-
-    FRAMES = [Rectangle(0, 32, 16, 16), Rectangle(16, 32, 16, 16), Rectangle(32, 32, 16, 16), Rectangle(48, 32, 16, 16),
-              Rectangle(64, 32, 16, 16), Rectangle(80, 32, 16, 16), Rectangle(96, 32, 16, 16),
-              Rectangle(112, 32, 16, 16)]
-
-    def __init__(self, x: int, y: int, formation_x: int, formation_y: int, path: EnemyPath = None):
-        super(Butterfly, self).__init__(x, y, 16, 16,
-                                        can_be_in_formation=True,
-                                        formation_x=formation_x, formation_y=formation_y, path=path)
-        self.image = grab_sheet(224, 32, 16, 16)
-        self.frame_num = 7
-
-    def update(self, delta_time: int, flash_flag: bool):
-        super(Butterfly, self).update(delta_time, flash_flag)
-        if flash_flag:
-            self.frame_num = 6
-        else:
-            self.frame_num = 7
-        self.image = grab_sheet(*self.FRAMES[self.frame_num])
-
-
-class Purple(Enemy):
-    """
-    The enemy that tries to capture the player's fighter
-    """
-
-    FRAMES = [Rectangle(224, 16, 16, 16), Rectangle(240, 16, 16, 16)]
-
-    def __init__(self, x: int, y: int, formation_x: int, formation_y: int, path: EnemyPath = None):
-        super(Purple, self).__init__(x, y, 16, 16,
-                                     can_be_in_formation=True,
-                                     formation_x=formation_x, formation_y=formation_y, path=path)
-        self.image = grab_sheet(128, 16, 16, 16)
-        self.frame_num = 0
-
-    def update(self, delta_time: int, flash_flag: bool):
-        super(Purple, self).update(delta_time, flash_flag)
-        if flash_flag:
-            self.frame_num = 0
-        else:
-            self.frame_num = 1
-        rect = self.FRAMES[self.frame_num]
-        self.image = grab_sheet(x=rect.x, y=rect.y, width=rect.width, height=rect.height)
-
-
-class Trumpet(Enemy):
-    """
-    The enemy that spawns after a kill streak
-    """
-
-    def __init__(self, x: int, y: int, path: EnemyPath = None):
-        super(Trumpet, self).__init__(x, y, 16, 16, can_be_in_formation=False, path=path, is_visible=True)
-        self.image = grab_sheet(0, 64, 16, 16)
+        super(Enemy, self).display(surface)
 
 
 class Missile(GalagaSprite):

@@ -69,6 +69,7 @@ def load_font() -> dict:
     # add digits
     for i in range(10):
         font[str(i)] = (i * FONT_CHAR_SIZE, row_2_y)
+    # add specific chars
     font['-'] = (10 * FONT_CHAR_SIZE, row_2_y)
     font[' '] = (11 * FONT_CHAR_SIZE, row_2_y)
     font[None] = (12 * FONT_CHAR_SIZE, row_2_y)

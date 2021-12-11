@@ -3,7 +3,7 @@
 
 import pygame
 from pygame.math import Vector2
-from . import constants as c, tools, stages, setup, hud, scoring, sprites
+from . import constants as c, tools, setup, hud, scoring, sprites
 from .setup import play_sound, stop_sounds
 from .stars import StarField
 from .tools import calc_stage_badges, draw_text
@@ -115,9 +115,8 @@ class Play(State):
         self.formation_spread: int = 0
         self.formation_x_offset: int = 0
         self.formation_y_offset = c.STAGE_TOP_Y + 16
-        self.the_stage: stages.Stage = stages.load_stage(1)  # pre-load stage 1
+        self.the_stage = None
         self.enemies: pygame.sprite.Group = pygame.sprite.Group()
-        self.enemies.add(self.the_stage.enemies)
 
         # timers:
         self.blocking_timer = 0  # this timer is for timing how long to show messages on screen
@@ -163,6 +162,8 @@ class Play(State):
                     self.done_with_ready()
                     self.done_showing_stage()
                     stop_sounds()
+                else:
+                    quit()
 
             elif keypress == pygame.K_r:
                 # TODO: (DEBUG) reset the state when [R] is pressed
@@ -337,10 +338,7 @@ class Play(State):
     def next_stage(self):
         self.stage_num += 1
 
-        # This check is made because stage #1 is pre-loaded:
-        if not self.the_stage.stage_num == self.stage_num:
-            self.the_stage = stages.load_stage(self.stage_num)
-            self.enemies.add(self.the_stage.enemies)
+        # TODO: add enemies
 
         self.update_stage_badges()
         self.start_animating_stage_badges()
