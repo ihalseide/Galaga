@@ -1,11 +1,11 @@
 # Galaga
+
+Note: this project is not complete and is still in progress!
+
 A clone of the arcade game Galaga written in Python with the Pygame library. 
 Much inspiration for organization of code was taken from this repo: <https://github.com/Hyungmook/MarioLevel1>.
 
 The github repo is at [github.com/ihalseide/Galaga](https://github.com/ihalseide/Galaga).
-
-# Note:
-Progress on Galaga is paused right now because of the huge amount of work it would take to put in all of the levels. There are 256 levels.
 
 ## How to run
 Use Python to run the galaga.py file in the top-level directory.
