@@ -406,14 +406,15 @@ class Play(State):
             draw_mid_text(screen, c.GAME_OVER_TEXT, c.RED)
 
     def update_player(self, dt, keys):
+        e = 3
         if self.player and self.is_player_alive:
             if self.can_control_player:
                 self.player.update(dt, keys)
 
             if self.player.rect.left < STAGE_BOUNDS.left:
                 self.player.rect.left = STAGE_BOUNDS.left
-            elif self.player.rect.right > STAGE_BOUNDS.right:
-                self.player.rect.right = STAGE_BOUNDS.right
+            elif self.player.rect.right > STAGE_BOUNDS.right - e:
+                self.player.rect.right = STAGE_BOUNDS.right - e
 
     def update_text_sprites(self, delta_time):
         # update score text things

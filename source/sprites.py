@@ -60,7 +60,7 @@ class GalagaSprite(pygame.sprite.Sprite):
 class Player(GalagaSprite):
 
     def __init__(self, x, y):
-        super(Player, self).__init__(x, y, 13, 12)
+        super(Player, self).__init__(x, y, 14, 12)
         self.image = grab_sheet(6 * 16, 0 * 16, 16, 16)
         self.image_offset_x = 1
 
