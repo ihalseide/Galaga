@@ -3,7 +3,8 @@
 
 import pygame
 from . import constants as c
-from .states import GameOver, Demo, Play, Title, ScoreEntry, State
+from .states import GameOver, Demo, Title, ScoreEntry, State
+from .play import Play
 
 
 class Control(object):
