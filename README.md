@@ -5,6 +5,10 @@ Much inspiration for organization of code was taken from this repo: <https://git
 This project is not complete and is still in progress!
 The current goal is to implement the first 3 stages.
 
+## Note
+
+I do not want to work on this project anymore, but if you want to contribute, feel free to! I will respond to any pull requests.
+
 ## How to run
 
 Run `python galaga.py` in terminal after you make sure all the dependencies for Python are met.
